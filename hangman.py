@@ -1,5 +1,5 @@
 import random
-#extract a random word from a text file
+# Extract a random word from my text file
 
 # This method reads all the words in the game from a file and randomly picks a word
 def word_selected(fname):
@@ -10,7 +10,7 @@ def word_selected(fname):
 
 secret_word = word_selected('hangman.txt')
 
-#Display randomly chosen word in dash:
+# Display randomly chosen word in dash:
 def word_selected_dashed():
     word_selected_dashed = []
     for i in range(len(secret_word)):
@@ -26,7 +26,7 @@ guessed_word = list(word_selected_dashed)
 
 while guesses > 0:
     if ''.join(guessed_word) == secret_word:
-        print("Congraluation, you have guessed the correct word")
+        print("Congratulations, winner winner shrimp dinner")
         break
 
     print('you have got '+ str(guesses)+ ' wrong tries ')
@@ -34,16 +34,15 @@ while guesses > 0:
 
 
     if user_guessed_letter in secret_word:
-        print('Correct!')
+        print('Correcto Mr. Bolobo!')
         for i in range(len(secret_word)):
             if list(secret_word)[i] == user_guessed_letter:
                 guessed_word[i] = user_guessed_letter
         print(''.join(guessed_word))
 
     elif user_guessed_letter not in secret_word:
-        print('wrong!')
+        print('GGs wrong!')
         guesses -= 1
-        #hang = display_hangman(tries=(6-trials))
-        #print(hang)
+       
 if guesses == 0 :
-    print('you have ran out of guesses')
+    print('you thought, you have ran out of guesses')
