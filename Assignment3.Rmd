@@ -1,0 +1,500 @@
+---
+title: "36-315 Homework 3, Fall 2025"
+author: "Rishi Damarla"
+date: "Due Wednesday, Sep. 24, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+## Visualizations and Inference for 2D Categorical Data
+
+
+***
+***
+
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.  Each answer must be supported by written statements (unless otherwise specified).  **Thus, even if you think your code output is self-explanatory, be sure to answer questions with written statements outside of code blocks.**
+
++ For your homework submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-hw01.Rmd -- e.g. "fsk-315-hw01.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own.  Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism.  In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
+
+***
+***
+
+
+#  Problem 1: Data Manipulation and The Many Ways To Create 1D and 2D Bar Charts [37 pts]
+
+This problem uses the IMDb ratings data from Lab 2.  The following code reads in the data and creates several new variables.  (This same code was used in Lab 2.)
+
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+
+# reads Matey's IMDb rated movies TV Series, etc.
+mateys_imdb <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/imdb_ratings.csv")
+
+# filters only Featured Films
+mateys_movies <- mateys_imdb %>% 
+  filter(Title.type == "Feature Film")
+
+# NOTE: If, upon running this code chunk, you are encountering the issue where 
+#       as.Date() leads to NA values for vote_date, day_of_week, and weekend, 
+#       then include the following line of code by uncommenting it:
+# Sys.setlocale("LC_TIME", "C")
+mateys_movies <- mateys_movies %>%
+  mutate(vote_date = as.Date(mateys_movies$created, 
+                             format = "%a %b %d %H:%M:%S %Y"),
+         day_of_week = weekdays(vote_date),
+         weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), 
+                          "Weekend", "Workday"),
+         duration = cut(Runtime..mins., c(0, 90, 120, Inf), 
+                        labels = c("Short", "Medium", "Long")),
+         ratings = cut(You.rated, c(0, 4, 7, Inf), 
+                       labels = c("Low", "Med", "High")),
+         movie_period = cut(Year, c(0, 1980, 2000, 2018),
+                            labels = c("Old", "Recent", "New")))
+```
+
+
+__1(a) [3 pts]__ In the above code we used the `mutate()` function to create several new columns in the `mateys_movies` dataset.  In a similar vein, write code here that creates two new columns:
+
++ `popular`: "Popular" if the number of votes (`Num..Votes`) received by the movie is greater than average (i.e., greater the mean `Num..Votes`), and "Not Popular" otherwise.
++ `wednesday`: "Yes" if Matey voted on Wednesday, and "No" otherwise. 
+
+*Hint*: look at the function `ifelse` (similar to what you had to do in Lab 1).
+
+```{r}
+mateys_movies <- mateys_movies %>%
+  mutate(popular   = ifelse(Num..Votes > mean(Num..Votes, na.rm = TRUE), "Popular", "Not Popular"), wednesday = ifelse(day_of_week == "Wednesday", "Yes", "No"))
+
+```
+
+
+__1(b) [3 pts]__ We could create a bar plot of `day_of_week` using the standard approach with `ggplot() + geom_bar()`; however, with large datasets like this one, it can take a little time to do the calculations necessary to create the bar chart.  This is because `geom_bar()` tabulates the counts in each category when the line of code is run.  For large datasets, it's better to store the counts ahead of time and then reference these when creating the bar plot, as we did in Lab 2 with `duration_marginal`.
+
+Here, create a bar plot showing the distribution of `day_of_week` (on the count scale), but calculate the marginal distribution ahead of time (i.e., use an approach similar to Lab 2, but on the **count** scale instead of the percentage scale).
+
+```{r}
+dow_marginal <- mateys_movies %>% count(day_of_week, name = "count")
+
+ggplot(dow_marginal, aes(x = day_of_week, y = count)) +
+  geom_col(fill = "blue", color = "black") +
+  labs(title = "Movies by Day of Week", x = "Day of Week", y = "Number of Movies")
+
+```
+
+
+__1(c) [3 pts]__ The same computational issues discussed in part __(b)__ apply to 2D bar plots too, but first, build a stacked bar chart of `day_of_week` (x-axis) and `popular` (fill), in the standard way (using `... + geom_bar()`). 
+
+```{r}
+ggplot(mateys_movies, aes(x = day_of_week, fill = popular)) +
+  geom_bar()
+
+```
+
+
+__1(d) [3 pts]__ Next, use the following approach to build the same graph (all you have to do is uncomment the code and add titles/labels):
+
+```{r, warning = FALSE, message = FALSE}
+days_popular <- mateys_movies %>%
+  group_by(day_of_week, popular) %>%
+  summarize(count = n(), .groups = "drop")
+
+ggplot(days_popular, aes(x = day_of_week, y = count, fill = popular)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Movies by Day of Week and Popularity",
+       x = "Day of Week", y = "Number of Movies", fill = "Popularity")
+```
+
+Compare the above code to the code you wrote in part __(c)__.  Answer the following questions:
+
++ Why do we use `stat = "identity"` in the above code?
++ What is the default `stat` in `geom_bar()` (i.e., what is used by default in part __(c)__)?
+
+**[We use stat = "identity" because we already computed counts in days_popular, geom_bar(stat = "identity"), tells ggplot to use given y-values and not recount it. The default stat in geombar is stat = count, it computes the counts of rows for each x level instantly.]**
+
+
+__1(e) [3 pts]__ As we discussed in class, another way to visualize two categorical variables is with a side-by-side bar chart.  For this part, create a side-by-side bar plot of `day_of_week` by copying-and-pasting your part __(c)__ or part __(d)__ code (either is fine) and adding `position = "dodge"` in `geom_bar()`.
+
+```{r}
+ggplot(mateys_movies, aes(x = day_of_week, fill = popular)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Movies by Day of Week and Popularity",
+       x = "Day of Week", y = "Number of Movies", fill = "Popular")
+```
+
+
+__1(f) [3 pts]__ Another way to visualize two categorical variables is with a "proportional" bar plot.  For this part, create a proportional bar plot by copying-and-pasting your part __(e)__ code, and then change `position = "dodge"` (which places the bars side-by-side) to `position = "fill"` (which will fix the heights of the bars to all be 1, and fill them proportionally according to the second variable).  Be sure to change your y-axis label to something appropriate.
+
+```{r}
+ggplot(mateys_movies, aes(x = day_of_week, fill = popular)) +
+  geom_bar(position = "fill") +
+  labs(title = "Popularity by Day of Week (Proportions)",
+       x = "Day of Week", y = "Proportion", fill = "Popular")
+```
+
+
+__1(g) [3 pts]__ Although it's not necessarily the case here, sometimes it can be difficult to read the category names on the x-axis if they are long and overlap.  In these cases, it can be helpful to rotate the x-axis labels.  Search the Internet for an approach for rotating the x-axis labels in `ggplot()`.  Pick one of the graphs in part __(c)__, __(d)__, __(e)__, or __(f)__, and rotate the labels in the graph by __45__ degrees.  Include the code and graph for that new plot here.
+
+```{r}
+ggplot(mateys_movies, aes(x = day_of_week, fill = popular)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Popularity by Day of Week",
+       x = "Day of Week", y = "Number of Movies", fill = "Popular") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+__1(h) [12 pts]__  In the above, we have gone through different ways to visualize two categorical variables: `day_of_week` and `popular`.  Consider four different distributions:
+
++ The marginal distribution of `day_of_week`. 
+
+**[The best graph is part d to display the distribution, the stacked counts because the total bar height is the count for each day so the marginal is read directly. Sunday and Monday have the most movies rated because they have the tallest bars, saturday is next, thursday is smaller, and tuesday/wednesday are the lowest, while friday is also fairly low.]**
+
++ The marginal distribution of `popular`. 
+
+**[the best graph is part d to display the distribution, the stacked counts because the red vs. blue mass across the stacks makes the overall totals more clear. Not popular dominates significantly mostly and overall, the red segments are much greater than the blue segments for every day, so the total count of not popular films is significantly larger than popular]**
+
++ The conditional distribution of `popular` given `day_of_week`.
+
+**[The best graph is part f to display the distribution, the proportional bars, each bar is scaled to 1, so the distribution within each day shows the conditional proportions, the popular movies share is highest on thursday, and also fairly high on saturday, moderate on monday, it is lowest on wednesday and tuesday, sunday and friday are kind of avg. in between]**
+
++ The conditional distribution of `day_of_week` given `popular`.
+
+**[The best graph is part e to display the distribution, because it compares the heights within each color and shows how days distribute within each popularity group, within popular the most ratings happen on monday and saturday, then sunday and thursday are next, while tuesday, wednesday, and friday are significantly lower, and within not popular sunday is highest then monday, and saturday is in the middle while tuesday, wednesday, and friday, and thursday are lower]**
+
+For each of the four distributions, do the following two things:
+
+1) Write whether you think the graph from part __(d)__, __(e)__ or __(f)__ is the best graph to display that distribution, with a one-sentence explanation as to why.
+
+2) Using the graph you picked, describe the distribution in 1-3 sentences.
+
+**In your answer for this question, just keep the above bulleted list, and put your answer (graph, explanation, and description) beneath each bullet.** 
+
+
+__1(i) [4 pts]__ Now, write out (in numbers) the conditional distribution of `day_of_week` given `popular`, i.e., the distribution of `day_of_week` for each value of `popular`.  In your answer, please include the code you used to figure this out.  A few hints for this question:
+
++ If I asked you to write out the marginal distribution of `day_of_week`, you would report back 7 proportions that add up to 1 (corresponding to the estimated probabilities of a movie rating being on each day of the week).
++ The conditional distribution I'm asking for is a function of `popular`, which is a binary variable.  In other words, your answer should communicate something like, "If a movie is popular, then the distribution of `day_of_week` is" followed by 7 proportions that add up to 1.  Similarly, you should communicate what the proportions are when the movie is not popular.  (Thus, your final answer should have 2 sets of 7 proportions; you only need to include these 2 sets of 7 proportions in your answer.)
++ The `subset()` function might be helpful here; this function takes in a dataset and returns the subset of the dataset that fulfills certain criteria (e.g., a dataset only containing movies that are popular).  See the `subset()` function's help documentation for details.  Alternatively, you can also use the `prop.table()` function.
+
+```{r}
+tab <- table(mateys_movies$day_of_week, mateys_movies$popular)
+prop.table(tab, margin = 2)
+```
+
+**[If a movie is Popular then the distribution of day_of_week is Monday 0.258, Tuesday 0.070, Wednesday 0.055, Thursday 0.152, Friday 0.063, Saturday 0.227, Sunday 0.176. If a movie is Not Popular then the distribution of day_of_week is Monday 0.204, Tuesday 0.108, Wednesday 0.106, Thursday 0.085, Friday 0.089, Saturday 0.139, Sunday 0.268.]**
+
+
+***
+***
+
+
+#  Problem 2: A Mosaic of Songs [37 pts]
+
+In this problem, we will work with the Guardian's list of [1000 Songs to Hear Before You Die.](https://www.theguardian.com/news/datablog/2009/mar/20/1), as briefly mentioned in class.  The data is available [here](https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/1000songs.csv)
+
+
+__2(a) [3 pts]__ Write `R` code to read in the data from the link above; define the dataset as `songs`.  (If you're unsure how to do this, go back to any of the previous labs or assignments to see how I read in data using a URL.)  How many rows does the dataset have, and what are the names of the variables?  For this part, you just need to write code that answers these questions; you don't need to write anything outside of your code for this part.
+
+(*Note*: Technically, this is *not* the list of all 1000 songs to hear before you die---I'm not sure where some of the songs went in the Guardian's data.)
+
+```{r}
+songs <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/1000songs.csv")
+nrow(songs)
+names(songs)
+```
+
+
+__2(b) [2 pts]__ Now we're going to recreate the mosaic plot on the [Wikipedia page for mosaic plots](https://en.wikipedia.org/wiki/Mosaic_plot) (which was also made in the class slides).  This plot involves *decades*, rather than individual years.  In other words, we need to categorize the `YEAR` variable into `decades`.
+
+The `YEAR` variable denotes individual years (e.g., 1955, 2006, etc.)  Thus, it is a quantitative variable.  However, if you type `class(songs$YEAR)` in the `R` console, you should find that `R` has classified this variable as a `"factor"` or `"character"` (which is not the typical class for a quantitative variable).  Why has `R` given `YEAR` this unintuitive class?
+
+(*Hint*: in the Console, inspecting the `YEAR` variable should give you an idea of what's happening.)
+
+**[this is because the column is not pure numbers, and there are also non numeric entries, read.csv keeps the whole column as text, because at least one value cant be interpreted as a number ]**
+
+
+__2(c) [6 pts]__ Uncomment the code below to fix the issue discussed in part __(b)__:
+
+```{r}
+songs$YEAR = as.numeric(gsub(",","",songs$YEAR))
+```
+
+Then, use the following code to define the `decade` variable and convert it to a `factor`:
+
+```{r}
+songs$decade = ifelse( songs$YEAR <= 1959, "1910s-50s",
+ifelse( songs$YEAR <= 1969, "1960s",
+ ifelse( songs$YEAR <= 1979, "1970s",
+ ifelse(songs$YEAR <= 1989, "1980s",
+	ifelse(songs$YEAR <= 1999, "1990s", "2000s")))) )
+ songs$decade = as.factor(songs$decade)
+```
+
+After you've done this, answer the following questions:
+
++ Does it seem like any given song in this dataset is equally likely to come from each decade?  (Here, 1910-1950s is treated as if it is "one" decade.)  Answer this question using a statistical test.
+
+```{r}
+chisq.test(table(songs$decade))
+
+```
+
+**[No, the chi sq test gave X^2 = 181, df = 5, and p-value < 2.2e-16, so we reject null hypothesis that songs are equally likely from each decade because p-value < 0.05, the distribution is very non uniform the 1960s - 1970s are overrepresented and the early and late decades are underrepresented]**
+
++ After you've answered the previous sub-part: are you surprised by what you found from the statistical test you just used, given the context of how this dataset was created?  State "Yes, I am surprised" or "No, I am not surprised," followed by a 1-2 sentence explanation as to why.  In your answer, please also provide one piece of graphical or non-graphical EDA that supports why you are or are not surprised.  (*Hint*: this list was compiled by writers at The Guardian---a British newspaper---in 2009.  So, this list consists of songs that writers at The Guardian thought were "the best" in 2009.)
+
+```{r}
+ggplot(songs, aes(x = decade)) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Guardian '1000 Songs' by Decade", x = "Decade", y = "Count")
+
+```
+
+**[No, I'm not surprised. Since Guardian critics assembled the list in 2009, it represents historic periods, particularly the 1960s and 1970s, rather than a uniform distribution across decades. According to the X^2 test (p < 2.2e−16), the bar chart above indicates that the 1960s and 1970s are most prevalent while the 1910s, 1950s, and 2000s are significantly smaller.]**
+
+
+__2(d) [10 pts]__ Make two mosaic plots.  For each plot, put `decade` as the column and `THEME` as the row.  For the first plot, color the mosaic plot according to `THEME` (i.e., decades with the same theme should have the same color).  For the second plot, color the mosaic plot according to Pearson residuals.  No need to interpret the graphs (we did that in class).  Instead, answer this question: from the mosaic plots, are you able to easily assess the marginal distribution of `decade` or of `THEME`?  If you say `decade`, create *another* plot (not a mosaic plot) that shows the marginal distribution of `THEME`.  If you say `THEME`, create *another* plot (not a mosaic plot) that shows the marginal distribution of `decade`.
+
+```{r}
+mosaicplot(table(songs$THEME, songs$decade),
+           main = "THEME by Decade (colored by theme)",
+           xlab = "Decade", ylab = "Theme",
+           col = rainbow(nrow(table(songs$THEME, songs$decade))))
+
+mosaicplot(table(songs$THEME, songs$decade),
+           main = "THEME by Decade (Pearson residuals)",
+           xlab = "Decade", ylab = "Theme", shade = TRUE)
+
+ggplot(as.data.frame(tabulate(factor(songs$THEME))), aes(x = factor(names(table(songs$THEME))), y = as.vector(table(songs$THEME)))) + geom_col(fill = "blue", color = "black") + labs(title = "Marginal distribution of THEME", x = "Theme", y = "Count")
+
+```
+
+**[From the mosaic plots, its easy to to assess the marginal distribution of decade, because the column widths in the mosaic plots correspond to the number of songs in each decade. The widest decade is the 1960s and 1970s, while the narrowest decade is the 1910s and 1950s, it is simple to evaluate the marginal distribution of decades. I included a separate bar chart of THEME counts because it's difficult to read the marginal distribution of THEME from a mosaic plot.]**
+
+
+__2(e) [4 pts]__ Professor Spector comes up to you and makes two claims:
+
++ There is an equal proportion of songs from each theme on this list.
++ The decade of a song is independent of the theme of the song.
+
+State whether you agree or disagree with each of these claims using statistical evidence.  Please provide any code you used to run statistical tests.
+
+```{r}
+chisq.test(table(songs$THEME))    
+
+chisq.test(table(songs$THEME, songs$decade))
+
+```
+
+**[For the equal proportion across themes I agree, The goodness-of-fit X^2 test is not significant with X^2 = 4.72, df=6, p = 0.5804 > 0.05, so we fail to reject that themes are equally represented. For the decade independent of theme, I disagree. The X^2 test of independence is highly significant with X^2 = 143.21, df=30, p < 2.2e-15, so decade and theme are not independent and the mix of themes varies by decade.]**
+
+
+__2(f) [4 pts]__ Looking at one of your mosaic plots in part __(d)__, Professor Spector says, "It looks like songs before the 70s are more or less the same, and songs after the 70s are more or less the same, in terms of those songs' themes."  Let's assess that claim. 
+
+Use the following code to create two subsets of the data, `pre70sSongs` and `post70sSongs`.  For each of these datasets, create a mosaic plot of `decade` and `THEME` colored by Pearson residuals; be sure that your graphs are appropriately titled such that they denote pre-70s or post-70s.  For each graph, write a 1-2 sentence interpretation based on the colors from the Pearson residuals.
+
+```{r}
+
+pre70sIndex <- which(songs$decade == "1910s-50s" | songs$decade == "1960s")
+post70sIndex <- which(songs$decade == "1980s" | 
+                        songs$decade == "1990s" | 
+                         songs$decade == "2000s")
+
+pre70sSongs <- songs[pre70sIndex,]
+
+post70sSongs <- songs[post70sIndex,]
+
+pre70sSongs$decade <- droplevels(pre70sSongs$decade)
+post70sSongs$decade <- droplevels(post70sSongs$decade)
+```
+
+```{r}
+mosaicplot(table(pre70sSongs$THEME,  pre70sSongs$decade), main = "Theme by Decade — pre-70s", xlab = "Decade", ylab = "Theme", shade = TRUE)
+
+mosaicplot(table(post70sSongs$THEME, post70sSongs$decade), main = "Theme by Decade — post-70s", xlab = "Decade", ylab = "Theme", shade = TRUE)
+```
+
+**[For the pre-70s so the 1910s -50s vs. 1960s, The dark blue call has more songs with this theme than expected under independence for People and Places × 1960s. There aren't any significant differences elsewhere because the majority of other cells are nearly white so nearzero residuals. For the post 70s so 1980s, 1990s, and 2000s, the red cells for sex vs. 1990s/2000s have fewer songs than expected for those decades, The majority of other cells are white, 1980s Party songs appear to be overrepresented, though overall there aren't many deviations.]**
+
+
+__2(g) [4 pts]__ For the `pre70sSongs` and `post70sSongs` datasets in the previous part, run a chi-squared test for independence between `decade` and `THEME`.  (Don't worry about any warnings you may get from these tests.)  Interpret the results of each test in 1-2 sentences.
+
+```{r}
+pre_tab  <- table(pre70sSongs$THEME,  pre70sSongs$decade)
+post_tab <- table(post70sSongs$THEME, post70sSongs$decade)
+
+chisq.test(pre_tab)
+chisq.test(post_tab)
+
+
+```
+
+**[For the pre 70s, I reject independence because the X^2 = 13.225, df = 6, and p-value = 0.0396 < 0.05, so there is evidence that the distribution of themes vary between 1910s - 50s and 1960s. For the post - 70s, the X^2  = 23.003, df = 12, p-value = 0.0277, so I reject independence again because p-value < 0.05 so the themes aren't distributed equally across the 1980s, 1990s, and 2000s, themes change by decade ]**
+
+
+__2(h) [4 pts]__ Part __(f)__ should have your interpretations for the mosaic plots, and part __(g)__ should have your interpretation for the chi-squared tests.  Do any of your interpretations contradict each other?  If not, just say, "Nope, they don't contradict each other."  If they do, write a 1-3 sentence explanation of why the interpretations for the graphs and for the tests seem at odds with each other.
+
+**[The chi squared tests in g show that decade and theme arent independent due to the small p-values, while the mosaic plots in f show where the differences occur through pearson residual shading like pre-70s people and places, high, post 70s differences like 1990s, sex, and 2000s, politics. Overall, the plots and tests are reliable and consistent throughout.]**
+
+
+***
+***
+
+
+#  Problem 3: Trying to Find a Job with Many 2D Categorical Plots [23 pts]
+
+At this point we've gone through a handful of ways to display 2D categorical data.  In this problem, we'll focus on the Twitter Airline Sentiment dataset, which we used in Lab 3:
+
+```{r, warning = FALSE, message = FALSE}
+# Read in data
+airline_tweets <- read_csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/tweets.csv")
+
+# Some pre-processing to modify the airline dataset to include a start_date 
+# variable and a number of other columns for our use:
+airline_tweets <- airline_tweets %>%
+  # Use the separate function to create three columns from the tweet_created column:
+  separate(tweet_created, c("date", "time", "zone"), sep = " ") %>%
+  mutate(start_date = as.Date(date, format = "%Y-%m-%d"),
+         hour_of_day = as.integer(substr(time, 1, 2)),
+         am_or_pm = ifelse(hour_of_day < 12, "AM", "PM"),
+         day_of_week = weekdays(start_date),
+         weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), 
+                          "Weekend", "Weekday"),
+         tweet_length = ifelse(nchar(as.character(text)) > 100, "Long", "Short"))
+```
+
+
+__3(a) [12 pts]__ Consider the following types of graphs:
+
++  A side-by-side bar chart
+
+```{r}
+library(tidyverse)
+
+ggplot(airline_tweets, aes(x = airline, fill = airline_sentiment)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Airline tweets: sentiment by airline",
+       x = "Airline", y = "Number of tweets", fill = "Sentiment")
+
+```
+
+**[Since sentiment is the fill with position="dodge" and the airline is on the x-axis, the grouped bars make it easy to compare the conditional distribution of sentiment for each airline within rows. Although they are not as straightforward as in a stacked or mosaic plot, the marginal airline totals can be deduced from the overall height of each group.]**
+
++  A stacked bar chart
+
+```{r}
+ggplot(airline_tweets, aes(x = airline, fill = airline_sentiment)) +
+  geom_bar() +                        
+  labs(title = "Sentiment by airline — stacked",x = "Airline", y = "Total tweets", fill = "Sentiment")
+
+```
+
+**[The total column height is equal to the marginal distribution of airlines (number of tweets per airline), with the airline on the x-axis and the bars stacked by sentiment. The conditional mix of sentiments for that airline is displayed by the relative segment heights within each column.]**
+
++  A mosaic plot (colored by Pearson residuals)
+
+```{r}
+mosaicplot(table(airline_tweets$airline_sentiment, airline_tweets$airline), main = "Mosaic: sentiment (rows) by airline (columns)",
+           xlab = "Airline", ylab = "Sentiment", color = TRUE)
+
+
+
+```
+
+**[Airlines are represented by columns whose widths indicate the airlines' marginal distribution; the vertical splits inside each column show the conditional distribution of sentiment for a particular airline. Pearson residual coloring makes it easy to identify areas where an airline's sentiment composition deviates from independence.]**
+
++  A facetted bar chart
+
+```{r}
+ggplot(airline_tweets, aes(x = airline_sentiment, fill = airline_sentiment)) +
+  geom_bar() +
+  facet_wrap(~ airline) +
+  labs(title = "Sentiment distribution within each airline",
+       x = "Sentiment", y = "Number of tweets", fill = "Sentiment")
+
+```
+
+**[I facet by airline and plot sentiment counts inside each panel. Each panel isolates the conditional sentiment profile for that airline, and we can compare marginal totals across airlines by the overall bar heights using a common y-scale. Totals are less immediate than in the stacked/mosaic views.]**
+
+For this part, make each type of graph, such that you can best see the marginal distribution of the `airline` variable and the conditional distributions of `airline_sentiment` given each `airline` (within the limitations of each graph).  Thus, __for this part, you need to create four graphs__; it's okay if your graphs don't have appropriate labels/title.  Then, for each graph, write 1-2 sentences explaining why you made the choices you made for that graph.
+
+*Hint*: for the last part of this question (the 1-2 sentences explanation), note that, for each graph, you'll have had to decide how to incorporate `airline` and how to incorporate `airline_sentiment`.  Thus, in this part, you need to explain why you decided to make one part of the graph associated with `airline`, and another part of the graph associated with `airline_sentiment`.
+
+
+__3(b) [4 pts]__ Now we will consider the relative strengths and weaknesses of the graphs you made in part __(a)__.  Answer the following questions:
+
++  In which graph is it easiest to see the conditional distributions of `airline_sentiment` given each category of `airline`?  Explain in 1-3 sentences.
+
+**[The side-by-side bar graph. You can directly compare the heights of the sentiment bars within and between airlines because each airline's sentiments have a common baseline. The segment on top in stacked or mosaic plots, makes it more difficult to compare the sentiment mix across airlines.]**
+
++  Which graph(s) provide the best balance of showing the marginal distribution of `airline` and the conditional distributions of `airline_sentiment` given `airline`?  Explain in 1-3 sentences.
+
+**[The mosaic plot. The vertical splits display the conditional distribution of sentiment, while the column width encodes the airlines' marginal distribution. Pearson-residual coloring additionally brings emphasis on deviations from independence. Although airline marginals are also evident in a stacked bar chart, it is more challenging to compare conditional mixes across airlines than it is in a mosaic.]**
+
+
+__3(c) [7 pts]__ Let's say that you are on the job market as a data scientist, and you want to work for the airline that receives the largest proportion of positive tweets (to a statistically significant degree).  Answer the following questions:
+
++ Using your mosaic plot from part __(a)__, which airlines appear to receive a larger proportion of positive tweets, as quantified by an appropriate statistical test of significance, compared to what we would expect if `airline` didn't have any relationship with `airline_sentiment`?  State the airlines, and then explain how you arrived at your answer in 1-2 sentences.
+
+**[Virgin America and Southwest, I looked at the standardized residuals for the positive row of the airline × sentiment table after running a chi-squared test of independence on Virgin America and Southwest. I found that airlines with residuals > ~2 have more positive tweets than expected under independence. Unlike the others, Virgin America and Southwest had positive residuals > 2, which means significantly higher than expected positive proportions.]**
+
++ Using a **new** mosaic plot, answer the following: *among the airlines you listed in the previous part*, do any of the airlines appear to receive a larger proportion of positive tweets (compared to the other airlines you listed) to a statistically significant degree?  If so, which one(s)?  Explain your answer in 1-2 sentences, and be sure to include your new mosaic plot in your answer.
+
+*Hint*: for the second part, you'll likely need to use the `filter()` function to get a subset of tweets belonging to certain airlines.  For example, the following code grabs tweets for only American and Delta airlines:
+
+```{r}
+example <- airline_tweets %>%
+  filter(airline %in% c("American", "Delta"))
+# Could also use: filter(airline == "American" | airline == "Delta)
+# but this gets annoying for multiple potential matches
+table(example$airline)
+```
+
+This code is just provided as an example of how to use the `filter()` function within the context of this question; I'm not saying that you have to use the above code in your solution to this problem.
+
+```{r}
+
+pos_subset <- airline_tweets %>%
+  filter(airline %in% c("Virgin America", "Southwest"))
+
+mosaicplot(table(pos_subset$airline_sentiment, pos_subset$airline),
+           main = "Sentiment by Airline (subset)",
+           xlab = "Airline", ylab = "Sentiment", color = TRUE)
+
+
+chisq.test(table(pos_subset$airline, pos_subset$airline_sentiment))
+
+```
+
+**[Yes, Virign America has a significantly larger proportion of positive tweets than Southwest. The positive tile for Virgin America is noticeably larger in the subset mosaic (Virgin America vs. Southwest), and a chi-squared test on the subset confirms an actual difference.]**
+
+
+***
+***
+
+
+# Problem 4: Survey [3 pts]
+
+How long would you estimate you spent, in total, working on this assignment?
+
+**[6 hours]**
+
+

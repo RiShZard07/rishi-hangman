@@ -1,0 +1,342 @@
+---
+title: '36-315 Lab 2: Inference for 1D Categorical Data, and Looking at 2D Categorical Data'
+author: "Rishi Damarla"
+date: "Due Friday, September 12, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+***General instructions for all lab assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.
+
++ For your lab submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-lab1.Rmd -- e.g. "fsk-315-lab1.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ Each answer must be supported by written statements (unless otherwise specified).  **Thus, even if you think your code output is self-explanatory, be sure to answer questions with written statements outside of code blocks.**
+
++ **Questions about the lab assignment will not be answered after the lab session has ended**, whether it's on Piazza or email.  This incentivizes you to engage during lab, instead of scrambling Friday nights to complete lab assignments.
+
++ __Labs are designed to take 50 minutes to complete__.  However, we give you until Friday night to submit the lab if you need extra time.  This is mostly to be flexible for anyone who needs extra time; __do NOT feel pressured to spend many hours on lab assignments!__  Labs are graded for correctness, but they are mostly meant to cover the basics of each week's material, such that you're prepared for the homework due the following week.
+
+
+***
+***
+
+
+#  Problem 1: Chi-Square Tests and Confidence Intervals [45 pts]
+
+As we've discussed in class, bar charts are *usually* easier to read than spine charts, pie charts, and rose diagrams.  There are several ways we can add even more useful information to bar charts, as we'll explore throughout this lab.
+
+In this assignment, we'll be using the data of IMDb rated films, TV Series, etc. as rated by [Professor Matey Neykov](http://mateyneykov.com/) formally faculty in our Statistics & Data Science department (thank you Matey for providing the data!)
+
+The data is available on Github and can be loaded with the code below:
+
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+
+# Reads IMDb rated movies TV Series, etc.
+mateys_imdb <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/imdb_ratings.csv")
+
+# Filters the data to only feature-length films
+mateys_movies <- mateys_imdb %>%
+  filter(Title.type == "Feature Film")
+```
+
+For some information on what each variable in the dataset measures/represents, [please read their descriptions here](https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/imdb_ratings_variables.txt).
+
+
+__1(a) [5 pts]__ First, let's find the most frequent directors which appear in this dataset.  Code is provided below.
+
+```{r, warning = FALSE, message = FALSE}
+mateys_movies %>% 
+  group_by(Directors) %>% 
+  summarize(count = n()) %>% 
+  filter(count == max(count))
+```
+
+Recall that in the above code, `%>%` is the "pipe" operator.  `x %>% f(y)` means the same thing as `f(x, y)`.  The pipe operator is useful in making code easily readable and understandable.  **Note that you need to load the `tidyverse` library before you can use the pipe operator.**
+
+Given this, what is the above code doing, and in particular, what is the purpose of the `filter(count == max(count))`?
+
+**[groups rows by directors, summarizes each group by number of movies from each director, and filter(count == max(count)) only sets the count as the director with the largest count in the table, so the directors with the most movies  ]**
+
+
+__1(b) [5 pts]__ The following code adds some additional variables to the dataset.
+
+```{r, warning = FALSE, message = FALSE}
+# NOTE: If, upon running this code chunk, you are encountering the issue where 
+#       as.Date() leads to NA values for vote_date, day_of_week, and weekend, 
+#       then include the following line of code by uncommenting it:
+# Sys.setlocale("LC_TIME", "C")
+mateys_movies <- mateys_movies %>%
+  mutate(vote_date = as.Date(mateys_movies$created, 
+                             format = "%a %b %d %H:%M:%S %Y"),
+         day_of_week = weekdays(vote_date),
+         weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), 
+                          "Weekend", "Workday"),
+         duration = cut(Runtime..mins., c(0, 90, 120, Inf), 
+                        labels = c("Short", "Medium", "Long")),
+         ratings = cut(You.rated, c(0, 4, 7, Inf),
+                       labels = c("Low", "Med", "High")),
+         movie_period = cut(Year, c(0, 1980, 2000, 2018),
+                            labels = c("Old", "Recent", "New"))
+)
+```
+
+`vote_date` is the date Matey first rated the movie, `day_of_week` is the day of the week Matey rated the movie on, and `duration` is an ordinal categorical variable indicating how long the movie was, segmented by thresholds at 90 and 120 minutes. 
+
+In class we discussed **marginal distributions** for categorical variables; here we'll examine the marginal distributions of the `movie_period` and `duration` variables.  Do this by calculating the counts, proportions, and percentages of each variable.  The following code is provided for `duration`:
+
+```{r, warning = FALSE, message = FALSE}
+#  Get counts, proportions, and percentages for duration
+duration_marginal <- mateys_movies %>%
+  group_by(duration) %>%
+  summarize(count = n(), 
+            total = nrow(mateys_movies),
+            proportion = round(count / total, 4),
+            percentage = proportion * 100)
+duration_marginal
+```
+
+Notice how, within the `summarize()` function, we can sequentially define a new variable and then refer to that new variable later on.  For example, within `summarize()`, we first define a variable `total`, and then we refer to `total` when defining `proportion`.
+
+Now write the same code for `movie_period`:
+
+```{r}
+#  Get counts, proportions, and percentages for duration
+movie_period_marginal <- mateys_movies %>%
+  group_by(movie_period) %>%
+  summarize(count = n(), 
+            total = nrow(mateys_movies),
+            proportion = round(count / total, 4),
+            percentage = proportion * 100)
+movie_period_marginal
+```
+
+Report your general observations on the marginal distributions of each variable in one sentence (per variable).
+
+**[most of the movies are in the new movie period category, around 77.34%, and less movies in the recent movie period with 19.13%, and there is a lot less in the old movie period category with 3.53%.]**
+
+
+__1(c) [5 pts]__ Marginal distributions are usually communicated with proportions or percentages; however, we've only discussed how to make bar plots in terms of *counts* instead of percentages.  Now we'll see how to make bar plots in terms of percentages.
+
+The goal of this question is to make a bar chart of `duration` on the **percentage** scale instead of the count scale.  In other words, we'd like to make a barplot where `duration` is on the x-axis and the `percentage` of each duration is on the y-axis.  Note that `duration_marginal` has exactly this information - so, let's use this dataset to make this bar chart.  Alter the template code below such that you create a bar chart with one bar for each `duration`, whose height corresponds to the `percentage` of each duration.  After you've made the plot, add appropriate titles, labels, and a non-default color.
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+
+duration_marginal %>%
+  ggplot(aes(x = duration, y = percentage)) +
+  geom_bar(stat = "identity", fill = "black", color = "grey") +
+  labs(title    = "Percentage of movies by duration", subtitle = "Short < 90 mins, Medium 90 - 120 mins, Long > 120 mins", x = "Duration Category", y = "Percentage of Movies")
+```
+
+Note that, in this case, we needed to specify `stat = "identity"` within `geom_bar()`, because we want the height of the bars to correspond to whatever we put into `y`.  This differs from the default `stat = "count"` within `geom_bar()`.
+
+
+__1(d) [5 pts]__ Your friend thinks there are equal proportions of short, medium, and long movies in this dataset.  Using your bar chart from part __(c)__, do you think your friend is right?  (This time, just use your statistical intuition - no test necessary.  Given the sample size and the difference in the bars, do you think there is probably a significant difference?)
+
+**[No, my friend is wrong, there aren't equal proportions, the medium bar is a lot higher than the long and short bars, long is 2nd highest, and short is the smallest, there is a sample of around 700 movie, since the difference is large I think it would be statistically significant meaning the proportions must not be equal]**
+
+
+__1(e) [10 pts]__ Let's test this statistically.  Run a chi-squared test to check your friend's assertion: `chisq.test(duration_marginal$count)` will check to see if the proportions in each category are the same. 
+
+```{r}
+chisq.test(duration_marginal$count)
+```
+
+After you run the test, answer the following questions:
+
++  What is the p-value for this test?  
+
+**[< 2.2e-16]**
+
++  What is your formal conclusion from this test?
+
+**[I reject the null hypothesis that the 3 duration categories have equal proportions because p-value < 0.05]**
+
+
+__1(f) [5 pts]__ It can be helpful to report p-values on graphs, so that it's clear whether what we're looking at is "statistically significant" in some sense.  Now we will take the same plot you made in part __(c)__, and report the p-value on top of the graph.  For this part, follow these steps:
+
++ First, copy-and-paste your code from part __(c)__ and place it below.
++ Now add the following line of code: `+ geom_text(x = ?, y = ?, label = ?)`. Here, you should specify `x` and `y` as the x- and y-coordinates where you want your text, and `label` as the text itself in quotes.  (Note: Because the x-axis is categorical, you can specify `x` as one of the categories or as a number.)
++ In particular, specify `label` as your p-value from your chi-squared test in part __(e)__ (e.g., `label = "chi-squared test p-value = ?`), with ? appropriately specified.  If you got an extremely small p-value, it's fine if you just state something like "chi-squared test p-value $< 10^{-16}$," or "chi-squared test p-value is approximately zero."  If you need to put your text on two lines, you can use `\n` within your `label` to create a line break.
+
+For this part, you just need to have the exact same plot as part __(c)__, but with the desired text added.
+
+```{r}
+library(tidyverse)
+
+duration_marginal %>%
+  ggplot(aes(x = duration, y = percentage)) +
+  geom_bar(stat = "identity", fill = "black", color = "grey") +
+  geom_text(x = "Medium", y = 55, label = "chi-squared test p-value = 2.2e-16") +
+  labs(title    = "Percentage of movies by duration", subtitle = "Short < 90 mins, Medium 90 - 120 mins, Long > 120 mins", x = "Duration Category", y = "Percentage of Movies")
+```
+
+
+__1(g) [10 pts]__ In the previous part you used the chi-squared test to assess if there is a significantly different number of movies in each `duration` category.  We can also use confidence intervals to assess statistical significance.
+
+Notice that the data frame `duration_marginal` already has the proportions in each `duration` category and the total number of movies, which is exactly what you need to compute the confidence intervals for each proportion.  Fill in the code below to display the lower and upper bounds for the 95\% confidence intervals for the proportions:
+
+```{r}
+# Write code here for the CI lower bound
+# Change 0 to something else
+duration_marginal$proportion - 2 * sqrt(duration_marginal$proportion * (1 - duration_marginal$proportion)/duration_marginal$total)
+
+# Write code here for the CI upper bound
+# Change 0 to something else
+duration_marginal$proportion + 2 * sqrt(duration_marginal$proportion * (1 - duration_marginal$proportion)/duration_marginal$total)
+```
+
+**Hint:** We talked about how to compute the confidence interval for a proportion in class, so it may be helpful to revisit your lecture notes.  Remember that the confidence interval involves the $\frac{\alpha}{2}$ quantile under a standard Gaussian distribution.  In this case, $\alpha = 0.05$.  The quantile can be computed as:
+
+```{r}
+qnorm(0.975)
+# Same as qnorm(1 - 0.05 / 2)
+```
+
+This is the "classic" 1.96 (sometimes rounded to 2).
+
+After you've successfully displayed your confidence intervals: Which confidence intervals don't overlap?  What does this suggest, and how does this differ (or not) from the conclusion we could make from the chi-squared test?
+
+**[None of the confidence intervals overlap, this suggests the proportions for short, medium, and large are all different, this doesn't different from the conclusion we could make from the chi-squared test becasue it had a very small p-value so it also rejects equal proportions, the confidence intervals also show which categories differ and by specifically how much]**
+
+
+***
+***
+
+
+#  Problem 2: 2D Bar Charts and Identifying Marginal Distributions [25 pts]
+
+Although we're focusing on 1D categorical data this week, in this problem we'll start to look at 2D categorical data, which we'll dive deeper into in next week's lab.  In particular, we'll explore how we can build upon bar charts to make multivariate graphics.
+
+
+__2(a) [10 pts]__ Here we'll walk through how to make a "stacked bar plot."  In short, a "stacked bar plot" is simply a bar plot, where each bar is in turn a spine chart; as a result, it visualizes two categorical variables.  We'll again use the `mateys_movies` dataset from problem __1__.  Follow these steps:
+
++ First, make a bar graph of `weekend`.  Make the color of the bars something other than gray by specifying the `fill` variable.
++ Now we want to color the bars by the `ratings` variable; in other words, we want to "fill" the bars according to the `ratings` variable.  So, set `fill = ratings` in your code.
++ At this point, you probably get an error if you run your code.  Notice that you probably have `fill = ratings` within `geom_bar()` (which is fine!)  However, `ggplot` requires all variable names to be within the `aes()` function; the reason is that `aes()` "describe[s] how variables in the data are mapped to visual properties" (to quote the help documentation for that function).  So, if you have `fill = ratings` outside of `aes()`, `ggplot` wonders, "what is `ratings`?  It must not be a variable in the `mateys_movies` dataset, because `ratings` isn't inside `aes()`."  To fix this issue, either (1) write `aes(fill = ratings)` within `geom_bar()`, or (2) put `fill = ratings` within the `aes()` already inside `ggplot()`.  Either should work fine!
+
+The goal of this problem is to make a stacked bar plot, with bars for `weekend` and different colors for `ratings`.  If you get stuck here, please ask your fellow classmates and/or TAs for help!
+
+```{r}
+library(tidyverse)
+
+ggplot(mateys_movies, aes(x = weekend, fill = ratings)) +
+  geom_bar(color = "gray") +
+  labs(title = "Matey's Movies by Day Type and Rating", x = "Day Type", y = "Number of Movies", fill = "Rating")
+
+```
+
+
+__2(b) [5 pts]__ Use your graph from part __(a)__ to discuss briefly the marginal distribution of `weekend` and the marginal distribution for `ratings`.
+
+**[The are more movies on workdays than weekend, Med has the most movies in both day types, high is the next most frequent in number of movies for both day types, then finally low is the least common for both day types]**
+
+
+__2(c) [10 pts]__ Now make a stacked bar chart that involves `movie_period` and `day_of_week` such that you think it's easiest to describe the marginal distribution of `movie_period`.  After you've made your graph, explain in 1-2 sentences why you made the choices you made - i.e., how the choices you made allow you to most easily describe the marginal distribution of `movie_period`.  (For this part, there's no need to describe the marginal distribution itself.)
+
+```{r}
+library(tidyverse)
+
+mateys_movies %>%
+  ggplot(aes(x = movie_period, fill = day_of_week)) +
+  geom_bar(color = "gray") +
+  labs(title = "Movies by Period and Day of Week", x = "Movie period", y = "Number of movies", fill = "Day of week")
+
+```
+
+**[I put movie period on the x-axis and days of the week on the y-axis because then the bar height would equal the number of movies for each movie period category, the marginal distribution is easy to describe from the given bar heights, and the days of the week within each bar on the y-axis show which day is most prevalent and within which category and it makes the totals more clear.]**
+
+
+***
+***
+
+
+# Problem 3: Adding More Categories with Facetting [30 pts]
+
+In addition to visualizing a single categorical variable, we can also create the same visualization for different categories, thereby allowing for flexible multivariate graphics.  This is known as "facetting," where the data is grouped according to some categorical variable, and then we create the same graphic for each group.  The resulting graphs are typically displayed in a grid, where each graph is a single "facet" of the full graphic.
+
+This is a popular way to show how the features of the variable(s) being displayed in a particular graphic can change depending on some other variable (usually a categorical variable).
+
+In problem __2__ you made a stacked bar plot for `weekend` and `ratings`.  Alternatively, you could make two different bar plots for `ratings`, corresponding to the two different values for `weekend`.  We'll demonstrate how to do this using facetting.
+
+__3(a) [10 pts]__ To make a bar plot of `ratings` facetted by `weekend`, follow these steps:
+
++ First, make a bar plot of `ratings` the standard way (where `fill` is specified as a color within `geom_bar()`).
++ Then, add `+ facet_grid(~ weekend)` to your existing line of code.
+
+```{r}
+library(tidyverse)
+
+ggplot(mateys_movies, aes(x = ratings)) +
+  geom_bar(fill = "green", color = "grey") +
+  facet_grid(~ weekend) +
+  labs(title = "Matey's Movies by Day Type and Rating", x = "Rating", y = "Number of Movies")
+
+
+```
+
+You should see two bar plots graphed together, one for each value of `weekend`.  After you've successfully made your plot, consider the following: when we have two categorical variables, there are five distributions we should consider: The marginal distribution of `ratings`, the marginal distribution of `weekend`, the conditional distribution of `ratings` given `weekend`, and the conditional distribution of `weekend` given `ratings`, and the joint distribution of `weekend` and `ratings`.  Focus only on the marginal distributions for this question - we'll discuss the rest in the future.  Which plot makes it easier to see both marginal distributions: the facetted bar plot here, or the stacked bar plot in __2(a)__?  Explain your reasoning in 1-3 sentences.
+
+**[The stacked bar plot in 2a, makes it easier to see both marginal distributions because the marginal of weekend is given directly by the bar height, the marginal of ratings can be determined by the area of each color for the 2 bars in 2a, but in the facetted plot the rating counts are seperate split across 2 panels, and you have to keep looking at each one of them to determine the marginal of ratings which is harder and more tedious. ]**
+
+
+__3(b) [10 pts]__ You can also display marginal distributions by adding `margin = TRUE` within `facet_grid()`.  So, copy-and-paste your code from part __(a)__ and then add `margin = TRUE` within `facet_grid()`.  Your submission should display a third bar plot, labeled as "(all)".  This facet displays a marginal distribution - the marginal distribution of what?
+
+```{r}
+library(tidyverse)
+
+ggplot(mateys_movies, aes(x = ratings)) +
+  geom_bar(fill = "green", color = "grey") +
+  facet_grid(~ weekend, margin = TRUE) +
+  labs(title = "Matey's Movies by Day Type and Rating", x = "Rating", y = "Number of Movies")
+
+```
+
+**[It is the marginal distribution of ratings(counts of low, med, high) for both weekend and weekday combined]**
+
+
+__3(c) [5 pts]__ We can also facet stacked bar plots, thereby allowing for even more dimensions.  Recreate the graph in problem __2(c)__, but this time, facet on `weekend` (don't include `margin = TRUE`).  For this part, all you have to do is make the desired graph.  (You should end up with multiple facets of stacked bar plots, where each stacked bar plot involves `movie_period` and `day_of_week`.)
+
+```{r}
+library(tidyverse)
+
+mateys_movies %>%
+  ggplot(aes(x = movie_period, fill = day_of_week)) +
+  geom_bar(color = "gray") +
+  facet_grid(~ weekend) +
+  labs(title = "Movies by Period and Day of Week", x = "Movie period", y = "Number of movies", fill = "Day of week")
+
+```
+
+
+__3(d) [5 pts]__ We can actually facet on multiple categorical variables at once.  Recreate the graph in problem __2(c)__ again, but this time facet by both `weekend` and `ratings` by adding `facet_grid(weekend ~ ratings)`.  We won't ask you to interpret this graph here, since there are four dimensions being plotted in this visual.  The purpose of this problem is just to demonstrate that it's pretty easy to make extensions to bar plots that allow for 3D and 4D graphs!  (Of course, whether or not you'd actually *want* to display all four variables in a single graph is another story - we will discuss this throughout the semester.)
+
+```{r}
+library(tidyverse)
+
+mateys_movies %>%
+  ggplot(aes(x = movie_period, fill = day_of_week)) +
+  geom_bar(color = "gray") +
+  facet_grid(weekend ~ ratings)
+  labs(title = "Movies by Period and Day of Week", x = "Movie period", y = "Number of movies", fill = "Day of week")
+```
+
+***
+***
+

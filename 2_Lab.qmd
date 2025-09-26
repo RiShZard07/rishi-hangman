@@ -1,0 +1,761 @@
+---
+title: Statistical Computing -- 36-350
+subtitle: |
+  Lab 2: Vector/Array Basics, Lists, Matrices, and if-else \
+  Due Friday, September 5, 11:59pm \
+title-block-style: none
+ipynb-shell-interactivity: all
+execute:
+  cache: true
+latex-tinytex: false
+format:
+  html:
+    page-layout: full
+    code-overflow: wrap
+    fontsize: 12px
+  pdf: default
+urlcolor: blue
+---
+
+Name: Rishi Damarla
+
+Andrew ID: rdamarla
+
+Collaborated with:    
+
+External resources used: 
+
+***
+***
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to fill out your name, Andrew ID, etc., at the top of this page.
+
++ For your homework submission, complete a .qmd file (named as: [AndrewID]-350-lab01.qmd -- e.g. "fsk-350-lab01.qmd"), then an .html file to ensure everything appears that you want to appear.  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either render pdf directly from `RStudio` (the **preferred** solution) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code cell, making your answers clear and differentiated from the problem statements.  Your code should produce output that will be automatically embedded in the output (.html) file.  Your lab files will include the template code chunks like the following:
+
+```{r qex}
+# YOUR ANSWER GOES HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own.  Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism.  In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
++ You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted PDF file on Gradescope, by Friday 11:59pm. 
+
+
+```{r,include=FALSE}
+## For reproducibility - don't change this!
+library(reticulate)
+library(quarto)
+# this should print TRUE
+py_available(TRUE)
+set.seed(2025)
+```
+
+```{python,include=FALSE}
+## For reproducibility - don't change this!
+import random
+import numpy as np
+random.seed(2025)
+```
+
+```{r wrap-hook,include=FALSE}
+## For readability - don't change this!
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+***
+***
+
+*A note*: for those of you encountering a bug wherein Rstudio would seem to "lose track" of imported python modules (i.e., claim `numpy` functions could no longer be found despite previous successful calls after the original `import numpy` line), it is related to the `linewidth=80` cell option I previously included on all cells.  Until that bug is fixed, I have removed that option from `Python` cells, but be sure to check that no `Python` code (or any code, for that matter) flows off the side of your produced submission! 
+
+
+# More Vectors / Arrays
+
+
+Mathematical operators between vectors was not covered directly in class.  Standard operations include:
+
+| Operation (R) | Operation (Python) | Description                  |
+| ------------- | ------------------ | ---------------------------- |
+| +             | +                  | addition                     |
+| -             | -                  | subtraction                  |
+| &ast;         | &ast;              | multiplication               |
+| /             | /                  | division                     |
+| ^             | &ast;&ast;         | exponentiation               |
+| %%            | %                  | modulus (i.e., remainder)    |
+| %/%           | //                 | integer-part division (rounding down) |
+
+Note the concept of vectorization: if $x$ is an $n$-element vector or array, and $y$ is an $n$-element vector or array, then, e.g., $x+y$ is an $n$-element vector or array that contains the sums of the first elements and of the second elements, etc.  In other words, one does not have to *loop* over vector indices to apply operations to each element.
+
+
+## Question 1a
+
+What variable type is 1?  Then, what is the type of 1 divided by 2.  Note to yourself whether you got the same answer.
+
+```{r linewidth=80}
+typeof(1)
+typeof(1/2)
+```
+
+
+## Question 1b
+
+Now repeat the exercise in `Python`.  From now on, if a question statement is followed by an empty `R` cell and an empty `Python` cell, assume that means "do the exercise in **both** languages" 
+
+```{python}
+type(1)
+type(1/2)
+```
+
+
+## Question 2a
+
+Use the `append()` and `rev()` functions to merge the vectors $x$ and $y$ such that the output is 9, 4, 5, 6, 8, 7.
+
+```{r linewidth=80}
+x <- 7:9
+y <- 4:6
+z <- rev(x)
+append(z, y, after = 1)
+
+
+```
+
+
+## Question 2b
+
+Use indexing and the `numpy.insert()` function to do the same in `Python`.
+
+```{python}
+import numpy as np
+x = np.array(range(7, 10))
+y = np.array(range(4, 7))
+
+z = x[::-1]
+np.insert(z, 1, y)
+
+
+
+```
+
+
+***
+
+# Logical Filtering
+
+
+## Question 3
+
+Take the vector $x$ defined below and display the elements that are less than $-1$ or greater than $1$.  Do this using the logical or symbol, and again via the use of the `abs()` function (for absolute value) in both languages.
+
+```{r linewidth=80}
+set.seed(199)
+x <- rnorm(20)
+x[ x < -1 | x > 1 ]
+
+x[abs(x) > 1 ]
+```
+
+```{python}
+np.random.seed(199)
+x = np.random.normal(0, 1, 20)
+x[(x < -1) | (x > 1)]
+x[np.abs(x) > 1] 
+```
+
+
+## Question 4a
+
+What proportion of values in the vector $x$ are less than 0.4?  Use `sum()` and `length()` in your answer.
+
+```{r linewidth=80}
+
+prop <- sum(x < 0.4)/length(x)
+prop
+```
+
+
+## Question 4b
+
+Repeat, but use the functions `sum()` and `len()` in your answer.
+
+```{python}
+import numpy as np
+prop = np.sum(x < 0.4)/ len(x)
+prop
+```
+
+
+## Question 5a
+
+Use `any()` to determine whether any element of the vector $x$ is less than -1.  If the returned value is `TRUE`, determine which elements (i.e., what indices) of $x$ are less than -1.
+
+```{r linewidth=80}
+
+r <- any(x < -1)
+r
+
+if (r) 
+{
+  s <- which(x < -1)
+  s
+  
+}
+
+```
+
+
+## Question 5b
+
+Repeat using `numpy.any()` and `numpy.where()`.
+
+```{python}
+import numpy as np
+
+
+p = np.any(x < -1)
+print(p)
+
+if p:
+  t = np.where(x < -1)
+  print(t)
+
+```
+
+
+## Question 6a
+
+Replace all positive values in the vector $x$ with zero, using `which()`.  Confirm that all values in the new vector are $\leq 0$ using `all()`.
+
+```{r linewidth=80}
+a <- which(x > 0)
+b <- x
+b[a] <- 0
+
+b
+all(b <= 0)
+```
+
+## Question 6b
+
+Repeat using `numpy.where()`, then `numpy.all()`.
+
+```{python}
+import numpy as np
+
+a = np.where(x > 0)
+b = x
+b[a] = 0
+print(b)
+
+np.all(b <= 0)
+```
+
+
+***
+
+# Lists
+
+
+## Question 7
+
+Create an empty list $x$.  Then define its *second* entry as the vector 2:4.  Then print the list.  What value does the first entry default to?
+
+```{r linewidth=80}
+x <- list()
+x[[2]] <- 2:4
+x
+```
+
+```
+first entry defaults to NULL
+```
+
+
+## Question 8
+
+Use the `names()` function to rename the list entries to `x` and `y`.  Print $x$ to ensure your changes took hold.
+
+```{r linewidth=80}
+names(x) <- c("x", "y")
+names(x)
+
+x$x
+x$y
+
+```
+
+
+## Question 9
+
+Change the name of the first entry of the list $x$ to `a`.  Do this by setting something equal to "a", i.e., *not* by simply repeating your answer to Question 8.  *Hint*: `names()` returns a vector, and you know how to change the values associated with individual entries in a vector.
+
+```{r linewidth=80}
+names(x) [1] <- "a"
+names(x)
+
+x$a 
+x$y
+
+```
+
+***
+
+# Data Frames
+
+
+## Question 10
+
+Create a data frame `df` that has columns `x` and `y` and has three rows.  Use the `nrow()`, `ncol()`, and `dim()` functions to display the number of rows, the number of columns, and the dimensions of `df`.  Let the first column contain numbers, and the second column contain logical values.
+
+```{r linewidth=80}
+df <- data.frame(x = 1:3, y = c(TRUE, FALSE, TRUE))
+
+df
+nrow(df)     
+ncol(df)     
+dim(df)       
+
+```
+
+
+## Question 11
+
+Add columns to `df` using the dollar sign operator, using the double bracket notation with number, and using the double bracket notation with character name.  Then print `df`.
+
+```{r linewidth=80}
+
+df$z <- df$x * 2
+
+
+df[[4]] <- c("a", "b", "c")
+
+
+df[["w"]] <- !df$y
+
+df
+
+```
+
+
+## Question 12
+
+Use `row.names()` to change the names of the rows of `df` to "1st", "2nd", and "3rd".
+
+```{r linewidth=80}
+row.names(df) <- c("1st", "2nd", "3rd")
+df
+```
+
+
+## Question 13
+
+Display the contents of the first row of `df` using the row number and then using the row name.  Note that you access the elements of a two-dimensional object using `[row number/name,column number/name]`.
+
+```{r linewidth=80}
+
+df[1,]
+df["1st", ]
+```
+
+***
+
+# Matrices / Arrays
+
+
+## Question 14
+
+Initialize a 2 x 2 matrix where all the matrix elements are 1.  Display the matrix.
+
+```{r linewidth=80}
+x <- matrix(1, nrow = 2, ncol = 2)
+x
+
+```
+
+```{python}
+import numpy as np
+
+x = np.array([[1, 1], 
+              [1, 1]])
+print(x)
+
+```
+
+
+## Question 15
+
+Initialize another matrix that is 2 x 2, and fill the first column with your first and last name, and the second column with the first and last name of your favorite professor.  (No pressure.)  Display the matrix.
+
+```{r linewidth=80}
+
+x <- matrix("", nrow = 2, ncol = 2)
+
+
+x[, 1] <- c("Rishi", "Damarla")
+
+
+x[, 2] <- c("Spencer", "Koerner")
+
+x
+
+```
+
+```{python}
+import numpy as np
+
+x = np.array([["Rishi", "Spencer"],
+              ["Damarla", "Koerner"]])
+              
+print(x)
+
+```
+
+
+## Question 16a
+
+Define a 2 x 2 matrix with elements 1, 2, 3, 4, and another with elements 4, 3, 2, 1.  Multiply the two using the `%*%` operator.  Then take the transpose of the second matrix and multiply the two matrices.  (See `t()`.)  Lastly, compute the inverse of the first matrix.  (See `solve()`.)  Verify that the matrix inverse multiplies with the original matrix to yield the identity matrix.
+
+```{r linewidth=80}
+
+x <- matrix(c(1, 2, 3, 4), nrow = 2, byrow = TRUE)
+y <- matrix(c(4, 3, 2, 1), nrow = 2, byrow = TRUE)
+
+
+xy  <- x %*% y
+xy
+
+
+yt  <- t(y)
+xyt <- x %*% yt
+xyt
+
+
+xi <- solve(x)
+xi
+
+
+xi %*% x
+all.equal(xi %*% x, diag(2))  
+
+```
+
+## Question 16b
+
+Repeat using `numpy.matmul`, `numpy.transpose`, and `numpy.linalg.inv()`.
+
+```{python}
+import numpy as np
+
+x = np.array([[1, 2],
+              [3, 4]])
+y = np.array([[4, 3],
+              [2, 1]])
+
+
+xy = np.matmul(x, y)
+print(xy)
+
+
+yt  = np.transpose(y)
+xyt = np.matmul(x, yt)
+print(xyt)
+
+xi = np.linalg.inv(x)
+print(xi)
+
+xxi = np.matmul(xi, x) 
+print(xxi)
+print(np.allclose(xxi, np.eye(x.shape[0])))
+```
+
+
+## Question 17
+
+When you define a (non-sparse) matrix, you set aside memory to hold the contents of that matrix.  Assuming that your matrix holds double-precision floating-point numbers, a type that uses 64 bits $=$ 8 bytes per number,  and that your laptop's memory is 8 GB, what is the largest square matrix ("square" = same number of rows and columns) that you can define?  (An approximate answer is fine.)  This is an important consideration if, e.g., you have a set of $n$ data points and you wish to construct a matrix that contains all the pairwise distances between points.  If $n$ gets too large, you <i>will</i> run out of memory.
+
+```
+30 x 30
+```
+
+***
+
+# Handy Vector Functions
+
+Here we define some vectors that we'll go on to use:
+
+```{r linewidth=80}
+set.seed(1201)
+u <- sample(100, 100, replace = TRUE)
+v <- sample(100, 100, replace = TRUE)
+l <- list("x" = sample(1:10, 5), "y" = sample(11:20, 5))
+df <- data.frame("x" = sample(1:10, 5), "y" = sample(11:20, 5))
+```
+
+```{python}
+np.random.seed(1201)
+u = np.random.randint(1, 101, 100)
+v = np.random.randint(1, 101, 100)
+```
+
+
+## Question 18
+
+Display the list `l` as a numerical vector, with names associated with each element.
+
+```{r linewidth=80}
+unlist(l)
+```
+
+
+## Question 19
+
+Display the list `l` as a numerical vector, while stripping away the names seen in Question 18.
+
+```{r linewidth=80}
+as.vector(unlist(l))
+
+```
+
+
+## Question 20
+
+Repeat Question 19, but display the vector in *descending* order.
+
+```{r linewidth=80}
+
+a <- as.vector(unlist(l))
+
+
+sort(a, decreasing = TRUE)
+
+
+```
+
+
+## Question 21
+
+Here are the contents of the data frame `df`:
+
+```{r linewidth = 80}
+df
+```
+
+Reorder the rows so that the entries of the `x` column are in numerical order and the association between the i<sup>th</sup> entry of `x` and the i<sup>th</sup> entry of `y` is not lost.  Display the result.
+
+```{r linewidth=80}
+
+df_sorted <- df[order(df$x), ]
+df_sorted
+
+```
+
+
+## Question 22
+
+Display the proportion of the total number of unique values in `u` to the number of values in `u`.
+
+```{r linewidth=80}
+prop <- length(unique(u))/length(u)
+
+prop
+```
+
+```{python}
+import numpy as np
+prop = len(np.unique(u))/ len(u)
+prop
+```
+
+
+## Question 23a
+
+Display a table that shows how often each value of `v` appears.
+
+```{r linewidth=80}
+table(v)
+```
+
+## Question 23b
+
+Extract the same information you found in Question 23a, though in whatever format you like, in one line of code.
+
+```{python}
+np.unique(v, return_counts=True)
+```
+
+
+## Question 24
+
+How many unique values do `u` and `v` have in common?
+
+```{r linewidth=80}
+length(intersect(u, v))
+```
+
+```{python}
+import numpy as np
+
+len(np.intersect1d(u, v))
+```
+
+
+## Question 25
+
+Write down an expression that returns `TRUE`/`True` if the union of `u` and `v` has 100 elements and `FALSE`/`False` otherwise.
+
+```{r linewidth=80}
+length(union(u,v)) == 100
+```
+
+```{python}
+import numpy as np
+len(np.union1d(u, v)) == 100
+```
+
+
+## Question 26
+
+Display the **sorted** values of `u` that do not appear in `v`.
+
+```{r linewidth=80}
+sort(setdiff(u, v))
+```
+
+```{python}
+np.setdiff1d(u, v)
+```
+
+
+***
+
+# Control-Flow Constructs
+
+
+## Question 27
+
+Write an `if-else` construct that prints the statement "a < A" if `"a" < "A"` is `TRUE` and "a >= A" otherwise (*note*: we are using characters here, not, e.g., objects called `a` and `A`).
+
+```{r linewidth=80}
+if("a" < "A"){
+  x <- "a < A"
+  x
+}else{
+  y <- "a >= A"
+  y
+}
+```
+
+```{python}
+if("a" < "A"):
+  print("a < A")
+else:
+  print("a >= A")
+```
+
+
+## Question 28
+
+Repeat Question 27, but using the `ifelse()` function.
+
+```{r linewidth=80}
+ifelse("a" < "A", "a < A" , "a >= A" )
+```
+
+
+## Question 29
+
+Repeat Question 27, but using a ternary operator.
+
+```{python}
+"a < A" if "a" < "A" else "a >= A"
+```
+
+
+## Question 30
+
+Write an `if` construct that, if there are matching elements of `u` and `v` (i.e., if `u[i] = v[i]` for any index i), prints the number of matching elements, and otherwise prints the string "There are no matching elements."
+
+```{r linewidth=80}
+set.seed(999)
+u = sample(100, 100, replace = TRUE)
+v = sample(100, 100, replace = TRUE)
+a <- (u == v)
+count <- sum(a)
+
+if(count > 0){
+  count
+}else{
+  b <- "There are no matching elements."
+  b
+}
+```
+
+```{python}
+import numpy as np
+
+np.random.seed(999)
+u = np.random.randint(1, 101, 100)
+v = np.random.randint(1, 101, 100)
+a = (u == v)
+count = np.sum(a)
+
+if(count > 0):
+  print(count)
+else:
+  print("There are no matching elements.")
+```
+
+
+## Question 31
+
+Confirm the short-circuiting behavior of an `if-else` construct by (a) setting the variable `t` to the value 4, and (b) writing an `if-else` construct that first checks if `t` is greater than or equal to 4 and if so prints "t >= 4", then checks to see if `t` is greater than zero and if so prints "t > 0", and otherwise prints "t <= 0".
+
+```{r linewidth=80}
+t <- 4
+if(t >= 4){
+  a <- "t >= 4"
+  a
+}else if(t > 0){
+  b <- "t > 0"
+  b
+}else{
+  c <- "t <= 0"
+  c
+}
+```
+
+```{python}
+t = 4
+if(t >= 4):
+  print("t >= 4")
+elif(t > 0):
+  print("t > 0")
+else:
+  print("t <= 0")
+  
+
+```
+
+
+## Question 32
+
+How long would you estimate you spent, in total, working on this lab?
+
+```
+2 days(this weekend), not sure the exact hour amount, ~10 hours
+```
+

@@ -1,0 +1,313 @@
+---
+title: "36-309 / 36-749 Lab 10"
+author: "Rishi Damarla"
+date: "November 14-15, 2024"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Today's Goals
+
+Get practice and additional insight about chi-squared tests and logistic regression.
+
+# Turn-In Sheet Questions
+
+1. How was the degrees of freedom calculated? What is the null hypothesis for the chi-squared test, within the context of this dataset? Do you reject or fail to reject the null hypothesis?
+
+**[Degrees of Freedom = (Number of Rows−1) × (Number of Columns−1), so (4-1) x  (4-1) = 3 x 3 = 9, There is no association between the type of cracker eaten and the level of bloating experienced. The p-value is 0.04962, which is less than 0.05, we reject the null hypothesis. So there is a statistically significant association between the type of cracker and the level of bloating experienced.]**
+
+2. Write out your interpretation of the *estimated* exp(ß) for the `age` and `gendermale` results from your logistic regression.
+
+**[The estimated exponentiated coefficients for the logistic regression model explain the effect of age and gender on the probability of survival for individuals in the Donner Party. For the age variable, the estimated exp(ß) is 0.925 so for each additional year of age, the odds of survival decrease by a factor of 0.925, with gender constant. So as age increases, the odds of survival decrease slightly, because the exp(ß) value is less than 1. For the gendermale variable, the estimated exp(ß) is 0.202. This means that being male is associated with a decrease in the odds of survival vs female. The odds of survival for males are around 20% of the odds of survival for females, with age constant. This exp(ß) value is less than 1 meaning that gender has a strong effect on survival, with females having higher odds of survival than males.]**
+
+3. Wite out the *prediction equation* on the log-odds scale. Then, write out the prediction equation on the *odds scale*. Finally, write out the prediction equation on the *probability scale*.
+
+**[PUT YOUR ANSWER HERE]**
+
+4. If you know the estimated odds of survival for a certain age is 0.75 for females, what would be the estimated odds of survival for males of the same age, given the logistic regression results?
+
+**[PUT YOUR ANSWER HERE]**
+
+5. List one or two things that are still unclear to you.
+
+**[how to interpret logistic regression coefficients for real-world implications for survival based on age and gender, understanding the difference in meaning when interpreting coefficients on the log-odds scale, odds scale, and probability scale]**
+
+
+# Task 1: Chi-squared test for Fiber
+
+Let's say a company is considering marketing crackers that have a large amount of edible fiber as a dieting aid. Dieters would consume some crackers before a meal, so that they would feel less hungry and eat less. The company conducted a study to assess whether people would in fact eat less in this way. 
+
+Subjects were randomized to eat crackers from different types of fiber (bran fiber, gum fiber, both, and a control cracker) and were then allowed to eat as much as they wished from a prepared menu. The amount of food they consumed was monitored, along with any side effects they reported. Unfortunately, some subjects developed uncomfortable bloating and gastric upset from some of the fiber crackers. We will use a chi-squared test to see whether bloating is independent of cracker type.
+
+Here's the dataset we will work with (download it from Canvas):
+
+```{r}
+fiber = read.csv("fiber.csv")
+#ensure the categorical variables are factors
+fiber$subject = factor(fiber$subject)
+fiber$cracker = factor(fiber$cracker)
+fiber$bloat = factor(fiber$bloat)
+```
+
+We will focus on the following columns in this dataset:
+
++ `cracker`: The type of cracker eaten.
++ `bloat`: The type of bloating experienced after eating the cracker.
+
+Note that both `cracker` and `bloat` are categorical variables. Thus, an appropriate statistical analysis will be a chi-squared test, to assess whether these two variables are independent of each other.
+
+a. First, use the `table()` function to make a contingency table of `cracker` and `bloat`. Which of these two variables is the outcome variable, and which of these two is the explanatory variable?
+
+```{r}
+table(fiber$cracker, fiber$bloat)
+
+```
+
+
+**[the outcome variable is bloat and the the explanatory variable is cracker.]**
+
+b. Looking at the contingency table you made in Part A, it is difficult to figure out which crackers were the "best" ones and which ones were the "worst" ones. This is in part because the table just displays counts, rather than *proportions*.
+
+To better understand the *proportions* of each cracker/bloat combination, we'll use the `prop.table()` function (which we haven't seen before). In this part, copy-and-paste your `table()` code, and then put the `prop.table()` function "around" your code; i.e., your code should look like `prop.table(table())`.
+
+
+```{r}
+prop.table(table(fiber$cracker, fiber$bloat))
+```
+
+
+After you've done this, you should get back a table of proportions that add up to 1. Each of these proportions represents the proportion of observations that belong to that particular combination of categories. For example, You should find that 8.33% of observations were in the bran/low combination. Which combination(s) is the most common, and which combination(s) is the least common?
+
+**[The most common combination is bran/none with a proportion of 0.14583333 (or 14.58%). The least common combinations are bran/medium and gum/none, each with a proportion of 0.04166667. ]**
+
+
+c. For one table, there are three main ways you can compute proportions - Part B was the first way (where all the proportions add up to 1), and here we'll go over the other two ways.
+
+First, copy-and-paste your code from Part B. Then, within the `prop.table()` function, write `margin = 1` and run your code again. This will again display a table of proportions, but this time, the proportions in *each row* will add up to 1. This is a great way to see the distribution of the column variable conditional on the row variable (i.e., see how the column proportions vary for a fixed row). Your interpretation of this table will depend on what your row variable is - if `cracker` is on the rows, then this table will show, for each value of `cracker`, the proportion of observations that are "none", "low", "medium", or "high" bloating. If `bloat` is on the rows, then this table will show, for each value of `bloat`, the proportion of observations from each cracker.
+
+```{r}
+prop.table(table(fiber$cracker, fiber$bloat), margin = 1)
+```
+
+
+
+Now, copy-and-paste the code you just ran, but change `margin = 1` to `margin = 2`. Then, run your code again. Given our description/interpretation of the `margin = 1` table, what is your interpretation of the `margin = 2` table? (**Hint**: Which proportions add up to 1?)
+
+```{r}
+prop.table(table(fiber$cracker, fiber$bloat), margin = 2)
+```
+
+**[With margin = 2, the proportions within each column of the table add up to 1. This table shows the distribution of each type of cracker given the specific bloating level. For each level of bloating, it provides the proportion of subjects who consumed each type of cracker to show how the type of cracker is distributed across each bloating level.]**
+
+
+d. Now we're going to run a chi-squared test on this dataset. To do this, you use the `chisq.test()` function. When you use this function, you put a `table()` object inside the `chisq.test()` function. Note that, in Part A, you already used the `table()` function. So, copy-and-paste that code here, and then put the `chisq.test()` function "around" your code; i.e., your code should look like `chisq.test(table())`.
+
+```{r}
+chisq.test(table(fiber$cracker, fiber$bloat))
+```
+
+You should get output that displays the chi-squared statistic (16.943), the degrees of freedom, and the p-value. Answer the following questions **!!!**Q1**!!!**:
+
++ How was the degrees of freedom calculated? (**Hint**: We discussed this in the last lecture; it's related to the number of rows and columns in the contingency table.)
+
+**[Degrees of Freedom = (Number of Rows−1) × (Number of Columns−1), so (4-1) x  (4-1) = 3 x 3 = 9]**
+
+
++ What is the null hypothesis for the chi-squared test, within the context of this dataset?
+
+**[There is no association between the type of cracker eaten and the level of bloating experienced. ]**
+
+
++ Do you reject or fail to reject the null hypothesis?
+
+
+**[The p-value is 0.04962, which is less than 0.05, we reject the null hypothesis. So there is a statistically significant association between the type of cracker and the level of bloating experienced.]**
+
+
+e. In Part D, you may have noticed that you got a warning message when you ran the `chisq.test()` function. As we discussed in lecture, the chi-squared test uses a chi-squared approximation; by "chi-squared approximation," I mean that it assumes that the chi-squared statistic has a chi-squared distribution. The standard rule of thumb is that this approximation is appropriate as long as all entries in the table have more than 5 expected counts, but this is really just an arbitrary suggestion. (If you don't know what I mean by "expected counts," briefly look back at your lecture notes, or ask for help.) You'll often get this warning message when the counts in your contingency table are very low; in our table, some of the counts are 0, which is likely the culprit for this warning message. 
+
+One solution to the low expected cell counts problem is to "collapse" (i.e., combine) categories. For this problem, we'll combine bloating categories "low" and "none" into a new "no bloat" category, and combine "medium" and "high" into a new "bloat" category. The following code does this for you: 
+
+```{r}
+fiber$bloat.binary = ifelse(fiber$bloat == "none" | fiber$bloat == "low", "no bloat", "bloat")
+fiber$bloat.binary = factor(fiber$bloat.binary)
+```
+
+Now run the chi-squared test again using `bloat.binary` and `cracker.` You'll still get a warning message, but this p-value is nonetheless more reliable than the one from the original analysis because fewer cells have smaller counts (the smallest of these expected counts is 4, which is at least close to 5). What is your conclusion based on this chi-squared test? Furthermore, using a contingency or proportions table, which cracker would you most prefer, and which would you least prefer (assuming you don't like feeling bloated)?
+
+```{r}
+
+fiber$bloat.binary <- ifelse(fiber$bloat == "none" | fiber$bloat == "low", "no bloat", "bloat")
+fiber$bloat.binary <- factor(fiber$bloat.binary)
+
+
+chisq.test(table(fiber$cracker, fiber$bloat.binary))
+
+
+table_bloat <- table(fiber$cracker, fiber$bloat.binary)
+
+# Convert to proportions table
+prop.table(table_bloat, margin = 1)
+
+
+```
+
+
+**[The p-value is 0.01045 which is less than 0.05,so we reject the null hypothesis. Meaning there is a significant association between the type of cracker and the likelihood of experiencing bloating so the type of cracker consumed affects whether or not bloating occurs. The bran cracker, with 91.67% of participants experiencing no bloat would be the most preferred option for those who want to avoid bloating. The gum cracker has 33.33% experiencing no bloat and 66.67% experiencing bloat, which would be the least preferred option.]**
+
+
+
+
+# Task 2: Logistic Regression for the Donner Party Example
+
+In this problem we're going to work with the Donner Party example that we discussed in the last lecture. As a reminder: The Donner Party got stuck in a harsh winter in mountainous Nevada in the 1840s. By spring, only a subset of the individuals survived to be rescued. Here's the dataset (download it from Canvas):
+
+```{r}
+donner = read.csv("donner.csv")
+#ensure categorical variables are factors:
+donner$gender = factor(donner$gender)
+```
+
+Here are the variables in this dataset:
+
++ `age`: The age of each person (in years).
++ `gender`: male or female
++ `survived`: 1 (survived) or 0 (died) after the winter.
+
+The outcome variable is `survived`, which is a binary categorical variable. Logistic regression is exactly for this situation, where the outcome is a binary categorical variable. In particular, logistic regression models the probability of success for a 2-level categorical outcome and any number/type of explanatory variables. However, instead of being modeled on the mean-outcome scale, it is modeled on the **log-odds scale**. Within logistic regression, it is also helpful to do simple mathematical transformations to convert results to the **odds scale** and **probability scale** to make results more intepretable.
+
+By "probability scale," we mean the probability of a success, which can be written as P(survived = 1) for this dataset. By "odds scale," we mean P(survived = 1)/P(survived = 0). By "log-odds scale," we mean log(P(survived = 1)/P(survived = 0)).
+
+In this task, we'll walk through how to interpret logistic regression coefficients and convert results to the odds or probability scales. Please ask questions if you get stuck!
+
+a. Implementing logistic regression is extremely similar to linear regression. First, here's how you would incorrectly implement linear regression for this dataset:
+
+```{r}
+lm(survived ~ age*gender, data = donner)
+```
+
+Notice that R didn't give any errors at all - so it's really tempting to interpret these results. To run logistic regression, all you have to do is copy-and-paste the above code and make two changes:
+
++ Change `lm` to `glm` (where "glm" standards for "generalized linear model" - generalized to non-Normal outcomes)
++ Add `family = "binomial"` within the `glm()` function. **If you don't add this, `glm()` will do the exact same thing as `lm()`, which is the incorrect thing to do here! I forget to add `family = "binomial"` all the time - be sure to not make that mistake on the homework/exams!!!**
+
+```{r}
+glm(survived ~ age * gender, data = donner, family = "binomial")
+
+```
+
+
+
+After you've done that, produce summary output using the `summary()` function. 
+
+```{r}
+summary(glm(survived ~ age * gender, data = donner, family = "binomial"))
+
+
+```
+
+You should get a non-significant p-value for the interaction between `age` and `gender`. So, run the logistic regression again (and with the `summary()` function), but without the interaction. We'll use this output (from the additive model) for the rest of this task.
+
+```{r}
+summary(glm(survived ~ age + gender, data = donner, family = "binomial"))
+
+
+```
+
+
+
+b. The summary output from `glm()` should look nearly identical to the output we've seen for linear regression and ANCOVA; the only difference is that results are on the **log-odds scale**. If you're unsure what I mean by "log-odds", please ask for help or revisit your lecture notes. Luckily, the interpretation of the sign of the coefficients is still intuitive: If a coefficient is positive, then that variable is associated with an estimated increase in the probability of success; and if a coefficient is negative, then that variable is associated with an estimated decrease in the probability of success.
+
+First, write out your interpretation of the estimate for `gendermale`, and then write out your interpretation of `age`, *on the log-odds scale*. (**Hint**: The interpretation is exactly the same as linear regression - you just have to mention that you're on the log-odds scale.)
+
+
+**[In this logistic regression model, the coefficient for gendermale represents the estimated change in the log-odds of survival for males compared to females. A positive coefficient means that male is associated with a higher log-odds of survival, and a negative coefficient means that male is associated with a lower log-odds of survival. The coefficient for age represents the estimated change in the log-odds of survival for each additional year of age. A negative coefficient for age means that as age increases, the log-odds of survival decrease, so older people are less likely to survive. A positive coefficient means that older individuals have higher log-odds of survival. The direction of each coefficient on the log-odds scale is whether the variable increases or decreases the estimated probability of survival.]**
+
+
+c. This is where the lab starts to get a bit tricky, so please ask for help if you have questions. In class, we discussed the exponential function, often written as exp(x) = e^x^, where e is the mathematical constant equal to approximately 2.72. [This is a very well-known, important number in mathematics](https://en.wikipedia.org/wiki/E_(mathematical_constant)), and the exponential function plays a big role in logistic regression. To run the exponential function in R, you type `exp()`. Here are a few examples:
+
+```{r}
+#positive input
+exp(2)
+#zero input
+exp(0)
+#negative input
+exp(-2)
+```
+
+Importantly, `exp(x)` will always give a positive number; if `x` is negative, then `exp(x)` will be below 1, and if `x` is positive, it will be above 1. This is important for logistic regression because the quantities exp(ß) have an interpretation on the *odds scale*. In particular, exp(ß) represents the *multiplicative* change in odds when a quantitative explanatory variable increases by one unit. In other words, for every one-unit increase in an explanatory variabe (holding all other explanatory variables fixed), the odds will *multiply* by exp(ß). For example, note that if ß = 0, then exp(ß) = 1, meaning that the odds are multiplied by 1 for every one-unit increase in x (i.e., the odds don't change at all - which is intuitive). When ß is negative, the odds will be multiplied by a number less than 1 (thus getting smaller), and when ß is positive, the odds will be multiplied by a number greater than 1 (thus getting bigger).
+
+One nice property about the exponential function is that when `x` is a small number between roughly -.1 and .1,  `exp(x)` is approximately the percent change `1 + x`. For example, the following values are all close
+```{r}
+# a 1% increase
+c(exp(0.01), 1 + 0.01)
+
+# a 3.6% decrease
+c(exp(-0.036), 1 - 0.036)
+
+
+# an 8% increase
+c(exp(0.08), 1 + 0.08)
+
+# this doesn't work for a 50% increase
+c(exp(0.5), 1 + 0.5)
+```
+
+**!!!**Q2**!!!** Given the above, write out your interpretation of the *estimated* exp(ß) for the `age` and `gendermale` results from your logistic regression in Part A. (**Hint**: This will require you to compute the estimated exp(ß) in R, by typing the `exp()` function.)
+
+
+```{r}
+
+donner_model <- glm(survived ~ age + gender, family = "binomial", data = donner)
+
+exp(coef(donner_model)["age"])
+exp(coef(donner_model)["gendermale"])
+
+
+```
+
+
+**[The estimated exponentiated coefficients for the logistic regression model explain the effect of age and gender on the probability of survival for individuals in the Donner Party. For the age variable, the estimated exp(ß) is 0.925 so for each additional year of age, the odds of survival decrease by a factor of 0.925, with gender constant. So as age increases, the odds of survival decrease slightly, because the exp(ß) value is less than 1. For the gendermale variable, the estimated exp(ß) is 0.202. This means that being male is associated with a decrease in the odds of survival vs female. The odds of survival for males are around 20% of the odds of survival for females, with age constant. This exp(ß) value is less than 1 meaning that gender has a strong effect on survival, with females having higher odds of survival than males.]**
+
+
+
+
+d. **!!!**Q3**!!!** Using the summary output from the logistic regression in Part A, write out the *prediction equation* on the log-odds scale. (**Hint**: This is exactly the same as the prediction equation for linear regression.) Then, write out the prediction equation on the *odds scale*. Finally, write out the prediction equation on the *probability scale*. If you get stuck at this part, ask for help and/or look back at your class notes.
+
+
+**[PUT YOUR ANSWER HERE]**
+
+
+e. Now consider the following people:
+
++ 25-year-old female
++ 25-year-old male
++ 50-year-old female
++ 50-year-old male
+
+For each person, using your prediction equation in Part D, compute (1) the estimated log-odds of survival, (2) the estimated odds of survival, and (3) the estimated probability of survival. (Note that you can quickly compute the estimated probability of survival by computing odds/(1+odds).)
+
+
+**[PUT YOUR ANSWER HERE]**
+
+
+After you've done these calculations: What's the difference in *log-odds* between males and females for 25-year-olds? For 50-year-olds? Then, what's the difference in *probability* between males and females for 25-year-olds? For 50-year-olds?
+
+
+**[PUT YOUR ANSWER HERE]**
+
+
+You should find that the log-odds effects are the same for young and old people, but the probability effects are not. The mathematical reason for this is that the ßs are *linearly* related to the log-odds, but they are *non-linearly* related to the probability of survival.
+
+f. **!!!**Q4**!!!** If you know the estimated odds of survival for a certain age is 0.75 for females, what would be the estimated odds of survival for males of the same age, given the logistic regression results?
+
+
+**[PUT YOUR ANSWER HERE]**
+

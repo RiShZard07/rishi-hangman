@@ -1,0 +1,260 @@
+---
+title: "36-309 / 36-749 Homework 8: Within-Subject Designs"
+subtitle: Due Wednesday, November 13, 11:59pm via Gradescope
+author: "Rishi Damarla"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: One-Way Within-Subjects ANOVA (55 points)
+
+In education studies, it is sometimes of interest to determine how the *framing* of academic tasks affects students' performance. This question is meant to mimic these types of education studies.
+
+In this example, 150 undergraduate students volunteered to participate in a study that had them take a test with four mathematics questions. In reality, each question was equally difficult. However, before each question, the researcher administering the test would tell the student that the next question "should be an easy question" or "should be a hard question." The researcher framed two of the questions as "easy" and two of the questions as "hard," in random order. The accuracy of each question was measured on a 0-to-100 scale, which acts as the outcome for this study.
+
+Here's the dataset for this problem (download it from Canvas):
+
+```{r}
+testTaking = read.csv("testTaking.csv")
+```
+
+There is one row per subject. Thus, the dataset is in a *wide* format. The four columns in this dataset are `easy1`, `easy2`, `hard1`, and `hard2`, corresponding to each student's scores on the two easy questions and two hard questions. The purpose of the study was to assess if framing the questions as easy or hard affected students' performance on the test.
+
+# PART A (10pts)
+
+For this part, answer the following three questions.
+
++ (3pts) In the setup of this problem, it was stated that "The researcher framed two of the questions as 'easy' and two of the questions as 'hard,' *in random order*." What is the name of this experimental design technique (where we randomize the order of the treatment levels among subjects)? Furthermore, what is the purpose of doing this experimental design technique? Explain in 1-3 sentences.
+
+**[The experimental design technique used here is counterbalancing. The purpose of counterbalancing is to control for order effects, that can occur when the sequence in which treatments are done affects the outcome. By randomizing the order of "easy" and "hard" questions among subjects, researchers can decrease the impact of potential biases caused by the order of presentation, so observed differences in performance are more likely because of framing effect than the order of questions.]**
+
++ (3pts) First, we will use a version of response simplification to analyze these data. **In particular, we'll use a paired t-test to compare (1) the average of the two easy task scores to (2) the average of the two hard task scores, to see if they are different from each other.** Using the symbols µ~E1~, µ~E2~, µ~H1~, µ~H2~ for the population means of the four task scores, write the null hypothesis for this comparison. When writing your null hypothesis, please write it such that 0 is on the right-hand side of the equal sign.
+
+**[(μE1 +μE2)/(2) - (μH1 + μH2)/(2) = 0]**
+
++ (4pts) To run the paired t-test, we need to create two new columns in the `testTaking` dataset:
+
+1) `easyMean`: The average of the two easy task scores (i.e., the average of `easy1` and `easy2`)
+2) `hardMean`: The average of the two hard task scores (i.e., the average of `hard1` and `hard2`)
+
+In other words, *for each subject in the dataset*, we want a column that tells us the average of their two easy task scores and a column that tells us the average of their two hard task scores.
+
+Here you'll write a line of code to create each of these columns:
+
+```{r}
+
+testTaking$easyMean = (testTaking$easy1 + testTaking$easy2) / 2
+
+testTaking$hardMean = (testTaking$hard1 + testTaking$hard2) / 2
+
+```
+
+For this part, you just need to fill in the ?s (and uncomment the two lines of code after you've written your code). **Hint**: You *should not* use the `mean()` function. If you're having trouble with this part, look back at your answer for the null hypothesis question in the previous bullet point - it should suggest how to write your code here.
+
+After you've done this, you should see below if `easyMean` and `hardMean` are properly defined in the dataset (you should see that there are two new columns, `easyMean` and `hardMean`, if you did the above correctly):
+
+```{r}
+head(testTaking)
+```
+
+# PART B (10pts)
+
+Now we'll run a paired t-test, which is the appropriate analysis for an experiment where each subject has *two measurements*. Specifically, we'll test if `easyMean` is significantly different from `hardMean`, on average. Answer the following three questions.
+
++ (3pts) First, appropriately run the paired t-test between `easyMean` and `hardMean`. For this part, you just need to display the output from the test.
+
+```{r}
+
+t.test(testTaking$easyMean, testTaking$hardMean, paired = TRUE)
+
+```
+
++ (4pts) What is the point estimate for the mean difference between `easyMean` and `hardMean` (i.e., `easyMean` minus `hardMean`)? Furthermore, what is the 95% confidence interval for this mean difference?
+
+**[The point estimate for the mean difference between easyMean and hardMean is 1.7. The 95% confidence interval for this mean difference is (0.1716, 3.2284).]**
+
++ (3pts) What is your scientific conclusion according to this test and within the context of this study? Explain your reasoning in 1-3 sentences. Keep in mind that the purpose of this study was to determine if framing the questions as easy or hard affected students' performance on the test.
+
+**[My scientific conclusion according to this test and within the context of this study is that there is a statistically significant difference in performance between questions framed as "easy" and those framed as "hard" since the p value is 0.0295 which is less than 0.05 so we reject the null hypothesis. Questions framed as "easy" had higher average scores than those framed as "hard," with a mean difference of 1.7. This means that the framing of questions did affect students' performance, with "easy" labeled questions leading to better results.]**
+
+# PART C (10pts)
+
+Now we'll consider what would happen if we ran the *incorrect* independent-samples t-test for these data, where we pretend that the `easyMean` measurements and `hardMean` measurements are from different subjects. Answer the following three questions.
+
++ (3pts) First, implement the *incorrect* independent-samples t-test mentioned above. When implementing the t-test, set `var.equal = TRUE`. For this part, you just need to display the output from the test.
+
+```{r}
+t.test(testTaking$easyMean, testTaking$hardMean, var.equal = TRUE)
+```
+
++ (3pts) What is the 95% confidence interval for the mean difference between `easyMean` and `hardMean` according to this t-test? Furthermore, is this confidence interval Wider or Narrower than the confidence interval you obtained from the paired t-test in Part B?
+
+**[The 95% confidence interval for the mean difference between easyMean and hardMean according to the incorrect independent-samples t-test is approximately (-0.034, 3.434). This confidence interval is wider than the confidence interval obtained from the paired t-test in Part B, which was (0.1716, 3.2284). This is because independent-samples t-test does not account for the within-subject correlation, leading to a less precise estimate of the difference in means compared to the paired t-test.]**
+
++ (4pts) Now explain in 1-2 sentences why one confidence interval is wider than another (i.e., why the confidence interval in this part is either wider or narrower than the confidence interval in Part B).
+
+**[The confidence interval from the independent-samples t-test is wider than the paired t-test's confidence interval because it doesn't account for the within-subject correlation between easyMean and hardMean. By disregarding the paired nature of the data, the independent-samples t-test treats the measurements like they are from different subjects, resulting in a higher variability estimate and less precise, wider confidence interval.]**
+
+# PART D (10pts)
+
+Now we will use repeated measures ANOVA to analyze these data, instead of aggregating the data into an `easyMean` score and a `hardMean` score. To aid you in this task, here is the *tall* version of this dataset (download it from Canvas):
+
+```{r}
+testTakingTall = read.csv("testTakingTall.csv")
+#ensure that categorical variables are factors:
+testTakingTall$subjectID = factor(testTakingTall$subjectID)
+testTakingTall$task = factor(testTakingTall$task)
+```
+
+In this dataset, there are three columns:
+
+1) `subjectID`: The ID number (identification number) for each subject.
+2) `task`: Either "easy1", "easy2", "hard1", or "hard2" (corresponding to the type of task for each row).
+3) `score`: The score of the task.
+
+Note that this dataset has the exact same information as the previous dataset, except that it is rearranged as a *tall* format. For this part, answer the following two questions.
+
++ (4pts) Using the symbols µ~E1~, µ~E2~, µ~H1~, µ~H2~ for the population means of the score for the four tasks, write the overall null hypothesis for repeated measures ANOVA.
+
+**[H0:μ E1 = μ E2 = μ H1 = μ H2]**
+
++ (6pts) As some EDA for this dataset, create a side-by-side boxplot, where the score is on the y-axis and there is a box for `easy1`, `easy2`, `hard1`, `hard2`. From the plot, which of the two categories (easy or hard) has a higher median score? Within each of the two categories (easy and hard), which task (the first or second task) has a higher median score?
+
+```{r}
+boxplot(score ~ task, data = testTakingTall)
+
+```
+
+**[The "easy" category has a higher median score compared to the "hard" category. The second task ("easy2" and "hard2") has a higher median score than the first task ("easy1" and "hard1").]**
+
+# PART E (15pts)
+
+For this part, please complete the following **three tasks** using the `testTakingTall` dataset.
+
++ (5pts) Using the `anova_test()` function, run repeated measures ANOVA on the `testTakingTall` dataset. For this task, you just need to write the code that successfully displays the output from `anova_test()`. (**Hint**: Remember to write `library(rstatix)` (which you need to have installed) before you write anything with `anova_test()`. However, you SHOULD NOT include `install.packages("rstatix")` in your .Rmd file.)
+
+```{r}
+
+library(rstatix)
+anova_test(dv = score, wid = subjectID, within = task, data = testTakingTall)
+
+```
+
++ (5pts) Your `anova_test()` output should include something called "Mauchly's Test for Sphericity". What do you conclude from the "Mauchly's Test for Sphericity" output? Explain your answer in 1-2 sentences, being sure to state a null hypothesis and p-value in your answer.
+
+**[In Mauchly's Test for Sphericity, the null hypothesis is that the variances of the differences between all combinations of related groups are equal. The p-value is 0.118, which is greater than 0.05 so we fail to reject the null hypothesis so the assumption of sphericity is valid.]**
+
++ (5pts) Based on the `anova_test()` output, what do you conclude in terms of the null hypothesis you wrote in Part D? In your answer, please state the specific p-value you used to make this conclusion and whether you reject or fail to reject the null hypothesis.
+
+**[Based on the output, the p-value for the effect of the task is 3.23 × 10^-13, which is less than 0.05 so we reject the null hypothesis from Part D (no difference in the population means (µE1, µE2, µH1, µH2) for the four tasks). So framing the questions as "easy" or "hard" had a statistically significant effect on the scores.]**
+
+
+# Question 2: Two-Way Mixed ANOVA (45 points)
+
+Let's say that we were recently hired by a large food corporation that owns a large number of restaurants. The corporation is considering a new "20% off appetizers" deal, but they're not sure if they should make the deal on a Monday, Tuesday, Wednesday, or Thursday. They decide to recruit 20 of their restaurants to run an experiment. (These restaurants are all totally different - i.e., not a franchise. This is a huge corporation.)
+
+The experiment is run for four weeks. Each week, each restaurant is randomized to get the "20% off appetizers" deal on one day of the week. The morning of that day, they advertise the deal on social media, and see if revenue increases that day as a result of the deal. At the end of the four weeks, each restaurant experienced the deal on Monday, Tuesday, Wednesday, and Thursday, but in a random order.
+
+Here's the dataset resulting from the experiment (download it from Canvas):
+
+```{r}
+restaurants = read.csv("restaurantData.csv")
+#ensure categorical variables are factors
+restaurants$id = factor(restaurants$id)
+restaurants$day = factor(restaurants$day)
+restaurants$type = factor(restaurants$type)
+```
+
+Here are the variables in the dataset:
+
++ `id`: The ID of each restaurant (from 1 to 20).
++ `day`: The day the restaurant experienced the deal ("mon", "tues", "wed", "thurs")
++ `type`: The type of restaurant ("chinese", "italian", "seafood", or "vegetarian")
++ `revenueAdded`: The revenue (in dollars) on that day, compared to an "average day" for that restaurant. Thus, `revenueAdded = 1000` means that revenue was $1000 higher than the average day. This allows us to determine if an increase in revenue is due to the deal, rather than the particular day of the week.
+
+The goal of this problem is to determine which day(s) of the week would be best for the deal, in terms of increased revenue.
+
+# PART A (9pts)
+
+For this part, answer the following two questions.
+
++ (4pts) Soon we'll run a mixed within- and between-subjects ANOVA. To do this correctly, it's important to clarify what role each variable will play in this analysis. In this dataset, which variable is the outcome? Furthermore, which variable is the "between-subjects factor" and which is the "within-subjects factor"? For the second question, please give an explanation for your answer in 1-2 sentences.
+
+**[In this dataset, the outcome variable is revenueAdded, because it measures the increase in revenue on the day the deal was applied. The "between-subjects factor" is type, because it represents the type of restaurant and varies between different restaurants but remains the same for each individual restaurant. The "within-subjects factor" is day, since each restaurant experiences the deal on each of the four days across different weeks. This factor varies within each restaurant over time.]**
+
++ (5pts) As some initial EDA, create two boxplots: (1) A boxplot where `revenueAdded` is on the y-axis and `day` is on the x-axis, and (2) a boxplot where `revenueAdded` is on the y-axis and `type` is on the x-axis. After creating these boxplots, interpret each one in 1-3 sentences. In particular, discuss to what extent `day` and `type` are associated with `revenueAdded`, based on the boxplots.
+
+```{r}
+
+boxplot(revenueAdded ~ day, data = restaurants,
+        main = "Revenue Added by Day",
+        xlab = "Day",
+        ylab = "Revenue Added ($)")
+
+boxplot(revenueAdded ~ type, data = restaurants,
+        main = "Revenue Added by Restaurant Type",
+        xlab = "Restaurant Type",
+        ylab = "Revenue Added ($)")
+
+
+```
+
+**[For day, there is some variation in revenueAdded across different days of the week. The median values are similar across all days, with slight differences in spread, so the day of the week may not be a strong factor in determining revenue changes due to the promotion. For restauarant type, there is more variation among different restaurant types. Vegetarian restaurants have the highest median increase in revenue, while Seafood restaurants have the lowest median. Italian restaurants exhibit a large range in revenue added, meaning that restaurant type may be significant towards revenue response to the promotion compared to the day of the week.]**
+
+# PART B (13pts)
+
+For this part, answer the following three questions.
+
++ (4pts) Run the appropriate mixed within- and between-subjects ANOVA for this dataset. For this task, you just need to write the code that runs this analysis (and displays the resulting output).
+
+```{r}
+
+
+anova_test(data = restaurants, dv = revenueAdded, wid = id, within = day, between = type)
+
+
+
+```
+
++ (3pts) Your output should include output labeled "ANOVA" and "Sphericity Corrections". You should see that there is a `type` row in the "ANOVA" output but not the "Sphericity Corrections" output. Why is that? Explain in 1-3 sentences.
+
+**[In the ANOVA output, the type row represents the between-subjects factor. Sphericity corrections are only relevant for within-subjects factors, as sphericity assumes that the variances of the differences between levels of a within-subjects factor are equal. Since type is a between-subjects factor meaning each restaurant belongs to only one type, it does not require sphericity corrections so it doesn't appear in the "Sphericity Corrections" output.]**
+
++ (6pts) Both the "ANOVA" and "Sphericity Corrections" output include a row for `day` and a row for `type:day` (or `day:type`). For each of these rows, what is the null hypothesis? For the `day` row, please write out the null hypothesis mathematically using µ symbols. In your answer, clearly define what your µ symbols represent. For the `type:day` row, you can write out the null hypothesis in words.
+
+**[For day row the null hypothesis, H0:μmon = μtues = μwed = μthurs, where μday represents the mean revenue added for each day. For the type:day row, the null hypothesis is there is no interaction effect between type and day, meaning that the effect of the day on revenue added is the same for all restaurant types. So any differences in revenue added across the days of the week are equal for all types of restaurants.]**
+
+# PART C (8pts)
+
+Using the "ANOVA" and/or "Sphericity Corrections" output from Part B, state your scientific conclusions within the context of this dataset. In your answer, please specify the p-values you used to arrive at your conclusions, and explain why you used those p-values specifically.
+
+**[My scientific conclusion is that both the day of the week and the type of restaurant significantly impact the additional revenue, with p-values of 1.62 × 10^-21 and p = 0.007 p=0.007 for type, respectively. This means that revenue added differs significantly across different days and restaurant types. The interaction between day and type is not statistically significant, because the p-values of 0.848 and p = 0.761,  which is greater than 0.05 mean that the effect of the day of the week on revenue does not differ by restaurant type. Both factors independently influence revenue, but their effects don't depend on each other.]**
+
+# PART D (15pts)
+
+Now let's consider the following simpler analysis:
+
+```{r}
+summary(aov(revenueAdded ~ day*type, data = restaurants))
+```
+
+Using this output, answer the following three questions.
+
++ (5pts) First, as a review of old material: What type of analysis is being implemented above? After stating the type of analysis, explain why this is not an appropriate analysis for this dataset.
+
+**[The analysis implemented above is a two-way ANOVA whichs tests the effects of day, type, and their interaction on revenueAdded. This is not an appropriate analysis because it assumes that all observations are independent, which is not appropriate for this dataset because it has repeated measures on the same restaurants and each restaurant experienced the deal on different days of the week. Also neglecting the repeated measures structure violates the independence assumption needed for a standard two-way ANOVA, resulting in potentially biased estimates and incorrect p-values. Also it doesn't account for the within-subject factor (day) and the between-subject factor (type).]**
+
++ (4pts) In the above output, there is a `day` row, and there is a null hypothesis that corresponds to this row (and thus a p-value, which we can see is 0.532 above). Is this null hypothesis the same or different from the null hypothesis for the `day` row that you discussed in Part B? State whether it's the Same or Different, and then explain your answer in 1-2 sentences.
+
+**[The null hypothesis for the day row in this output is different from the null hypothesis for the day row discussed in Part B. In Part B, the day null hypothesis was part of the mixed within-and between-subjects ANOVA, which accounts for repeated measures and tests whether there is a main effect of day while including the repeated measures structure. This null hypothesis, the two-way ANOVA treats day as an independent factor without accounting for repeated measures, making the null hypothesis less accurate for the dataset’s within-subject design.]**
+
++ (6pts) Now look back at the p-value you got for the `day` row in the mixed ANOVA analysis from Part B. Which `day` p-value is *smaller*: the p-value from the analysis here (0.532), or the p-value from the mixed ANOVA analysis from Part B? After answering that, explain in 1-3 sentences *why* the p-value is smaller for one of the analyses. (For example: If the p-value is smaller for this analysis, why is it that the p-value is smaller for this analysis, compared to the mixed ANOVA analysis? Or alternatively, if the mixed ANOVA analysis p-value is smaller, why is that p-value smaller, compared to the one we obtain here?)
+
+**[The p-value for the day row in the mixed ANOVA analysis from Part B is smaller than the p-value from the analysis (0.234). This is because the mixed ANOVA accounts for the within-subject structure of the data, reducing variability by controlling for individual differences for repeated measures. The mixed ANOVA provides a more precise/accurate estimate of the effect of day, resulting in a smaller p-value. The two-way ANOVA here treats each observation as independent, neglecting the repeated measures design which increases the variability resulting in a larger p-value.]**

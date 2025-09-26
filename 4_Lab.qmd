@@ -1,0 +1,612 @@
+---
+title: Statistical Computing -- 36-350
+subtitle: |
+  Lab 4: Unit Testing and Debugging\
+  Due Friday, September 19, 11:59pm \
+title-block-style: none
+ipynb-shell-interactivity: all
+execute:
+  cache: true
+latex-tinytex: false
+format:
+  html:
+    page-layout: full
+    code-overflow: wrap
+    fontsize: 12px
+  pdf: default
+urlcolor: blue
+---
+
+Name: Rishi Damarla
+
+Andrew ID: rdamarla
+
+Collaborated with: 
+
+External resources used: 
+
+***
+***
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to fill out your name, Andrew ID, etc., at the top of this page.
+
++ For your homework submission, complete a .qmd file (named as: [AndrewID]-350-lab01.qmd -- e.g. "fsk-350-lab01.qmd"), then an .html file to ensure everything appears that you want to appear.  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either render pdf directly from `RStudio` (the **preferred** solution) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code cell, making your answers clear and differentiated from the problem statements.  Your code should produce output that will be automatically embedded in the output (.html) file.  Your lab files will include the template code chunks like the following:
+
+```{r qex}
+# YOUR ANSWER GOES HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own.  Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism.  In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
++ You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted PDF file on Gradescope, by Friday 11:59pm. 
+
+
+```{r,include=FALSE}
+## For reproducibility - don't change this!
+library(reticulate)
+library(quarto)
+# this should print TRUE
+py_available(TRUE)
+set.seed(2025)
+```
+
+```{python,include=FALSE}
+## For reproducibility - don't change this!
+import random
+import numpy as np
+random.seed(2025)
+```
+
+```{r wrap-hook,include=FALSE}
+## For readability - don't change this!
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+***
+***
+
+# Unit testing and Exception Handling
+
+
+## Question 1
+
+Add an appropriate warning to each function, but don't change what is returned.  Call each function in such a way that the warning message is observed.  Was the final output from each function what you expected it to be?
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) {
+  if (!is_character(x)) {
+    warning("x is not a character; toupper() will coerce x to character")
+  }
+  toupper(x)
+}
+
+f(1)
+f("a")
+```
+
+```{python}
+import warnings
+
+def f(x):
+    if not isinstance(x, str):
+        warnings.warn("x is not a string; using str(x) before upper()")
+    print(str(x).upper())
+
+print(f(1))       
+print(f("a"))  
+
+
+```
+
+```
+Yes, the final output from each function was expected as I thought, toupper(1) implicity coerces 1 to the character "1", and provides a warning because toupper() is meant to turn a lowercase letter to uppercase letter, the return value wasn't changed since it still only returns a character vector, for the python the f(x) function prints the uppercase version of a character and then returns NONE, so calling f(1) shows the warning and returns 1, print(f(1)) returns 1 and the NONE because function returns none as it doesn't have a return statement, I didn't change what the function returns 
+```
+
+
+## Question 2
+
+Change the warnings in Question 1 to errors.  Call the functions in such a way that the error messages are observed.
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) {
+  if(!is_character(x)){
+    stop("input 'x' must be a character")
+  }
+  toupper(x)
+}
+
+
+f(1)
+f("r")
+```
+
+```{python, error = TRUE}
+def f(x):
+    if not isinstance(x, str):
+        raise TypeError("input 'x' must be a string")
+    print(str(x).upper())
+
+f(1)
+f("r")
+
+```
+
+
+## Question 3
+
+Keep your code from Question 2, but add a message at the beginning saying what the function is supposed to do when called properly.  Run the function two times, once with improper input, and a second time with proper input (e.g., with input "a") but in conjunction with `suppressMessages()`, so the message is not observed.
+
+```{r message=TRUE, error=TRUE, linewidth=80}
+f <- function(x) {
+  message("f(): uppercases a character string")
+  if (!is.character(x)) 
+    stop("input 'x' must be a character")
+  toupper(x)
+}
+
+
+try(f(1))
+suppressMessages(f("a"))
+
+
+```
+
+
+***
+
+In the following questions, use the following functions by copying and pasting each function into your code cells, then adding material accordingly. 
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) { 
+  log(x)          
+  print("goodbye")  
+}
+
+f(10)  
+f(-1) 
+
+```
+
+```{python, error = TRUE}
+def f(x):
+  np.log(x)
+  print("goodbye")
+  
+f(10)
+f(-1)
+```
+
+***
+
+
+## Question 4
+
+In the code chunk below, first run the code as it is defined above with a character input.  Confirm that an error is generated and that you don't see the word "goodbye".  Then, below that function call, redefine the function `f()` so that it includes a call to `try()`/`try-except` at an appropriate place.  Then call your updated function with a character input.  If you do not see the word "goodbye" printed, something has gone wrong.
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) { 
+  log(x)
+  print("goodbye")
+}
+f("a")
+
+
+f <- function(x) { 
+  try(log(x))
+  print("goodbye")
+}
+f("a")  
+
+```
+
+```{python, error = TRUE}
+import numpy as np
+
+def f(x):
+    np.log(x)
+    print("goodbye")
+
+f("a")   
+
+def f(x):
+    try:
+        np.log(x)
+    except Exception:
+        pass
+    print("goodbye")
+
+f("a")
+
+
+```
+
+
+## Question 5
+
+Alter your functions from Question 4, replacing the `try()`/`try` with `tryCatch()`/`try-except` (and deleting the `print("goodbye")`).  Catch what you feel are the relevant conditions here, and deal with them appropriately (by informing the user what went wrong).  (For instance...do you think `log()`/`numpy.log()` issues informative messages?  Or not?)  Call the function with a character, call it again with a negative number, and call it one last time with 0 as input.
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) {
+  tryCatch({
+    y <- log(x)
+    if (is.infinite(y) && y < 0) message("log(0) is -Inf.")
+    y
+  },
+  warning = function(w) {
+    message("Warning from log(): ", conditionMessage(w))
+    suppressWarnings(log(x))   
+  },
+  error = function(e) {
+    message("Error: ", conditionMessage(e), ". x must be numeric; negatives give NaN, and 0 gives -Inf.")
+    NULL
+  })
+}
+
+
+f("a")
+f(-1)
+f(0)
+
+```
+
+```{python}
+import numpy as np
+
+def f(x):
+    try:
+        if x < 0:
+            print("Warning: log() of a negative number is NaN.")
+            return np.nan
+        if x == 0:
+            print("log(0) is -inf.")
+            return -np.inf
+        return np.log(x)
+    except TypeError as e:
+        print("Error:", e)
+        return None
+
+
+f("a")
+f(-1)
+f(0)
+
+```
+
+
+## Question 6
+
+Repeat Question 5, but add a `finally` component to `tryCatch()`/`try-except` that prints (or more elegantly, if you want, cats) the value of $x$ (the input).  Repeat the testing calls made in Question 5.
+
+```{r error=TRUE, linewidth=80}
+f <- function(x) {
+  tryCatch({
+    if (!is.numeric(x)) stop("x must be numeric")
+    if (x < 0) {
+      message("log() of a negative number is NaN.")
+      NaN
+    } else if (x == 0) {
+      message("log(0) is -Inf.")
+      -Inf
+    } else {
+      log(x)
+    }
+  },
+  error = function(e) {
+    message("Error: ", conditionMessage(e)); NULL },
+  finally = { cat("x =", x, "\n") })
+}
+
+f("a")
+f(-1)
+f(0)
+```
+
+```{python}
+import numpy as np
+
+def f(x):
+    try:
+        if x < 0:
+            print("log() of a negative number is NaN.")
+            return np.nan
+        if x == 0:
+            print("log(0) is -inf.")
+            return -np.inf
+        return np.log(x)
+    except TypeError as e:
+        print("Error:", e)
+        return None
+    finally:
+        print("x =", x)
+
+f("a")
+f(-1)
+f(0)
+
+```
+
+
+## Question 7
+
+You are given the following code that is meant to convert one single-character string into a numeric value: "a" maps to 0, "b" maps to 0.693, etc.  In theory, it should work with upper- and lower-case letters, and should throw an exception if non-character input is provided, and should throw an exception if more than one string is input, and should issue a warning and only use the first character if the number of characters in the string is greater than 1.
+
+```{r linewidth=80}
+f <- function(letter) {
+  return(log(which(letters==letter)))
+}
+```
+
+(Yeah, whoever gave this to you was a bit lazy.)  As a dutiful member of the team, your first responsibility is to write a series of tests using functions in the `testthat` package that will determine whether or not this code is operating correctly, given the stated expectation of how it is to perform.  Below, write at least five different test function calls, at least two of which should fail.  (Don't use any one `testthat` function, like `expect_equal()`, more than twice.)  They can include tests that you know will fail, based on some future expectation: for instance, you can test whether a certain input leads to a thrown exception (that test would fail currently).  (Or whether that same input yields an error.)  Then, when you go on to improve the code in Question 8, you can improve it in such a way that your now-known-to-fail test will pass the next time.
+
+```{r error=TRUE, linewidth=80}
+if (require("testthat") == FALSE) {
+  install.packages("testthat", repos = "https://cloud.r-project.org")
+  library(testthat)
+}
+
+f <- function(letter) {
+  return(log(which(letters == letter)))
+}
+
+test_that("lower-case letter maps correctly", {
+  expect_equal(f("b"), log(2), tolerance = 1e-3)
+})
+
+test_that("upper-case handled like lower-case", {
+  expect_equal(f("B"), log(2), tolerance = 1e-3)
+})
+
+test_that("non-character input throws an error", {
+  expect_error(f(1))
+})
+
+test_that("vector of strings throws an error", {
+  expect_error(f(c("a","b")))
+})
+
+test_that("multi-character string warns and uses first character only", {
+  expect_warning(f("ab"))
+})
+
+test_that("single letter returns length-1 numeric", {
+  expect_length(f("c"), 1)
+  expect_type(f("c"), "double")
+})
+```
+
+
+## Question 8
+
+Now rewrite `f()` below in such a way that all your tests from Question 7 pass.  Then demonstrate that your tests pass!
+
+```{r linewidth=80}
+if (require("testthat") == FALSE) {
+  install.packages("testthat", repos = "https://cloud.r-project.org")
+  library(testthat)
+}
+
+f <- function(letter) {
+  if (!is.character(letter)) stop("input must be character")
+  if (length(letter) != 1)   stop("input must be a single string")
+  if (nchar(letter) > 1) {
+    warning("string has >1 character; using first character")
+    letter <- substr(letter, 1, 1)
+  }
+  letter <- tolower(letter)
+  idx <- which(letters == letter)
+  if (length(idx) != 1) stop("character must be in a–z")
+  log(idx)
+}
+
+test_that("lower-case letter maps correctly", {
+  expect_equal(f("b"), log(2), tolerance = 1e-3)
+})
+
+test_that("upper-case handled like lower-case", {
+  expect_equal(f("B"), log(2), tolerance = 1e-3)
+})
+
+test_that("non-character input throws an error", {
+  expect_error(f(1))
+})
+
+test_that("vector of strings throws an error", {
+  expect_error(f(c("a","b")))
+})
+
+test_that("multi-character string warns and uses first character only", {
+  expect_warning(f("ab"))
+})
+
+test_that("single letter returns length-1 numeric", {
+  expect_length(f("c"), 1)
+  expect_type(f("c"), "double")
+})
+```
+
+
+***
+
+# A Little Debugging
+
+
+## Question 9
+
+In this section of the lab, you will fix a bunch of buggy function definitions.  The (likely) easiest workflow is to define the function in your console, and then run the sample commands---they will either give errors or produce the wrong outputs.  Using any combination of: reading the error messages, `traceback()` (or the traceback provided by `Python`), `cat()` and/or `print()`, you must find and fix the bugs.  Sometimes it can also help to try multiple different inputs, i.e., try new function calls, rather than just looking at the sample calls given to you, in order to determine the bugs.  You shouldn't show any of your debugging work in your final knitted answers---e.g., don't show calls to `traceback()`, and don't leave any `cat()` or `print()` calls in the final, fixed function.  Now, the buggy functions:
+
+
+## Question 9a
+
+Below is a function called `colsWithABZeros()`, but it has a few bugs.  A few sample matrices are given below in `mat`, `identityMat`, along with some sample calls that give errors.  After fixing the bugs, the calls to `colsWithABZeros()` should produce the outputs as described in comments.
+
+```{python error = TRUE}
+# function with errors
+def colsWithABZeros(myMat, a = 0, b = np.inf):
+  # Function: colsWithABZeros, to retrieve only the columns of the matrix 
+  # myMat that have between a and b zeros, inclusive
+  # Inputs:
+  # - myMat: the original matrix 
+  # - a: lower bound for number of zeros allowed; default is 0
+  # - b: upper bound for number of zeros allowed; default is Inf
+  # Output: the new matrix
+  zerosPerColumn = np.sum(mat != 0, axis = 0)
+  iToKeep = (a <= zerosPerColumn) and (zerosPerColumn <= b)
+  return myMat[iToKeep]
+```
+
+```{python}
+import numpy as np
+
+def colsWithABZeros(myMat, a=0, b=np.inf):
+    zerosPerColumn = np.sum(myMat == 0, axis=0)
+    iToKeep = (zerosPerColumn >= a) & (zerosPerColumn <= b)
+    return myMat[:, iToKeep]
+
+```
+
+```{python error=TRUE}
+mat = np.array([[0, 0, 1],
+                [0, 1, 1],
+                [1, 1, 1]])
+identityMat = np.identity(3)
+colsWithABZeros(mat) # Should get back original matrix
+colsWithABZeros(mat, a = 1, b = 2) # Should get back first 2 columns of mat
+colsWithABZeros(mat, a = 2, b = 2) # Should get just 1st column of mat; note
+  # this should still be a matrix though, and not a numeric vector!
+colsWithABZeros(identityMat, a = 2, b = 2) # Should get back original matrix
+```
+
+
+## Question 9b
+
+Below is a function called `list.extractor()`, but it has a few bugs.  A sample list is given below in `cool.list`, along with some sample calls that give errors.  After fixing the bugs, the calls to `list.extractor()` should produce the outputs as described in comments.
+
+```{r}
+#function with errors
+list.extractor <- function(my.list, i.to.keep = NULL, i.to.remove = NULL) {
+  # Function: list.extractor, to extract certain specified elements of a list
+  # Inputs:
+  # - my.list: the original list 
+  # - i.to.keep: vector of indices, corresponding to elements of the list we
+  #   want to keep.  Default is NULL, in which case this argument is ignored
+  # - i.to.remove: vector of indices, corresponding to elements of the list we
+  #   want to remove.  Default is NULL, in which case this argument is ignored.
+  #   NOTE: if both i.to.keep and i.to.remove are non-NULL, then the first 
+  #   one should take precedence (i.e., we keep what is asked to be kept)
+  # Output: the new list
+  
+  if(i.to.keep != NULL) {
+    L = my.list[[i.to.keep]]
+  }
+  if(i.to.remove != NULL) {
+    L = my.list[[-i.to.remove]]
+  }
+  return(L)
+}
+```
+
+```{r}
+list.extractor <- function(my.list, i.to.keep = NULL, i.to.remove = NULL) {
+  L <- my.list
+  if (!is.null(i.to.keep)) {
+    L <- my.list[i.to.keep]
+  } else if (!is.null(i.to.remove)) {
+    L <- my.list[-i.to.remove]
+  }
+  return(L)
+}
+
+```
+
+```{r, error = TRUE}
+cool.list <- list(ints = 1:10, lets = letters[1:8], fracs = 1:7/7,
+                 bools = sample(c(TRUE, FALSE), 5, replace = TRUE))
+list.extractor(cool.list, i.to.keep = c(1, 3)) # Should get list with ints, fracs
+list.extractor(cool.list, i.to.remove = 4) # Should get list without bools
+list.extractor(cool.list, i.to.keep = 2:4, i.to.remove = 4) # Should get list with
+  # lets, fracs, and bools (the i.to.remove argument should be ignored)
+```
+
+
+## Question 9c
+
+Below is a function called `random.walk()`, but it has a few bugs.  Some sample calls are given below that produce errors.  After fixing the bugs, the calls to `random.walk()` should produce the outputs as described in the comments.  (We haven't talked about plotting, but the function does produce a base `R` scatterplot - the simplest tool for visualizing bivariate continuous data.  In this case, the intent is to pass `plot()` one vector [call it `v`], which then shows that vector's values [on Y] over an arbitrary index `1:length(v)` [on X].)
+
+```{r}
+#function with errors
+random.walk <- function(x.start = 9, plot.walk = TRUE, seed = NULL) {
+  # Function: random.walk, to run a simple random walk over the reals, which
+  #   terminates when it reaches 0
+  # Inputs:
+  # - x.start: starting position. Default is 9
+  # - plot.walk: should the result be plotted?  Default is TRUE
+  # - seed: integer seed to pass to set.seed().  Default is NULL, which means
+  #   effectively no seed is set
+  # Output: a list with elements x.vals, the values visited by the random walk,
+  #   and num.steps, the number of steps taken before termination
+  if (!is.null(seed)) set.seed(seed) # Set the seed, if we need to
+  x.vals <- x.start
+  while (TRUE) {
+    r <- runif(1, -2, 1)
+    if (tail(x.vals+r, 1) <= 0) break
+    else x.vals <- c(x.vals, x.vals + r)
+  }
+  if (plot.walk <- TRUE) 
+    plot(x.vals, xlab = "Iteration", ylab = "Random walk values", 
+         type = "o")
+  return(x.vals = x.vals, num.steps = length(x.vals))
+}
+```
+
+```{r}
+random.walk <- function(x.start = 9, plot.walk = TRUE, seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+  x.vals <- x.start
+  while (TRUE) {
+    r <- runif(1, -2, 1)
+    y <- tail(x.vals, 1) + r
+    if (y <= 0) 
+      break
+    x.vals <- c(x.vals, y)
+  }
+  if (plot.walk) {
+    plot(x.vals, xlab = "Iteration", ylab = "Random walk values", type = "o")
+  }
+  list(x.vals = x.vals, num.steps = length(x.vals))
+}
+```
+
+```{r, error = TRUE}
+random.walk(x.start = 5, seed = 3)$num.steps # Should print 8 (this is how many
+  # steps it took the random walk), and produce a plot
+random.walk(x.start = 10, seed = 7)$num.steps # Should print 14 (this is how many
+  # steps it took the random walk), and produce a plot
+random.walk(x.start = 10, plot.walk = FALSE, seed = 7)$num.steps # Should print 14 
+  # (this is how many steps it took the random walk), and not produce a plot
+```
+
+
+## Question 10
+
+How long would you estimate you spent, in total, working on this lab?
+
+```
+10 hours 
+```
+
+

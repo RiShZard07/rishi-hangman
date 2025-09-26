@@ -1,0 +1,197 @@
+---
+title: '36-315 Lab 3: 2D Categorical Data with Inference'
+author: "Rishi Damarla"
+date: "Due Friday, September 19, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+***General instructions for all lab assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.
+
++ For your lab submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-lab1.Rmd -- e.g. "fsk-315-lab1.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ **Questions about the lab assignment will not be answered after the lab session has ended**, whether it's on Piazza or email.  This incentivizes you to engage during lab, instead of scrambling Friday nights to complete lab assignments.
+
++ __Labs are designed to take 50 minutes to complete__.  However, we give you until Friday night to submit the lab if you need extra time.  This is mostly to be flexible for anyone who needs extra time; __do NOT feel pressured to spend many hours on lab assignments!__  Labs are graded for correctness, but they are mostly meant to cover the basics of each week's material, such that you're prepared for the homework due the following week.
+
+
+***
+***
+
+
+#  Problem 1: Chi-Squared Tests for Independence [30 pts]
+
+In this lab we'll use data from a Twitter Airline Sentiment dataset, which can be found [here](https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/tweets.csv).  When reading in the data, we will assign it to a variable called `airline_tweets`.  This same dataset will come up on Homework 3.
+
+First, we'll read in the dataset and add some additional variables (code provided below).
+
+```{r, warning = F, message = F}
+library(tidyverse)
+
+#  Read in data
+airline_tweets <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/tweets.csv")
+
+airline_tweets <- airline_tweets %>%
+  # Separate the tweet_created column into three useful variables
+  separate(tweet_created, c("date", "time", "zone"), sep = " ") %>%
+  # Create some columns about the time and length of tweet
+  mutate(hour_of_day = as.integer(substr(time, 1, 2)),
+         time_of_day = case_when(
+           hour_of_day >= 5 & hour_of_day <= 12 ~ "Morning",
+           hour_of_day > 12 & hour_of_day <= 17 ~ "Afternoon",
+           TRUE ~ "Night"),
+         time_of_day = fct_relevel(time_of_day,
+                                   "Morning", "Afternoon", "Night"),
+         tweet_length = ifelse(nchar(as.character(text)) > 100, 
+                               "Long", "Short"))
+```
+
+This dataset contains information about Tweets made about airlines (e.g., Delta, Southwest, etc.)  Many of these Tweets are made while someone is waiting to board a flight.  This problem focuses on the following variables:
+
++ `time_of_day`: Whether the Tweet was made during the morning, afternoon, or night time.
++ `tweet_length`: Whether a Tweet is more than 100 characters ("Long") or less than 100 characters ("Short").
+
+
+__1(a) [20 pts]__ Create a contingency table of the `tweet_length` and `time_of_day` variables using the `table()` function, and store this in an object called `tab1a`.  Then, test to see if these two variables are independent using a chi-squared test with the following code:  `chisq.test(tab1a)`.  
+
+```{r}
+tab1a <- table(airline_tweets$tweet_length, airline_tweets$time_of_day)
+chisq.test(tab1a)
+```
+
++  What is the value of the observed chi-squared test statistic?
+
+**[13.211]**
+
++  What is the p-value of the test? 
+
+**[0.001353]**
+
++  What is your conclusion -- is there enough evidence to reject the null hypothesis that the two variables are independent?
+
+**[There is enough evidence to reject the null hypothesis that the two variables are independent because the p-value is less than 0.05]**
+
+
+__1(b) [10 pts]__ Do you think the conclusion you made in part __(a)__ makes sense in the context of the problem?  Explain your answer in 1-2 sentences.
+
+**[Yes, tweet length and time of day could be dependent such that tweet length varies by the time of day, people in the mornings are probably more rushed and busy so tweet length could be lot shorter than later in the day, when people come back from work and have a bit more free time so that could mean longer tweet lengths]**
+
+
+***
+***
+
+
+#  Problem 2: Making and Interpreting Mosaic Plots [40 pts]
+
+There is no official, `ggplot()`-sanctioned code for creating mosaic plots in `ggplot()` that works particularly well.  Instead, we'll just use the base `R` function `mosaicplot()`. 
+
+In problem __1__, we tested independence among two variables: `time_of_day`, and `tweet_length`.  In this problem, we'll make mosaic plots for these variables, and compare our findings here to our findings in problem __1__.
+
+
+__2(a) [15 pts]__ For this part, the goal is to make a mosaic plot with `time_of_day` and `tweet_length`.  The syntax for the `mosaicplot()` function is `mosaicplot(x = ?)`.  Answer the following questions:
+
++ What kind (*class*) of object should `x` be set to in `mosaicplot()`?  *Hint*: look at the help documentation for `mosaicplot()`.  You used the exact same object when working with the chi-squared test in problem __1__.
+
+**[contingency table]**
+
++ Now that you know what to set `x` to within `mosaicplot()`, make a mosaic plot of `time_of_day` and `tweet_length`.  Pick whichever order you'd like to display these variables.  For now, keep the rectangles within the mosaic plot colored as gray.
+
+```{r}
+mosaicplot(x = table(airline_tweets$tweet_length, airline_tweets$time_of_day), main = "tweet length vs. time of day", xlab = "tweet length", ylab = "time of day", color = "gray", shade = FALSE)
+```
+
++ After you've made your mosaic plot: what do the widths of the rectangles in the mosaic plot correspond to?  What do the heights of the rectangles in the mosaic plot correspond to? 
+
+**[The widths represent the tweet length how long or short they are(marginal properties of x-axis), the height represents the time of day, so showing the distribution of the time of day between long and short tweets (conditional proportion of the y-axis variable based on the x category)]**
+
+
+__2(b) [5 pts]__ As we discussed in class, it can situationally be helpful to color the rows of a mosaic plot.  For this part, copy-and-paste the mosaic plot you made in part __(b)__, and color the rows with colors of your choice.  To do this, within `mosaicplot()`, set `col` equal to a vector of colors, where the number of colors is equal to the number of rows.  For example, if my mosaic plot had three rows, I could set `col = c("red", "blue", "green")` to color one row as red, another as blue, and another as green.  For this part, all you need to do is generate your colored mosaic plot.
+
+```{r}
+mosaicplot(x = table(airline_tweets$tweet_length, airline_tweets$time_of_day), main = "tweet length vs. time of day", xlab = "tweet length", ylab = "time of day", col = c("green", "yellow", "orange"), shade = FALSE)
+```
+
+
+__2(c) [5 pts]__ Now for this part, we will make a mosaic plot of `time_of_day` and `tweet_length` colored by Pearson residuals.  To color by Pearson residuals, instead of setting `col` within `mosaicplot()`, you set `shade = TRUE`.  For this part, all you need to do is create the plot with this setting, which should involve mostly copy-and-pasting your code from part __(b)__.
+
+```{r}
+mosaicplot(x = table(airline_tweets$tweet_length, airline_tweets$time_of_day), main = "tweet length vs. time of day", xlab = "tweet length", ylab = "time of day", col = c("green", "yellow", "orange"), shade = TRUE)
+```
+
+
+__2(d) [15 pts]__ Now we will interpret the mosaic plot you made in part __(c)__.  As we discussed in class this week, for the mosaic plots colored by the Pearson residuals, if any of the residuals are greater than 2 or less than -2, we have evidence to believe that the corresponding observed cell count would be unlikely under the independence hypothesis, though a single instance is not sufficient to reject the hypothesis globally.  A very positive residual denotes higher counts than we would expect under the null, and a very negative residual denotes lower counts than we would expect under the null.  Given this, answer the following question:
+
++ For the mosaic plot showing `time_of_day` and `tweet_length`: which cells (or combinations of categories) have observed counts that are significantly higher than what we would expect under independence (if any)?  Which have observed counts that are significantly lower than what we would expect under independence (if any)?
+
+**[The Night and Short stands out, its shaded red so the standardized pearson residual is < -2, so there are fewer short tweets at night than expected under independence, all the other cells are within +/- 2 so there is no strong evidence of departure, and night and long is relatively overreprsented although it doesnt exceed +- 2 limit ]**
+
++ Does the mosaic plot in part __(c)__ yield the same conclusion as the chi-squared test from problem __1__?  State yes or no, and explain in 1-2 sentences.
+
+**[Yes, the chi square test has a the same conclusion as part c, as it rejects the null hype with p-value less than 0.05 and the mosaic shows where the dependeence arises, and an underrepresentation of short tweets at night]**
+
+
+***
+***
+
+
+# Problem 3: Considering Conditional Distributions for 2D Bar Plots [30 pts]
+
+In Lab 2 we made stacked bar plots and facetted bar plots, and discussed how we can use those plots to describe marginal distributions.  Now we're going to do the same thing here, but to describe conditional distributions.
+
+
+__3(a) [15 pts]__ First, make a stacked bar plot that involves the variables `time_of_day` and `tweet_length`.  In particular, make your stacked bar plot such that you think it's easiest to see the conditional distribution of `tweet_length` given `time_of_day`.  Then, use your plot to describe the conditional distribution of `tweet_length` given `time_of_day`.  In particular: for which time of day do long tweets seem to be more common, for which time of day do short tweets seem to be more common, and for which times of day do they seem about equal?  (*Hint*: if you can't remember how to make a stacked bar plot, either look back at Lab 2 or ask for help!)
+
+```{r}
+ggplot(airline_tweets, aes(x = time_of_day, fill = tweet_length)) +
+  geom_bar(position = "fill", color = "grey") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(title = "Tweet length by time of day (conditional on time of day)", x = "Time of day", y = "Percent within time of day", fill = "Tweet length")
+```
+
+**[long tweets are most common at night, the largest long share, shortest tweets are not more common at any time of day, because they are below 50% in all. panels, the split is closest to equal in the morning and afternoon, they are around 60% long and 40% short but night is the least balanced since it is more long.]**
+
+
+__3(b) [15 pts]__ When thinking about the conditional distribution of `tweet_length` given `time_of_day`, it's helpful to remember that `tweet_length` is a binary variable.  Thus, for any fixed `time_of_day`, the distribution of `tweet_length` will just correspond to the proportion of long tweets and the proportion of short tweets.  Because there are three times of day (as we defined), the conditional distribution of `tweet_length` given `time_of_day` can therefore be characterized by three *pairs* of proportions, where each pair adds up to 1.
+
+A function we've seen previously that can be useful for computing conditional distributions is the `prop.table()` function.  As a reminder, this function takes in a `table()` object, and reports back proportions.  First, consider the following table of proportions:
+
+```{r}
+prop.table(table(airline_tweets$tweet_length,
+                 airline_tweets$time_of_day))
+```
+
+Note that the proportions add up to 1.  This table displays the *joint* distribution of `tweet_length` and `time_of_day`, because it tells us the proportion of observations (in this case, tweets) that belong to every joint combination of `tweet_length` and `time_of_day`.  Now, given this, answer the following questions:
+
++ Copy-and-paste the above `prop.table()` code, but include `margin = 1` as an argument within `prop.table()`.  You should get back a table of proportions where the rows add up to 1.  Does this table display (a) the conditional distribution of `tweet_length` given `time_of_day`, or (b) the conditional distribution of `time_of_day` given `tweet_length`?  Explain your answer in 1-2 sentences.
+
+```{r}
+prop.table(table(airline_tweets$tweet_length, airline_tweets$time_of_day), margin = 1)
+```
+
+**[the table shows the conditional distribution of the time of day based on tweet length, the margin = 1, the rows(long/short) are normalized to sum to 1, each row gives the proportion across morning/afternoon/night within a fixed tweet length category.]**
+
++ Copy-and-paste the above `prop.table()` code, but write `margin = 2` as an argument within `prop.table()`.  You should get back a table of proportions where the columns add up to 1.  Does this table display (a) the conditional distribution of `tweet_length` given `time_of_day`, or (b) the conditional distribution of `time_of_day` given `tweet_length`?  Explain your answer in 1-2 sentences.
+
+
+```{r}
+prop.table(table(airline_tweets$tweet_length, airline_tweets$time_of_day), margin = 2)
+```
+
+**[it shows the conditional distribution of tweet length with margin = 2, each column(morning, afternoon, night) is normalized to sum to 1 so the entries are the proportions of long vs. short within each time of day]**
+
+

@@ -1,0 +1,229 @@
+---
+title: "36-309 / 36-749 Homework 3: Two-Way ANOVA"
+subtitle: Due Wednesday, September 25, 11:59pm
+author: "Rishi Damarla"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: Treatment Effects and Disparities with Two-Way ANOVA (63 points)
+
+In this problem, we'll work with data that mimics a study I've worked on in psychology to address disparities in STEM (Science, Technology, Engineering, and Mathematics). Let's say Professor E. Stokes is conducting a study to assess if additional training in STEM-related skills could improve income levels for recent college graduates from underrepresented backgrounds. (For the purpose of this study, "underrepresented background" was defined as non-white and non-Asian.) The following code loads the dataset (download it from Canvas):
+
+```{r}
+stemData = read.csv("stemData.csv")
+#ensure categorical variables are factors
+stemData$underrep = factor(stemData$underrep)
+stemData$treatment = factor(stemData$treatment)
+```
+
+In the study, recent college graduates interested in further STEM education were randomized to one of three groups:
+
+1) A standard one-year training program that had previously been designed to improve students' STEM-related skills (e.g., math, science, and computer programming).
+
+2) A new one-year STEM training program designed for underrepresented students specifically.
+
+3) A control group that did not involve any additional training. Instead, these students were encouraged to pursue other post-graduation plans.
+
+After one year (i.e., after the training programs were over), all participants were asked to report their annual salary. Thus, the goal of the study was to assess if this additional STEM training changed students' annual salaries, compared to other post-graduation opportunities they would otherwise pursue.
+
+The dataset includes the following variables:
+
++ `income`: The student's annual salary at the end of the study, measured in thousands of US dollars.
+
++ `underrep`: Whether or not the student was from an underrepresented background ("yes" or "no").
+
++ `treatment`: The program the student was randomized to (either "standSTEM", "newSTEM", or "control").
+
+a. (18pts) Because this is a randomized experiment involving a quantitative outcome and two categorical explanatory variables, bells should be ringing that we'll use two-way ANOVA to analyze this experiment. However, before we dive immediately into statistical modeling, let's first do some preliminary exploration of this dataset. For this part, answer the following questions.
+
++ (6pts) As we discussed in class, the statistical model for two-way ANOVA is very similar to that of one-way ANOVA. Thus, one of the modeling assumptions behind two-way ANOVA is the *equal variance assumption*. For this part, create a side-by-side boxplot that lets you evaluate the equal variance assumption. Does that assumption seem plausible for this dataset? State Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible, and explain your answer in 1-3 sentences. (**Regardless of what you conclude in this question, please disregard this part when interpreting the upcoming two-way ANOVA analysis.**)
+
+```{r}
+stemData$group = interaction(stemData$underrep, stemData$treatment)
+
+boxplot(income ~ group, data = stemData,
+        xlab = "Group (Underrepresented x Treatment)",
+        ylab = "Annual Salary",
+        main = "Income by Group")
+        
+
+        
+
+```
+
+**[Somewhat plausible, The spreads of the boxplots are similar across most of the groups, there are few differences in the interquartile spread and range. Also yes.newSTEM and no.control, show slightly larger spread compared to others with more outliers, but the variances do not appear too different as it seems to have minimal impact. So, the differences in variance aren't extreme enough to conclude that the equal variance assumption is definetely not plausible ]**
+
++ (8pts) Now turn in an **interaction plot** of these data, and interpret the interaction plot in 1-3 sentences. In your interpretation, be sure to discuss the effects of each factor (`underrep` and `treatment`), as well as the possibility of an interaction between the two factors.
+
+```{r}
+interaction.plot(x.factor = stemData$underrep, 
+                 trace.factor = stemData$treatment, 
+                 response = stemData$income, 
+                 xlab = "Treatment", 
+                 ylab = "Mean Income (in thousands)", 
+                 trace.label = "Underrepresented Background",)
+
+```
+
+**[There appears to be some interaction between the underrep status and treatment. The newSTEM training results slightly higher incomes for underrepresented students, while the control group has a decrease in income for underrepresented students compared to non-underrepresented students. The standSTEM line is mostly consistent for both groups, meaning that the standard STEM training may have a similar effect on income for either underrepresented status. When the lines cross it means that the effect of treatment on income depends on whether the student is from an underrepresented background.]**
+
++ (4pts) At this point, you've made a side-by-side boxplot and an interaction plot. Consider the information displayed in each of these plots. In what ways do these two plots display similar information, and in what ways do they display different information? Discuss in 1-3 sentences. (**Hint**: There is indeed at least one way these two plots are similar, and at least one way they are different. Thus, you should discuss at least one similarity and one difference.)
+
+**[The side-by-side boxplot and the interaction plot both display information about the differences in income for various groups based on treatment and underrep status for visual group mean comparison. Unlike the boxplot, The interaction plot shows interactions between the two factors by demonstrating that the effect of treatment varies for underrepresented and non-underrepresented students. The boxplot shows the variability and distribution for income within each group, while the interaction plot shows the interaction and relationship between the factors and how their overall effects impact the outcome.]**
+
+b. (11pts) For this part, answer the following two questions.
+
++ (6pts) Now perform the relevant *interactive* two-way ANOVA model for this dataset. *Based only on the output from your two-way ANOVA model*, what is your scientific conclusion for this study? In particular, what can we conclude about the effects of `underrep` and `treatment` on `income`?
+
+```{r}
+
+summary(aov(income ~ underrep * treatment, data = stemData))
+
+```
+
+**[We can conclude that there is a significant main effect of treatment on income, so the type of STEM program impacts income levels among participants as p = 0.000443. The results indicate that the effects of different training programs on students' incomes vary.  The main effect of underrep isn't statistically significant since p = 0.080337 compared to the level of 0.05, it is marginally significant, meaning that background could have a important impact on income. The interaction between underrep and treatment is statistically significant since p = 0.002989, showing that students from underrepresented backgrounds have different outcomes from STEM programs on income. Overall, this shows that the impact of the training programs on income deprends on student's background considering program type as well.]**
+
++ (5pts) Now look back at the interaction plot you made in Part A. As we discussed in class, interaction plots can provide complementary information to a two-way ANOVA analysis. In 1-3 sentences, discuss what additional information the interaction plot provides that complements your two-way ANOVA analysis here. (**Hint**: The conclusion you can make from your two-way ANOVA analysis alone should be somewhat limited. Thus, for this part, we are asking you to use your interaction plot to broaden your conclusions about this dataset, albeit without an additional statistical test.)
+
+**[The additional information the interaction plot provides is the specific visual appeal into how the treatment effects differ between underrepresented and non-underrepresented groups. It shows how certain treatments could be more effective for one group than the other. This helps interpretation because, we can know how the interaction in the ANOVA analysis affects income patterns for the different combinations of factors through direction and magnitude of interactions somethings the numbers alone from the analysis don't provide.]**
+
+c. (12pts) In class we discussed how interaction plots can be improved by adding confidence intervals to the plot. We won't do that here,  but instead, note that there are 6 combinations of `treatment` and `underrep`. Thus, we could compute 6 confidence intervals, one for each group. I won't ask you to compute the confidence intervals here, but note that each confidence interval is a function of three things: (1) the sample mean outcome in each group, (2) the number of subjects assigned to that group, and (3) our estimate of sigma-squared. Thus, for this question, answer the following three questions.
+
++ (4pts) Write code that displays the sample mean `income` for each of the 6 combinations of `treatment` and `underrep`. For the sake of this question, there's no need to restate each mean - just write the code that displays the sample means. (**Hint**: You can do this in one line of code using the `aggregate()` function, where you include `treatment` *and* `underrep` on the right-hand side of the tilde within `aggregate()`.)
+
+```{r}
+
+aggregate(income ~ treatment + underrep, data = stemData, FUN = mean)
+
+```
+
++ (5pts) What is the number of subjects in each of the 6 groups? Write one line of code that answers this question. Furthermore, answer the following: An experiment is considered a "balanced design" if the same number of subjects are assigned to each treatment group. Given this definition, did this experiment have a balanced design? Explain your answer in 1-2 sentences.
+
+```{r}
+table(stemData$treatment, stemData$underrep)
+```
+
+**[The experiment does not have a balanced design because the number of subjects differs significantly across the groups. Each group does not have the same number of subjects so there isn't equal representation for all treatment conditions.]**
+
++ (3pts) What is our estimate of sigma-squared for the two-way ANOVA model you ran in Part B? Explain your answer in 1-2 sentences. (**Hint**: You don't have to write any more code.)
+
+**[12.31, this value represents the estimated variance of the errors/residuals for the model, displaying the variability in income not accounted for by the underrep, treatment, or their interaction with each other]**
+
+d. (9pts) Now look back at your two-way ANOVA table from Part B. You should see three p-values: One for `treatment`, one for `underrep`, and one for `treatment:underrep`. (For the last one, it's okay if yours instead displays `underrep:treatment`.) What is the null hypothesis associated with each of these p-values? For the first two hypotheses (for `treatment` and `underrep`), please write your null hypothesis using mathematical notation, being sure to define what your mathematical notation means. Meanwhile, for the `treatment:underrep` p-value, you may state the null hypothesis in words.
+
+**[The null hypothesis for treatment is  $\mu$control =  $\mu$newSTEM = $\mu$standSTEM, which means that the mean income is equal for all levels of the treatment variable, meaning no effect of the type of STEM program on income. The null hypothesis for underrep is $\mu$underrep = $\mu$not underrep states that the mean income is equal between students from underrepresented backgrounds and not from underrepresented backgrounds, meaning if you are from an underepresented background it shouldn't affect income. The null hypothesis for treatement:underep is no interaction between treatment and underrep, so treatment's effect on income doesn't depend on underepresented backgrounds.]**
+
+e. (13pts) One goal of this study was to measure income disparities between underrepresented and not-underrepresented groups. By "disparity," I mean the difference in average `income` between those who are underrepresented and those who are not. We'll explore that goal in this part. Specifically, let's consider estimating the effect of `underrep` within each `treatment` subgroup. Here are the datasets for each `treatment` subgroup:
+
+```{r}
+#dataset of just subjects assigned to "standSTEM"
+stemData.stand = subset(stemData, treatment == "standSTEM")
+#dataset of just subjects assigned to "newSTEM"
+stemData.new = subset(stemData, treatment == "newSTEM")
+#dataset of just subjects assigned to "control"
+stemData.control = subset(stemData, treatment == "control")
+```
+
+For this problem, answer the following questions.
+
++ (8pts) For each of the three subgroups, run the relevant t-test, where you compare the mean `income` between the two `underrep` groups. After you run your tests, answer the following: Do these tests suggest that there are income disparities in this dataset? If so, for which treatment group(s) do there appear to be disparities? Explain in 1-3 sentences how you arrived at your answer.
+
+```{r}
+
+t.test(income ~ underrep, data = stemData.stand)
+
+
+t.test(income ~ underrep, data = stemData.new)
+
+
+t.test(income ~ underrep, data = stemData.control)
+
+```
+
+**[The t-tests indicate an income disparity between the underrepresented and not-underrepresented groups only for the control group. The p-value for the control group is 0.0056, which is statistically significant because it is less than 0.05, meaning a difference in mean income for the two groups. For the standSTEM and newSTEM groups, the p-values are 0.2739 and 0.1405, respectively, which are not statistically significant because it is greater than 0.05, meaning no evidence of income disparities for these groups. Income disparities are only there in the control group not STEM training groups.]**
+
++ (5pts) To wrap up this study, Professor Stokes makes the following claim: "I believe there is an interaction between `treatment` and `underrep` for this study." Does the output from the three t-tests above provide any evidence supporting this claim? State Yes or No, and explain in 1-3 sentences.
+
+**[Yes, the output from the three t-tests provides evidence supporting the claim of an interaction between treatment and underrep. The significant difference in income between underrepresented and not-underrepresented groups for the control group, and not in the STEM training groups, shows that the effect for underrepresented groups on income is dependant on the type of treatment recieved indicating a potential interaction between treatment and underrep.]**
+
+
+# Question 2: Built Two-Way ANOVA (37 points)
+
+This problem consists of data loosely based on a number of studies. The experimental units are teams of 4 students who are given a box of (uncooked) spaghetti and a bag of marshmallows and told to build the highest structure they can. Here's the dataset we'll be working with (download it from Canvas):
+
+```{r}
+build = read.csv("build.csv")
+#make sure the categorical variables are factors
+build$age = factor(build$age)
+build$gender = factor(build$gender)
+```
+
+There are two explanatory variables, `age` and `gender`, denoting the age and gender composition of the four members of each team. Meanwhile, the outcome variable is `cmHigh`, denoting the height (in centimeters) of each structure.
+
+a. (12pts) First, let's do some initial exploratory data analysis. For this part, answer the following questions.
+
++ (4pts) We will again consider two-way ANOVA soon. As discussed in class, two-way ANOVA considers every combination of the two categorical explanatory variables. In this case, how many combinations are there in this experiment? Explain your answer in 1-2 sentences, and provide any code you used to arrive at your answer.
+
+```{r}
+table(build$age, build$gender)
+length(table(build$age, build$gender))
+
+```
+
+**[There are 9 combinations of age and gender in this experiment.]**
+
++ (8pts) Now turn in an **interaction plot** for these data. Then, interpret the interaction plot in 1-3 sentences. In your interpretation, be sure to discuss the effects of each factor as well as the possibility of an interaction between the two factors.
+
+```{r}
+
+interaction.plot(x.factor = build$age, 
+                 trace.factor = build$gender, 
+                 response = build$cmHigh, 
+                 xlab = "Age Group", 
+                 ylab = "Mean Height", 
+                 trace.label = "Gender Composition",)
+                 
+
+```
+
+**[The interaction plot shows the height of the structures varying for different age groups and gender compositions. Kindergarten teams built the tallest structures overall, while graduate students built the shortest, not considering gender composition. The lines aren't parallel, indicating an interaction between age and gender composition. Something seen in the interaction plot is the performance differences between all-female and mixed-gender teams change depending on age group. Overall this shows that the effect of gended composition on structure height is dependent on age group of the participants.]**
+
+b. (10pts) For this part, perform two different two-way ANOVA analyses:
+
+1) An interactive two-way ANOVA model involving gender and age.
+
+2) An additive two-way ANOVA model involving gender and age.
+
+In your answer, please include the output from both models. Then, answer the following: Which of the two models should be used for inference and making scientific conclusions? Explain your answer in 1-3 sentences.
+
+```{r}
+
+summary(aov(cmHigh ~ gender * age, data = build))
+
+summary(aov(cmHigh ~ gender + age, data = build))
+
+
+```
+
+**[The additive model should be used for inference and making scientific conclusions because the interaction term gender:age in the interactive model isn't statistically significant as p = 0.836 which is greater than 0.05. So the overall effect of gender and age on the height of the structures is additive neglecting interaction between the factors. The additive model focused on the main effects of gender and age and doesn't assume an interaction.]**
+
+c. (15pts) Using the two-way ANOVA model you chose for inference, please do the following:
+
++ (5pts) State your scientific conclusion for the `age` row of the ANOVA table. Be sure to report your conclusion in terms of a hypothesis test (including the corresponding null hypothesis for this test). It's okay if you write the null hypothesis with words instead of mathematical notation.
+
+**[For the age row of the ANOVA table, the null hypothesis is that the mean height of the structures doesn't differ across the different age groups meaning there isn't a effect of age on the height of the structures. The alternative hypothesis is that there is a significant difference in the mean height of the structures between at least two of the age groups. The p-value for age is very small with p < 0.001. So we reject the null hypothesis and conclude no significant effect of age on the height of the structures. The mean heights significantly vary for different age groups.]**
+
++ (5pts) State your scientific conclusion for the `gender` row of the ANOVA table. Be sure to report your conclusion in terms of a hypothesis test (including the corresponding null hypothesis for this test). It's okay if you write the null hypothesis with words instead of mathematical notation.
+
+**[For the gender row of the ANOVA table, the null hypothesis is that the mean height of the structures does not differ across the different gender compositions meaning there is no effect of gender composition on the height of the structures. The alternative hypothesis is that there is a significant difference in the mean height of the structures for at least two of the gender compositions. The p-value associated with gender is 0.786 which is greater than 0.05 meaning we fail to reject the null hypothesis. There is no significant effect of gender composition on the height of the structures.]**
+
++ (5pts) Finally, give an example of a question that would be a good "follow up question" to your conclusions for `age` and `gender`, but for which we do not have (in this homework) a p-value to answer it. After stating your question, explain why it would be a natural follow-up question to the conclusions you made for `age` and `gender`. (**Hint**: At least one of the conclusions you made should be limited in some way. Thus, a natural follow-up question would be one that addresses those limitations.)
+
+**[A good follow-up question could be "Is there a significant interaction between age and gender specifically for kindergartners or graduate students, that influences the height of the structures?". This question is a natural follow-up because the main effect of age was significant and the main effect of gender was not, we still don't know how our conclusions are by the combined impact of age and gender. The current p-values don't fully address this so with this combined impact it could help understand whether and why certain age groups perform differently depending on gender composition.]**

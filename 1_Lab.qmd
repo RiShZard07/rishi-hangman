@@ -1,0 +1,268 @@
+---
+title: Statistical Computing -- 36-350
+subtitle: |
+  Mini-Lab 1: Making Sure R, Python, RStudio, and Quarto Are Working \
+  Due Friday, August 29, 11:59pm \
+title-block-style: none
+ipynb-shell-interactivity: all
+execute:
+  cache: true
+format:
+  html:
+    page-layout: full
+    code-overflow: wrap
+    fontsize: 12px
+  pdf: default
+urlcolor: blue
+---
+
+Name: Rishi Damarla
+
+Andrew ID: rdamarla
+
+Collaborated with: N/A
+
+External resources used: 
+
+---
+
+---
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to fill out your name, Andrew ID, etc., at the top of this page.
+
++ For your homework submission, complete a .qmd file (named as: [AndrewID]-350-lab01.qmd -- e.g. "fsk-350-lab01.qmd"), then an .html file to ensure everything appears that you want to appear.  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either render pdf directly from `RStudio` (the **preferred** solution) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code cell, making your answers clear and differentiated from the problem statements.  Your code should produce output that will be automatically embedded in the output (.html) file.  Your lab files will include the template code chunks like the following:
+
+```{r qex}
+# YOUR ANSWER GOES HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own.  Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism.  In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
++ You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted PDF file on Gradescope, by Friday 11:59pm. 
+
+
+```{r,echo=FALSE}
+## For reproducibility - don't change this!
+library(reticulate)
+library(quarto)
+# this should print TRUE
+py_available(TRUE)
+set.seed(2025)
+```
+
+```{python,include=FALSE}
+## For reproducibility - don't change this!
+import random
+random.seed(2025)
+```
+
+```{r wrap-hook,include=FALSE}
+## For readability - don't change this!
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+---
+
+---
+
+After each question, you will see an element like the following:
+
+```{r linewidth=80}
+# YOUR ANSWER GOES HERE
+```
+
+This, in `R Markdown` parlance, is a "code chunk."  In `Quarto`, it's called a cell, but it functions identically.  To answer the question, replace the `# YOUR ANSWER GOES HERE` line with your answer.  Note that anything following a "#" symbol is a comment (or is code that is "commented out").  Also note that you do not need to remove the question or make other edits to this document.  Just fill in the code cells.  You should never alter the language a cell is to be written in, which you can see is the very first thing specified when creating a cell (above {r} means your code will be in `R`, later {python} means your code will be in `Python`, and the extra parameter "linewidth=80" ensures that code doesn't run off the side of the page - don't alter that either).
+
+To run the code in a cell to see if it works, simply click on the green forward arrow at the upper right-most part of the cell, or use "\<cntl\>+\<return\>" as a keyboard shortcut.  The other symbol at the top right - the gray downward arrowhead above a green bar - will run all cells up to, **but not including**, the one you press the button in.  This can be useful to make sure objects assigned in previous cells, on which code in the current cell depends, do have their expected contents.
+
+Here is an example (that only makes sense if you are looking at the .qmd file), which I've completed for you:
+
+## Question 0
+
+Print "Hello, world." in `R`, then `python`.
+
+```{r q0a, linewidth=80}
+print("Hello, world.")
+```
+
+```{python q0b, linewidth=80}
+print("Hello, world.")
+```
+
+For some questions, you will also be prompted for written explanations.  For these, in addition to a code chunk, you will also see the following:
+
+```
+# YOUR ANSWER GOES HERE
+```
+
+Note how there is no information like {r linewidth=80} following the tick marks in the first line.  This is a verbatim block; any text you write in this block appears verbatim when you render your file.
+
+When you have finished answering the questions, click on the drop-down menu next to the "Render" button in `RStudio`.  "Render HTML" will create an HTML file; that file will be located in the same place your .qmd file has been created / copied to / downloaded to.
+
+`RStudio` may prompt you to install packages to get the knitting to work; do install these.
+
+---
+
+# Vector and Array Basics
+ 
+ 
+## Question 1a
+
+Initialize a vector `y` with one logical value, `TRUE` , one numeric value, `3.14`, and one character value, `a`, and determine the type of `y`.
+
+```{r q1a, linewidth=80}
+y <- c(TRUE, 3.14, "a")
+typeof(y)
+```
+
+```
+# The type of y is character because R coerces to the most permissive the most common type and the order is character, double, integer, and logical, logical is the most restrictive and character is the least restrictive, vice verse for permissive 
+```
+
+## Question 1b
+
+Now create a `numpy` array `y` in `Python`, with the same elements your `R` vector __ended with__ in Question 1a and determine the type of `y` (this will require you interpreting the `dtype` ).
+
+```{python q1b, linewidth=80}
+import numpy as np 
+y = np.array(["TRUE", "3.14", "a"])
+y.dtype
+```
+
+```
+dtype('<U4'), it is a unicode string array, it has a max length of 4 characters, the strings are lexigraphic, also after the coercion the elements are strings so it is a string array"
+```
+
+
+## Question 2a
+
+Sort the `R` vector `y` into ascending order.  Comment on the order: what type of ordering is it?
+
+```{r q2a, linewidth=80}
+sort(y)
+```
+
+```
+# lexicographic ordering 
+```
+
+
+## Question 2b
+
+Sort the `Python` array `y`.  What type of ordering is it?
+
+```{python q2b, linewidth=80}
+np.sort(y)
+```
+
+```
+lexicographic order
+```
+
+
+
+## Question 3a
+
+Initialize a vector $y$ of numerics, with first value 4 and last value -4, stepping down by 1.  Do this *two* different ways.  After each initialization, print the vector.
+
+```{r q3a, linewidth=80}
+y <- 4:-4
+print(y)
+y <- seq(4, -4, by = -1)
+print(y)
+```
+
+
+## Question 3b
+
+Repeat Question 3a in `Python`, but now producing integers.
+
+```{python q3b, linewidth=80}
+y = np.arange(4, -5, -1)
+print(y)
+y = np.linspace(4, -4, 9)
+print(y)
+
+```
+
+
+In this week's homework you will learn about concepts that we did not cover in the class notes: sampling, recycling, and attributes.  You are always encouraged to use the documentation in the `RStudio` help pane, as well as to `Google` terms.  As always, `StackOverflow` is also very much your friend.
+
+---
+
+
+# Sampling
+
+For Questions 4 and 5, use the `R` function `sample()` and the `Python` function `numpy.random.randint()`.  Do feel free to refer to the documentation for both.
+
+
+## Question 4a
+
+Sample five integers between 7 and 100, inclusive.  Then demonstrate how you would sample five integers between -5 and 15, inclusive.
+
+```{r q4a, linewidth=80}
+sample(7:100, 5)
+sample(-5: 15, 5)
+```
+
+
+## Question 4b
+
+Repeat Question 4a in `Python`.
+
+```{python q4b, linewidth=80}
+np.random.randint(low = 7, high = 100, size = 5)
+np.random.randint(low = -5, high = 15, size = 5)
+```
+
+
+## Question 5a
+
+If you rerun the code chunks for Question 4, you will see that you get different sets of five numbers every time.  That's because the sampling is random.  The details of how either language performs random sampling are beyond the scope of this class (see, e.g., the documentation for `Random` or `numpy.random.RandomState`, respectively, if you are of a masochistic bent).  However, it is generally important to be able to reproduce statistical analyses, and so it is generally important that we set a random number seed before calling functions like `sample()`.  That seed can be any (reasonable) number.
+
+Use `set.seed()` to set the random number seed, then make a call to `sample()`, then reset the seed to the same value as before and re-do the call to `sample()`.  If you do this correctly you will see the same output from `sample()` in both cases.
+
+```{r q5a, linewidth=80}
+set.seed(15)
+a <- sample(7:100, 5)
+
+set.seed(15)
+b <- sample(7:100, 5)
+
+a
+b
+```
+
+## Question 5b 
+
+Repeat question 5a in `Python`, using the `numpy.random.seed()` and `numpy.random.randint()` functions.
+
+```{python q5b, linewidth=80}
+import numpy as np
+
+np.random.seed(15)
+c = np.random.randint(low = 7, high = 100, size = 5)
+
+np.random.seed(15)
+d = np.random.randint(low = 7, high = 100, size = 5)
+
+print(c)
+print(d)
+```
+
+

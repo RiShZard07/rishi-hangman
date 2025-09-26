@@ -1,0 +1,257 @@
+---
+title: "36-309 Homework 1"
+subtitle: Due Wednesday, September 11, 11:59pm
+author: "Rishi Damarla"
+output: pdf_document
+urlcolor: blue
+---
+
+This homework explores a dataset based on research in mobile health, a burgeoning field that explores how smartphone apps can be used to improve health outcomes.
+
+In this homework, Professor A. Bognanno wants to assess whether her research-driven mindfulness app reduces people's stress. Specifically, Professor Bognanno ran a study where subjects were randomly assigned to one of three groups:
+
+1) **Mindfulness**: Subjects were given a mindfulness training app. Three times a week for four weeks, the app walked subjects through 30-minute tutorials on meditation and other mindfulness activities.
+
+2) **Control**: Subjects weren't given a mobile app; they were simply asked to stay in the study for four weeks and go about their regular routine.
+
+3) **Management**: Subjects were given a stress management app. Three times a week for four weeks, the app walked subjects through 30-minute tutorials on [stress management](https://en.wikipedia.org/wiki/Stress_management) that, while meant to alleviate stress, were not related to mindfulness.
+
+Subjects were recruited from all over the world (for simplicity, assume the app was delivered in each user's preferred language). Before the study began, subjects were asked to record their age and the continent they lived in. Then, they were asked to answer three questions:
+
++ "On a 1-to-5 scale, in the last month, how often have you been upset because of something that happened unexpectedly?" 
++ "On a 1-to-5 scale, in the last month, how often have you felt that you were unable to control the important things in your life?" 
++ "On a 1-to-5 scale, in the last month, how often have you felt nervous and stressed?" 
+
+Each question was coded as 1 = never, 2 = almost never, 3 = sometimes, 4 = fairly often, and 5 = very often. The answers to these three questions were added together, creating an overall "stress score." This stress score was recorded *before* subjects used any apps as well as *after* they used their assigned apps for four weeks. Thus, there are two stress scores (one before the study, one after).
+
+(The above "stress score" mimicks the [Perceived Stress Scale](https://www.das.nh.gov/wellness/docs/percieved%20stress%20scale.pdf), which is a popular way to measure stress.)
+
+In Question 1, you will explore the data in general. In Question 2, you will compare subjects who used *any* app (mindfulness or management) to subjects who didn't use any app (control). Finally, in Question 3, you will compare all three groups. There's also a Question 4; it is required **only** for students in 36-749 (it is a bonus question for students in 36-309).
+
+Download `stressData.csv` from Canvas and place it in the current folder. Then load the dataset for this homework:
+
+```{r}
+stressData =
+  read.csv("stressData.csv")
+```
+
+# Question 1: Exploring the Dataset (19 points)
+
+In this question, we'll do various forms of exploratory data analysis (EDA) for the `stressData` dataset.
+
+a. (6pts) First, write a line of code that displays the variable names in the dataset. Then, for each variable, state its **variable type** (i.e., quantitative or categorical, discrete or continuous, nominal or ordinal). For each, explain your rationale in one sentence. (**Hint**: In addition to reading the above description of the study, it may be helpful to look at the first few rows of the dataset. However, in your submission, you do not need to display any rows of the dataset.)
+
+```{r}
+names(stressData)
+```
+
+**[age is a quantitative variable that is continuous. Age is a numerical value with different numbers for different ages and it can take any decimal value so it is continuous, continent is a categorical value and is nominal because it has words and different groups without any specific order, stressBefore is a quantitative variable and is discrete because it shows the counts of stress levels measured before intervention, and it is a whole number so its discrete, stressAfter is a quantitative variable and discrete showing the counts of stress levels after intervention and it is also a whole number with no decimal places so it is discrete, group is a categorical variable and is nominal because it categorizes individuals into different groups without any specific order]**
+
+b. (8pts) Professor Bognanno first wants to understand some basic demographics of the subjects, specifically about their age and the continent they live in. For this part, answer the following questions.
+
++ (3pts) Given your answer in Part A, what is an appropriate form of **non-graphical EDA** for the `continent` variable? Explain in one sentence why that type of non-graphical EDA is appropriate. Furthermore, write one line of code that displays your non-graphical EDA for `continent`. (**Hint**: You do not need to give any interpretation/description of the EDA output. You only have to give a one-sentence explanation why that non-graphical EDA is appropriate for this variable).
+
+```{r}
+table(stressData$continent)
+```
+
+**[This nongraphical EDA is appropriate for the variable continent because it is a categorical, nominal variable, it makes a frequency table showing the count of observations for every category and this summarizes a nominal variable]**
+
++ (5pts) Professor Bognanno asks: How do subjects' ages compare across different continents? Provide **one** form of **graphical** EDA that allows you to answer this question. Make sure to label the axes so that the graph is readable for someone who does not know the variable names in the data. Using your graph, answer Professor Bognanno's question in 1-3 sentences. In particular, discuss to what extent it seems that subjects from some continents are younger/older than subjects from other continents, before the study. Be sure to explain what aspects of your EDA you are using to arrive at your answer. (**Hint**: You should only make **one** graph for this question.)
+
+
+```{r}
+boxplot(stressData$age ~ stressData$continent,
+        xlab = "Continent", ylab = "Age", cex.axis=0.8, main = "Age across continents")
+```
+
+**[In Africa, the median age is around 35, but has a range from IQR:around25 - 45, showing there is higher variation and diversity in the range of age groups with younger and older people. In asia, the median is around 37, but the IQR is from around 30 - 50. In europe, the median is around 50, with an IQR of 40 - 55. In north america, the median is around 50, and the IQR is around 35 - 55. In south america, the median is around 30, and the IQR is around 25 - 50. The conclusion is that europe and north america have the highest ages, greater than the rest. The minimum is africa/south america. Asia is a little greater than africa and south america in age. The order from least age to most age for the contents would be africa and south america, asia, north america, and then europe. ]**
+
+c. (5pts) Now Professor Bognanno wants to know if there were any extremely stressed or extremely not-stressed subjects in this dataset. Note that each subject's "stress score" was measured before and after the study. Please answer the two questions below. For each question, provide any code you used to arrive at your answer.
+
++ *Before the study*, were there any subjects who answered 1 = never for all three questions for the stress score? Furthermore, were there any subjects who answered 5 = very often for all three questions for the stress score?
+
+```{r}
+table(stressData$stressBefore)
+
+```
+
+**[Before the study, 0 subjects answered 1 = never for all three questions for the stress score, 6 subjects answered 5 = very often for all three questions for the stress score. Stress score for answering 0 on all 3 questions = 0 + 0 + 0 while answering 5 on all 3 questions = 5 + 5 + 5 = 15. ]**
+
++ *After the study*, were there any subjects who answered 1 = never for all three questions for the stress score? Furthermore, were there any subjects who answered 5 = very often for all three questions for the stress score?
+
+```{r}
+table(stressData$stressAfter)
+```
+
+**[After the study, 3 subjects answered 1 = never for all three questions for the stress score, 20 subjects answered 5 = very often for all three questions for the stress score. Stress score for answering 0 on all 3 questions = 0 + 0 + 0 while answering 5 on all 3 questions = 5 + 5 + 5 = 15.]**
+
+# Question 2: Comparing Any Treatment to No Treatment (33 points)
+
+As stated at the beginning of this homework, subjects were randomized to one of three treatment groups. Two of the groups (mindfulness and management) involved an app, and the other group (control) did not. In this problem, we will compare subjects who used *any* app (mindfulness or management) to subjects who didn't use any app (control). To aid you in this question, the following line of code creates a new explanatory variable, `app`:
+
+```{r}
+stressData$app = ifelse(stressData$group == "control", "no", "yes")
+```
+
+The above line of code defines `app` within the `stressData` dataset, where `app` is defined as "no" if a subject is in the control group, and otherwise is defined as "yes". In other words, subjects in control have `app = "no"`, and subjects in mindfulness or management have `app = "yes"`. **For this part, we will use `app` as our primary explanatory variable. We won't consider the original explanatory variable, `group`, until Question 3.**
+
+a. (7pts) In Question 1C, you should have looked at the variables `stressAfter` and `stressBefore`. We could potentially just compare subjects' stress after the study, i.e. compare their `stressAfter`. However, Professor Bognanno is most interested in whether the apps cause a *change* in stress, compared to the stress they experienced at the beginning of the study. With this in mind, we'll create a new variable, `stressDiff`, defined as `stressAfter` minus `stressBefore`:
+
+```{r}
+stressData$stressDiff = stressData$stressAfter - stressData$stressBefore
+```
+
+Using `stressDiff`, answer the following questions.
+
++ (3pts) Did at least 50% of subjects **reduce** their stress during the study? State Yes or No, and then give a short explanation for your answer. Be sure to include any code you used to arrive at your answer.
+
+```{r}
+table(stressData$stressDiff)
+mean(stressData$stressDiff < 0)
+```
+
+**[No, at least 50% of the subjects did not reduce their stress during the study because the proportion of students that reduced their during the study was 43.33% which is below 50%]**
+
++ (4pts) Now we'll produce some bivariate non-graphical EDA for comparing the `stressDiff` across the two `app` groups. What is the mean `stressDiff` for subjects who used an app, and what is the mean `stressDiff` for subjects who did not use an app? Also, what is the *variance* of `stressDiff` within these two `app` groups? Be sure to include the code you used to compute this, but also be sure to write your final answer in text outside of your code.
+
+```{r}
+aggregate(stressDiff ~ app, data = stressData, FUN = mean)
+aggregate(stressDiff ~ app, data = stressData, FUN = var)
+```
+
+**[The mean stress difference for subjects who used an app is -0.35, and the mean stress difference for subjects who didn't use an app is -0.19. The variance of stress difference for subjects who used an app is 5.022613 and for subjects that didn't use an app it is 3.306970.]**
+
+b. (11pts) In the next question we'll use the two-sample t-test to compare the `stressDiff` between the two `app` groups. As we discussed in class, the two-sample t-test makes three modeling assumptions: (1) The outcome is Normally distributed in each group, (2) The variance of the outcome is the same in each group, and (3) subjects' outcome measurements are independent of each other. We'll assess these assumptions in this part.
+
++ (3pts) First let's consider the equal variance assumption. In Part A you should have computed the variance of `stressDiff` in each `app` group. Based on that output from Part A, does it seem like the equal variance assumption is violated? State Yes or No, and explain in one sentence how you arrived at your answer. (**Hint**: We've discussed a rough rule-of-thumb that uses the outcome variance in each group to assess this assumption. You should use that rule-of-thumb here.)
+
+**[No, The variances of stressDiff in each app group does not violate the equal variance assumption because 5.022613 and 3.3069070 are pretty close to each other given their magnitude and they are not too different to be used for the two sample t-test, 5.022613 is not twice 3.306870 either showing that they are around the same level]**
+
++ (4pts) Now let's consider the independence assumption. I have not given you enough information about this experiment to definitively assess this assumption. Instead, provide one example of additional information that would convince you the independence assumption holds, and provide one example of additional information that would convince you it does not hold. For each, explain in 1-2 sentences why that additional information would convince you the assumption does (or does not) hold.
+
+**[One example of additional information that would convince me that the independent assumption holds is if they informed us that subject participation was randomized as well as random assignment was there also that their involvement in the study was independent and seperate from the other subjects. This additional information would convince me that the assumption holds because the stress for one subject does not impact stress levels for any other subject, through intimidation or fear which would show that each group is normally distributed. One example of additional that would convince me that indepedence assumption does not hold is if the study was not randomly assigned and subjects participated as groups. This is because communication, facial expression, and the feeling of not doing something alone can affects stress levels to not be individual for each subject, since it is impacted by the groups of subjects. This could lead to more similar stress levels among individuals who were tested in the same group and woudn't truly be representative of each individual subject so it does not hold with the independent assumption]**
+
++ (4pts) Finally, let's consider the Normality assumption. Importantly, the assumption is that the outcome is Normally distributed in *each* group. Thus, it's helpful to create two subsets of the data: one that contains only the `app = "yes"` group, and one that contains only the `app = "no"` group. This code creates those two subsets for you:
+
+```{r}
+appData = subset(stressData, app == "yes")
+noAppData = subset(stressData, app == "no")
+```
+
+Like `stressData`, `appData` and `noAppData` are datasets, containing all the same variables as `stressData`. Using these subsets, create **two** QQ plots to assess the Normality of `stressDiff` (one for `appData` and one for `noAppData`). After making your plots, state whether you think the Normality assumption is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible, and explain in 1-3 sentences. (**Hint**: Among the four "plausible" options, there isn't secretly a single correct one. Just explain your reasoning based on your plots.)
+
+```{r}
+
+qqnorm(appData$stressDiff)
+qqline(appData$stressDiff)
+
+qqnorm(noAppData$stressDiff)
+qqline(noAppData$stressDiff)
+
+```
+
+**[For appData, the normality assumption is somewhat plausible because the points are mostly along the line there are a few deviations nears the ends where there are one or two points below the line, and also all through the line there a few points not directly on the line but very close. For the most part, the middle portion of the line follows a normal distribution, and only thing offsetting from calling this fully a normal distribution are the ends which are a bit deviated from the line. For noAppData, the normality assumption is also somewhat plausible, but it is more deviated than appData plot, because the ends of the plot on the left side have points much further away from the line, and this pattern continues to till the points keep on getting closer to the line from left to right. Through the middle portion as well the path seems to be mostly normal, the points are mostly along the line. ]**
+
+c. (15pts) Now we'll run the two-sample t-test that's relevant for this dataset. For this part, answer the following questions.
+
++ (7pts) Professor Bognanno wants to know if the mean `stressDiff` differs between the two `app` groups. Given this, run the t-test that's relevant for answering Professor Bognanno's question. Use your answer from Part B to determine whether you should set `var.equal = TRUE` within `t.test()`. After running the test, you should see a t statistic value in the top left of your t-test output. If we were to run this experiment many times, and if the model assumptions are correct, and if the null hypothesis for this test were true, how often would we expect the t statistic to be bigger (in magnitude) than the value you see in your output? Please explain your answer in 1-2 sentences. (**Hint**: Your answer should be an actual number, but you don't have to do any additional computations to answer this question.)
+
+```{r}
+t.test(stressDiff ~ app, data = stressData, var.equal = TRUE)
+```
+
+**[If we were to run this experiment many times, and if the model assumptions are correct, and if the null hypothesis for this test were true, we expect the t statistic to be bigger (in magnitude) than the 0.61911 about 53.63% of the time. This is because if the null hypothesis was true, it would mean that there is no difference in mean stressDiff levels between the app groups. As well as, the p-value indicates the probability that we get a statistic at least as extreme as 0.61911, so that would mean 53.63% of the time the t-statistic would be at least as extreme in magnitude as the observed value]**
+
++ (3pts) Using your output above, what is the 95% confidence interval for the mean difference in `stressDiff` between the `app = "yes"` group and the `app = "no"` group? In other words, what is the interval for the mean `stressDiff` within the `app = "yes"` group minus the mean `stressDiff` within the `app = "no"` group?
+
+**[The 95% confidence interval for the mean difference in stressDiff between the app = yes group and app = no group is [-0.3486, 0.6686] ]**
+
++ (5pts) State your scientific conclusion according to the t-test in terms of a null hypothesis and within the context of this study. Be sure to state what the null hypothesis is (either in words or mathematical notation, as long as you define what your mathematical notation means). To follow common practice, in your answer, be sure to also include a p-value and a point estimate for the difference in mean outcomes between the `app = "yes"` group and the `app = "no"` group. Again, please write your point estimate in terms of the mean `stressDiff` within the `app = "yes"` group minus the mean `stressDiff` within the `app = "no"` group.
+
+**[The null hypothesis is that there is no difference in stressDiff mean for app = yes group and app = no group. The p-value of 0.5363 is greater than 0.05, so we fail to reject the null hypothesis. The scientific conclusion is that there is no statistically significant difference in the mean stressDiff between the 2 groups. The point estimate for the difference in mean outcomes between the app = yes group and the app = no group is (-0.35 - (-0.19)) = -0.16. This shows that, the stressDiff level on average is lower for the app = yes group compared to the app = no group.]**
+
+# Question 3: Considering All Three Treatment Groups (48 points)
+
+In the previous question, we compared subjects who used *any* app to subjects who did not use an app. Now, in this question, we will recognize that there were two different app-using groups (mindfulness and management), and thus three groups total. **Thus, for this part, we will use `group` as our primary explanatory variable.**
+
+a. (6pts) Professor Bognanno wants to understand how the outcome `stressDiff` compares across the three treatment groups, defined by `group`. For this part, create a side-by-side boxplot comparing `stressDiff` across the different treatment groups. Then, in 2-4 sentences, describe the key takeaways from your graph, keeping in mind Professor Bognanno's main research interests. Furthermore, in your answer, clarify for Professor Bognanno whether a positive `stressDiff` value indicates a "better" or "worse" outcome in terms of stress. (**Hint**: It may be helpful to look back at the definition of `stressDiff` in Question 2A.)
+
+```{r}
+boxplot(stressData$stressDiff ~ stressData$group,
+        xlab = "Treatment Group", ylab = "Stress Difference",
+        main = "Boxplot of Stress Difference by Treatment Group",)
+        
+
+```
+
+**[The control group has a median of around 0 and has an equal amount of positive and negative values. The management group has a median bit greater than 0 and has highest stress difference amogh the 3 groups. The mindfulness group has a median below 0 and on average has the lowest stress difference values so there was a bigger reduction in stress for these participants. The conclusion is that the mindfulness group has the greatest difference in stress. A positive stressDiff value indicates worse outcome because that means there was an increase in stress levels as stressDiff = stressAfter - stressBefore, so it means they are more stressed than before. The control group has a median of about 0.]**
+
+b. (9pts) Because there are three groups (mindfulness, control, and management), the most natural statistical analysis in this case is one-way ANOVA. However, before we conduct one-way ANOVA, let's first discuss the assumptions behind one-way ANOVA. For this part, answer the following questions.
+
++ (3pts) Answer the following: How many subjects are in each `group`? Please one line of code that allows you to answer this question (and also answer the question outside of your code).
+
+```{r}
+table(stressData$group)
+```
+
+**[100 subjects are in each group]**
+
++ (2pts) For one-way ANOVA, is there any assumption that the sample sizes need to be the same in each treatment group? Simply state Yes or No.
+
+**[No]**
+
++ (4pts) Now state the standard model assumptions for one-way ANOVA. It's okay if you state the assumptions just using words, instead of mathematical symbols. (I thought about asking you to check the assumptions as well - but I decided to relax for the first homework.)
+
+**[The subjects are independent of each other, outcome has a normal population distribution, equal variances of the outcome variable for all groups]**
+
+c. (5pts) Now state the null and alternative hypotheses for one-way ANOVA in the context of this study. For the null hypothesis, please use mathematical notation; for the alternative hypothesis, you may use mathematical notation or words. However, when using mathematical notation, be sure to explain what your mathematical notation means. (**Hint**: In Lab2 we discussed ways to incorporate mathematical notation within .Rmd files.)
+
+**[Null hypothesis:$\mu$ control = $\mu$ mindfulness = $\mu$ management, the null hypothesis means the stressDiff is equal for all three groups. The alternative hypothesis is that at least one group's mean will be different from the other groups, there should also be some significant difference in the mean stressDiff for two of the groups]**
+
+
+d. (14pts) Now we'll run one-way ANOVA. For this part, answer the following questions.
+
++ (3pts) First, run the relevant one-way ANOVA for this dataset using the `aov()` function. In your code, apply `summary()` to the `aov()` function, such that you can see the output from the one-way ANOVA analysis. For this part, you just need to successfully display the summary output.
+
+```{r}
+summary(aov(stressDiff ~ group, data = stressData))
+```
+
+
++ (6pts) In your output, you should see that the residual degrees of freedom is 297, the between-group mean sum of squares is 119.66, and the F statistic is 32.63. What calculations were used to compute these numbers? Your answer does not need to involve any additional calculations, but it should explain how these numbers were computed. (**Hint**: Some of these quantities are computed using other numbers in your ANOVA table. It is fine for you to simply refer to those numbers in your answer.)
+
+**[The residual degrees of freedom was computed by the number of groups minus the number of observations. The between-group mean sum of squares is computed  by the average variance between treatment groups which is the sum of squares divided by degrees of freedom. The F statistic is computed by ratio of two quantities: the between-group mean sum of squares (119.66) divided by the within-group mean sum of squares (3.67)]**
+
++ (5pts) State your scientific conclusion from the one-way ANOVA test in terms of a null hypothesis and within the context of this study. Specifically, state whether you reject or fail to reject the null hypothesis, being sure to communicate what the null hypothesis is within the context of this study. Furthermore, if you do reject that hypothesis, what do you conclude?
+
+**[I reject the null hypothesis that the mean stressDiff for change in stress levels is equal for the 3 treatment groups: control, mindfulness, and management. The p-value is 1.55 x 10^-13 which is much smaller than 0.05, we reject the null hypothesis. I conclude that there is a statistically significant difference between at least 2 of the treatment groups meaning that either control, mindfulness, or management has a more significant effect on stress levels changing for the subjects in the study.]**
+
+e. (7pts) At this point, Professor Bognanno is somewhat confused. She says: "In Problem 2C you stated a scientific conclusion from a t-test, and in Problem 3D you stated a scientific conclusion from a one-way ANOVA test. I think the conclusions from these tests contradict each other. Can you explain to me what's going on?" In 1-4 sentences, explain to Professor Bognanno why the results from these two tests seemingly contradict each other. In your answer, compare/contrast the null hypotheses for the t-test and one-way ANOVA test, restate the conclusions you made from each test, and explain what happened in this study that led to these seemingly contradictory results. (**Hint**: If you're confused why Professor Bognanno is confused, you should either look back at how you implemented your statistical analyses, or think more carefully about the conclusions from each test. Or, you simply need to be more empathetic towards Professor Bognanno. For your explanation, you don't need to implement any new analyses/graphs - however, you can use results from previous questions in this homework.)
+
+**[For Problem 2C, The null hypothesis is that there is no difference in stressDiff mean for app = yes group and app = no group. The p-value of 0.5363 is greater than 0.05, so we fail to reject the null hypothesis. The scientific conclusion is that there is no statistically significant difference in the mean stressDiff between the 2 groups. The point estimate for the difference in mean outcomes between the app = yes group and the app = no group is (-0.35 - (-0.19)) = -0.16. For Problem 3D, I reject the null hypothesis that the mean stressDiff for change in stress levels is equal for the 3 treatment groups: control, mindfulness, and management. The p-value is 1.55 x 10^-13 which is much smaller than 0.05, we reject the null hypothesis. I conclude that there is a statistically significant difference between at least 2 of the treatment groups meaning that either control, mindfulness, or management has a more significant effect on stress levels changing for the subjects in the study. The ANOVA test treated the mindfulness and management treatments as separate groups with mindfulness vs. management vs. control, but the t-test combined mindfulness and management under "any app" (app = "yes"). The effects of mindfulness and management could have averaged out, which would explain why the t-test failed to identify a significant difference between app = "yes" and app = "no". ]**
+
+f. (7pts) Excited about the results you found, Professor Bognanno discusses this study with her colleague, Professor S. Allison. In response, Professor Allison says: "I think there's a problem with this study. There are people from different continents in your study, and I would guess that people from different continents have different baseline levels of stress. This would invalidate any effects you found in this study." For this part, implement one form of graphical EDA **and** one statistical test that allows you to assess Professor Allison's claim "that people from different continents have different baseline levels of stress." After implementing your graph and test, explain in 1-2 sentences why they are relevant for assessing this claim. Then, answer the following: Based on this dataset, do you find any evidence that validates Professor Allison's claim? Explain in 1-2 sentences. (**Hint**: Think carefully about what variable(s) need to be used for this question.)
+
+```{r}
+boxplot(stressData$stressBefore ~ stressData$continent,
+        xlab = "Continent", ylab = "Baseline Stress Level (stressBefore)",
+        main = "Boxplot of Baseline Stress Levels by Continent",
+        cex.axis = 0.75)
+
+summary(aov(stressBefore ~ continent, data = stressData))
+
+
+
+```
+
+**[The boxplot of stressBefore by continent is a form of graphical EDA that  displays the distribution of baseline stress levels across different continents. It compares the medians and spreads of the boxplot to observe differences that would appear visually in baseline stress levels with stressBefore.The one-way ANOVA test allows me to assess Professor Allison's claim, because it will provide a significant p-value to show that at least one continent differs in mean baseline stress levels.  We can then decide whether to reject or fail to reject the null hypothesis whether or not it is greater than 0.05. The ANOVA test shows a p-value of 0.74 which is greater than 0.05, meaning that we fail to reject the null hypothesis. This concludes that people from different continents don't have different baseline levels of stress. The conclusion is that the mean baseline stress levels are equal for all continents.The boxplot also portrays that the medians and spreads of stressBefore are fiarly similar for all the continents without any significant differences.There is no evidence that Professor Allison's claim that people from different continents have different baseline levels of stress according to the ANOVA test and boxplot portrayal.]**
+
+# Question 4 (REQUIRED ONLY FOR 36-749 STUDENTS, BONUS FOR 36-309 STUDENTS) (5 points)
+
+In Question 3F, Professor Allison said, "I think there's a problem with this study. There are people from different continents in your study, and **(1)** I would guess that people from different continents have different baseline levels of stress. **(2)** This would invalidate any effects you found in this study." I've added the **(1)** and **(2)** for reference. In Question 3F, you should have assessed claim **(1)**. Here we discuss claim **(2)**.
+
+Regardless of what you found in Question 3F, let's say that we found evidence in the data to support claim **(1)**, that people from different continents have different baseline levels of stress (at least in this dataset). Do you Agree or Disagree with Professor Allison's claim **(2)**, that this would invalidate any effects we found in this study? To clarify, by "effects," Professor Allison means the effect of the three-level treatment (defined by `group`) on `stressDiff`, the outcome we've focused on in this homework. State whether you Agree or Disagree with the claim, and explain in 1-3 sentences.
+
+**[Disagree, If claim (1) says there is evidence that people from different continents have different baseline levels of stress; it wont always mean that the effects of the treatment groups (group) on stressDiff that were observed are invalid. This is because the study of stressDiff doesn't consider continent by continent, but every individual's baseline level's of stress from before and after the study. There is also a large sample size for each continent. Thus, since stressDiff determines the impact of the treatment regardless of initial stress levels, any differences in baseline stress levels by continent shouldn't affect the outcomes of treatment since randomization was done properly and the groups were treated individually and seperately instead of a continent as a whole averaged out.]**
+

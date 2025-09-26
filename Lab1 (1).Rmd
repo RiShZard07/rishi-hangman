@@ -1,0 +1,340 @@
+---
+title: '36-315 Lab 1: Introduction to R, RStudio, & RMarkdown'
+author: "Rishi Damarla"
+date: "Due Friday, September 5, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+***General instructions for all lab assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.
+
++ For your lab submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-lab01.Rmd -- e.g. "fsk-315-lab01.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ Each answer must be supported by written statements (unless otherwise specified).  **Thus, even if you think your code output is self-explanatory, be sure to answer questions with written statements outside of code blocks.**
+
++ **Questions about the lab assignment will not be answered after the lab session has ended**, whether it's on Piazza or email.  This incentivizes you to engage during lab, instead of scrambling Friday nights to complete lab assignments.
+
++ __Labs are designed to take 50 minutes to complete__.  However, we give you until Friday night to submit the lab if you need extra time.  This is mostly to be flexible for anyone who needs extra time; __do NOT feel pressured to spend many hours on lab assignments!__  Labs are graded for correctness, but they are mostly meant to cover the basics of each week's material, such that you're prepared for the homework due the following week.
+
+
+***
+***
+
+
+# Before You Start
+
+**You should have already completed Lab 0.**  Lab 0 just involves installing R and RStudio, successfully rendering an .Rmd file, and creating a PDF.  If you haven't installed R and RStudio, do it now and let the TAs know if you run into any issues.
+
+This lab is an introduction to `R`. This will be review for many of you, and it will be brand new to many others.  **If you have trouble completing the lab on time, don't worry.**  Let your TAs know what you're having trouble with, and they will help you.
+
+***
+***
+
+
+# Problem 1: Storing Your Work and `R` Commands [10 pts]
+
+First, open the R Markdown file Lab1.Rmd in RStudio.  With R Markdown, you can put all of your code, graphs, analyses, and written answers in a single file.  Because of this functionality, we will use R Markdown files (.Rmd) for all assignments in this course.
+ 
+Use the Lab1.Rmd file as a template for your submission.  Click "Knit HTML" at the top (or Command+Shift+K on Mac and Ctrl+Shift+K on Windows/Linux).  This should produce an HTML file that executes the code you write.  You can edit this .Rmd file to produce your lab submission.  The corresponding HTML file (which you'll have to submit at the end of lab) is in the same directory on your computer where your .Rmd file is.
+
+**Code Blocks**: 
+
+When you open a new R Markdown file, you should see a block of code (beginning with three [grave accent marks](https://en.wikipedia.org/wiki/Grave_accent) -- similar to apostrophes, but located next to the 1 key on a standard keyboard -- then an `{r}`, then three more accent marks). This block should have a different background color in R Studio (depending upon any personal theming customizations you might have made).  This is a code block!  You can type commands into this block, and they will be executed by `R` and included in your output.
+
+Let's test out the following command:
+
+```{r}
+# By the way, my hometown is Fremont, CA
+print("Hello, World! My name is Rishi")
+```
+
+Change the above code so that it outputs the following text: "Hello, World! My name is [your name]."
+
+**Code Comments**: 
+
+Comments should be used frequently when writing code to give insight into what each piece of code is doing. To add a comment to your code, start a new line with the `#` symbol (without any accent marks).
+
+Change the existing comment in your first code block so that it says, "By the way, my hometown is [your hometown]." 
+
+Notice that the text in the comments shows up in the code block in the output file, but not in the actual output when you click "Knit HTML".  Comments exist to help you and others who read your code.  **Note that, in the context of this class, "others" in the previous sentence are graders.  You should add code to your comments so 36-315 graders understand what you are trying to achieve in your code, even if you make a mistake.  If you don't leave comments in your code, partial credit is less likely.**
+
+
+***
+***
+
+# Problem 2: R Help Documentation [15 pts]
+
+I assure you that you'll run into __many__ errors as you code in `R`.  When you run into an error, your first reaction may be to panic and post a question to Piazza.  However, checking help documentation in `R` can be a great (and much faster) way to figure out what's going wrong.  (I end up having to read help documentation almost every time I code more than a few lines.)
+
+Using the `help()` function in the Console, use `R` to do the following:
+
+__2(a) [5 pts]__ Find the help documentation for the `quantile` function.  This function takes a vector of numbers and computes quantiles for the vector.  What is the description of the `probs` argument?
+
+__ANSWER:__ 
+
+**[numeric vector of probabilities with values in [0,1]. (Values up to ‘⁠2e-14⁠’ outside that range are accepted and moved to the nearby endpoint.)]**
+
+__2(b) [5 pts]__ Find the help documentation for the `mean` function. This function takes a vector of numbers and computes their average.  What is the example code at the bottom of the help page?  (Include this code in its own code block here.)
+
+__ANSWER:__
+
+```{r}
+x <- c(0:10, 50)
+xm <- mean(x)
+c(xm, mean(x, trim = 0.10))
+```
+
+__2(c) [5 pts]__ Throughout this course (and programming in general), search engines like Google can be your friend (to an extent, but you must be careful!).  Use Google or another search engine or [ChatGPT](https://openai.com/blog/chatgpt/) to figure out the name of the function in `R` that finds the standard deviation of a vector, and apply it to the data from part __(b)__.  (For example, you can search, "how to compute standard deviation in r".)  In general, if you ever don't know how to do something in `R`, Googling "how to [whatever] in r" usually helps!  Often enough that it's always worth trying.  Find the help documentation for this function, and apply this function to the data from part __(b)__.
+
+__ANSWER:__
+
+```{r}
+x <- c(0:10, 50)
+sd(x)
+```
+
+
+***
+***
+
+
+# Problem 3: Accessing Packages, Datasets, and Variables [20 pts]
+
+In `R`, there are many packages (groups of functions, code and objects) that are not permanently stored in `R`, so we have to load them when we want to use them.  You can load an `R` package by typing `library(package_name)`. (Sometimes we need to download/install the package first, as described in Lab 0.)
+
+There are many functions that are only available *after* you load a package.  Throughout 36-315, please remember to load packages by including `library(package_name)` **within a code block in an .Rmd file** to load the functions you need; otherwise, you'll get an error saying that the function is undefined.  For example, the following code chunk loads the `datasets` package:
+
+```{r}
+library(datasets)
+```
+
+This call loads many datasets in `R`; we'll consider one of them, called `trees`.
+
+__3(a) [5 pts]__ Look at the help documentation for `trees` by typing `help(trees)` in the Console.  What are the names of the three variables in this dataset?  How many observations are in this dataset?
+
+__ANSWER:__
+
+**[Girth: numeric	Tree diameter (rather than girth, actually) in inches, Height: numeric	Height in ft, Volume: numeric	Volume of timber in cubic ft, 31 observation on 3 variables]**
+
+__3(b) [5 pts]__ There isn't always help documentation for datasets that you'll load into `R` (including many datasets that we'll use in 36-315).  To get the same information you retrieved in part __(a)__, write a code block using the `names()` function, then the `dim()` function.
+
+__ANSWER:__
+
+```{r}
+names(trees)
+dim(trees)
+```
+
+__3(c) [10 pts]__ To access a particular variable within a dataset, you use the dollar sign format: `dataset$variable_name`.  For example, the following code displays the `Height` variable within the `trees` dataset, as well as its mean:
+
+```{r}
+# height variable
+trees$Height
+# mean of height variable
+mean(trees$Height)
+```
+
+What is the $50^\text{th}$ percentile (otherwise known as the median, second quartile, or 50\% quantile) and standard deviation for each of the three variables in the `trees` dataset?  (Be sure to include `R` code that allows you to answer this question.)  **Hint**: Problem 2 should have helped you figure out what functions you need for this part.
+
+__ANSWER:__
+
+```{r}
+library(datasets)
+
+median(trees$Girth, 0.5)
+median(trees$Height, 0.5)
+median(trees$Volume, 0.5)
+
+sd(trees$Girth)
+sd(trees$Height)
+sd(trees$Volume)
+
+```
+
+**[Variable,Median, Mean: Girth, 12.9, 3.14, Height, 76, 6.37, Volume, 24.2, 16.44]**
+
+***
+***
+
+# Problem 4: Reading, Manipulating, and Plotting Data [55 pts]
+
+At this point you might be thinking: "this is a data visualization course, and we've barely looked at any data or visualizations.  What gives?"  You win - let's get to some data and visualizations.
+
+Throughout this course we will use the [`read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) function to read in a dataset from the internet.  Note that `read_csv()` is the `tidyverse` equivalent to the base `R` `read.csv()` function (which is also acceptable to use). 
+
+We'll use the Pittsburgh bridges dataset [available here](https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/bridges-pgh.csv) for this lab.
+
+Here's the line of code that first loads the `tidyverse` library and then reads the dataset into `R`, naming it `bridges`:
+
+```{r}
+library(tidyverse)
+bridges <- read_csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/bridges-pgh.csv")
+```
+
+All I did was copy-and-paste the URL into the `read_csv()` function (with quotation marks).  Note that this data is in a GitHub repository called "F25-36315-Data", which we'll periodically use for sharing datasets in 36-315.
+
+Now we're going to use what we learned in this lab to create some visuals for this dataset.
+
+__4(a) [10 pts]__ Since the collapse of the Fern Hollow bridge in January 2022, we've seen a massive renewed effort in assessing the safety of all the Pittsburgh bridges.  Let's conduct a bit of exploratory data analysis on some of those bridges.  The `bridges` dataset contains information on the larger bridges in Pittsburgh.  In this part, write code that displays the column names of `bridges`.  Also include in your code `head(bridges)` to get an idea of what these variables look like.  Then indicate which variables are quantitative, and which are categorical.
+
+__ANSWER:__
+
+```{r}
+names(bridges)
+head(bridges)
+class(bridges)
+
+```
+
+**[The quantitative variables are when.erected, length, and lanes. The categorical variables are river, purpose, material, span, and type]**
+
+
+__4(b) [10 pts]__ Now we'll use the `ggplot()` function to create a **bar plot** of the `river` variable.  The `river` variable is either "A" (for Allegheny), "M" (for Monongahela), or "O" (for Ohio).  To make things easier, we provide the code for you to do this below; just uncomment the code and Knit your .Rmd file accordingly to create the bar plot.  **Note that the code will not run unless you've loaded the `tidyverse` library in your .Rmd file!**  In what follows, you must answer some questions about the code and plot.
+
+```{r}
+# Create the bar plot
+bridges %>%
+   ggplot(aes(x = river)) +
+   geom_bar(fill = "darkblue") +
+   labs(title = "Number of Bridges in Pittsburgh by River",
+        subtitle = "A = Allegheny River, M = Monongahela River, O = Ohio River",
+        x = "River", y = "Number of Bridges", 
+        caption = "Source: Pittsburgh Bridges Dataset")
+```
+
+Answer the following questions about the code and plot:
+
++ In general, `ggplot()` code takes the following format: `ggplot(blank1, aes(x = blank2))`. Looking at the above code, what kind of `R` object should `blank1` be, and what should `blank2` be?
+
+__ANSWER:__
+
+**[blank1 is bridges, blank2 is river]**
+
++ What do you think the line `geom_bar(fill = "darkblue")` does?
+
+__ANSWER:__
+
+**[it makes the bar for each river category A, M, and O then fills each one dark blue ]**
+
++ What do you think the remaining lines of code do (contained in `labs()`)?
+
+**Note that, unlike the code we saw in Problem 3, the dollar sign notation isn't needed within `ggplot()`.**
+
+__ANSWER:__
+
+**[it sets the title, subtitle, labels the axes, and sets the caption]**
+
+__4(c) [20 pts]__ Now we'll make a few other **area plots** that we will finish discussing in class next week:
+
++ spine chart
++ pie chart
++ rose diagram
+
+Your goal for this part is to create each of these plots.  These plots can be created by copy-and-pasting the bar plot code from Part C and modifying it slightly.  Follow these directions to create each of these plots:
+
++ **spine chart**: First, copy-and-paste the bar plot code from part __(b)__.  Then, delete the `fill = "darkblue"` within `geom_bar()`.  Finally, within `ggplot()`, replace `aes(x = river)` with `aes(x = "", fill = river)`.  Also, change the labels in `labs()` if necessary.
+
+__ANSWER:__
+
+```{r}
+bridges %>%
+   ggplot(aes(x = "", fill = river)) +
+   geom_bar() +
+   labs(title = "Number of Bridges in Pittsburgh by River",
+        subtitle = "A = Allegheny River, M = Monongahela River, O = Ohio River",
+        x = NULL, y = "Number of Bridges", fill = "River",
+        caption = "Source: Pittsburgh Bridges Dataset")
+```
+
++ **pie chart**: First, copy-and-paste the **spine chart code** you just made.  Then, after `geom_bar()`, add `coord_polar("y")`. Be sure to put plus signs before and after `coord_polar("y")`.  Also, change the labels in `labs()` if necessary.
+
+__ANSWER:__
+
+```{r}
+bridges %>%
+   ggplot(aes(x = "", fill = river)) +
+   geom_bar() +
+   coord_polar("y") +
+   labs(title = "Number of Bridges in Pittsburgh by River",
+        subtitle = "A = Allegheny River, M = Monongahela River, O = Ohio River",
+        x = NULL, y = NULL, fill = "River",
+        caption = "Source: Pittsburgh Bridges Dataset")
+```
+
++ **rose diagram**: First, copy-and-paste the bar plot code from part __(b)__.  Then, after `geom_bar(fill = "darkblue")`, "add" `coord_polar() + scale_y_sqrt()`.  Be sure to put plus signs before and after `coord_polar() + scale_y_sqrt()`.  Also, change the labels in `labs()` if necessary.  After you make the rose diagram, explain in 1-2 sentences, what do you think `scale_y_sqrt()` does, and what is a benefit to including `scale_y_sqrt()` when making the rose diagram?
+
+__ANSWER:__
+
+```{r}
+bridges %>%
+   ggplot(aes(x = river)) +
+   geom_bar(fill = "darkblue") +
+   coord_polar() + 
+   scale_y_sqrt() +
+   labs(title = "Number of Bridges in Pittsburgh by River",
+        subtitle = "A = Allegheny River, M = Monongahela River, O = Ohio River",
+        x = "River", y = "Number of Bridges (sqrt scale)", 
+        caption = "Source: Pittsburgh Bridges Dataset")
+```
+
+**[scale_y_sqrt() does a square root on the radial scale, as area grows with the square of the radius it unnecesserily enlarges big categories, so this function makes the area more proportional to counts making it more equal.]**
+
+
+__4(d) [5 pts]__ Sometimes datasets don't have every variable you want to visualize, in which case you have to create new columns in your data.  Now we'll use the `mutate()` function to create two new columns in the `bridges` dataset:
+
++ `over_allegheny`: indicates whether the bridge crosses the Allegheny River (`"yes"` or `"no"`)
++ `length_binary`: indicates whether the bridge is at least 1000 feet long (`"long"` or `"short"`)
+
+Here's some "template code" you can use to create these columns:
+
+```{r}
+# Create the new variables
+ bridges <- bridges %>%
+   mutate(over_allegheny = ifelse(river ==  "A", "yes" , "no"),
+          length_binary = ifelse(length <  1000, "long", "short" ))
+```
+
+Notice that I left some "blanks" (represented by `__`) that you need to delete and fill in appropriately.  Look back at the definitions for `over_allegheny` and `length_binary` to figure out what the blanks should be.  If you're not familiar with the `ifelse()` function, check `help(ifelse)` to figure out what the other two arguments of this function are.
+
+After you've filled in the blanks, be sure to uncomment the code above and make sure that it runs appropriately.  **Note that the `mutate()` function is within the `tidyverse` library; so, remember that the above code runs only because you've already loaded the `tidyverse` library earlier in this .Rmd file.**
+
+__4(e) [10 pts]__ The most common kind of summary statistic for a categorical variable is the counts of each category, often displayed as a **contingency table** (also known as a frequency table).  To make a contingency table in `R`, you use the `table()` function.  The following code should display a contingency table for the `length_binary` variable (after you've completed part __(e)__):
+
+```{r}
+table(bridges$length_binary)
+```
+
+Uncomment and run the above code and make sure a contingency table displays.  Are there more `"long"` bridges or `"short"` bridges?
+
+__ANSWER:__
+
+**[There are more short bridges]**
+
+It can also be helpful to create a table of proportions, instead of a table of counts.  Write a line of code that displays a table of proportions for the `bridges$length_binary` variable.  In other words, your table should display the proportion of "short" and "long" bridges.  To do this, you can either use the `prop.table()` function or the `table()` function (appropriately divided by a number you determine).
+
+__ANSWER:__
+
+```{r}
+prop.table(table(bridges$length_binary))
+```
+
+***
+***
+
+
+

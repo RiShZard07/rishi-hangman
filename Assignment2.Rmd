@@ -1,0 +1,519 @@
+---
+title: "36-315 Homework 2, Fall 2025"
+author: "Rishi Damarla"
+date: "Due Wednesday, Sep. 17, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+## Graphical Inference for 1D Categorical Data
+
+***
+***
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.  Each answer must be supported by written statements (unless otherwise specified).  **Thus, even if you think your code output is self-explanatory, be sure to answer questions with written statements outside of code blocks.**
+
++ For your homework submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-hw01.Rmd -- e.g. "fsk-315-hw01.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own. Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism. In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
+
+***
+***
+
+
+#  Problem 1: Statistical Tests for Categorical Data [22 pts]
+
+For this problem, we will again use the Titanic data, which you saw in assignment 1:
+
+```{r}
+#  Load the data into R
+library(tidyverse)
+titanic <- read_csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/titanic.csv")
+# Note the read_csv function is the tidyverse version of read.csv()
+# If this doesn't work, then use read.csv (the base R function instead):
+#titanic <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/titanic.csv")
+```
+
+
+__1(a) [5 pts]__ As a review of last week's material, first make a graph that shows the marginal distribution of the `Pclass` variable.  You can make any graph you want, as long as it appropriately displays the marginal distribution for `PClass`.  When making your graph, be sure that:
+
++ Your axes are properly labeled
++ The graph has a proper title
++ You change the color of your plot such that it doesn't use default colors (i.e., colors automatically chosen by `R`).
+
+After making your plot, describe the marginal distribution of `Pclass` in 1-2 sentences.  In your answer, do not simply refer to "1", "2", and "3" -- you need to figure out what these categories mean in terms of the titanic data.  (**Hint**: As discussed in assignment 1, further details about the variables can be found [here](https://www.kaggle.com/c/titanic/data).  See Variable Notes on that page.)
+
+```{r}
+ggplot(titanic, aes(x = factor(Pclass,levels = c(1, 2, 3), labels = c("1st Class", "2nd Class", "3rd Class")))) +
+geom_bar(fill = "green", color = "black") + labs(title = "Titanic Passengers by Ticket Class", x = "Ticket class", y = "Number of passengers")
+
+```
+
+**[The ticket class marginal distribution is significantly dominated by the 3rd class (lower), making about 50% of the sample around 350 , 1st class and 2nd class passengers are a lot less than 3rd class but they are around similar in size around 180 and 170, respectively ]**
+
+
+__1(b) [5 pts]__ Professor Banner looks at your graph in part __(a)__ and says to you, "the passengers were equally likely to belong to any of the three classes."  You obviously disagree.  You tell Professor Banner to just look at the graph, but they are still unconvinced (and appearing to get angry), arguing that what you see in the graph could just be due to random noise and may not be an actual significant difference.
+From the graphs alone, are you able to definitively state whether or not there is a statistically significant difference among the proportions of classes?  State yes or no, and then provide a one-sentence explanation for your answer.
+
+**[No, the bar chart only shows the observed counts so it doesnt quantify sampling variability, to deduce significant differentce among the proportions of classes a inference procedure needs to be done, like chi-square that gives p-value]**
+
+
+__1(c) [6 pts]__ To provide more explicit evidence of statistical significance, what kind of statistical test could you use to show that the passengers are not equally likely to belong to any of the three classes?
+
+**[chi square goodness of fit]**
+
+After stating the test, run the statistical test, and then formally interpret the results from the test in 1-3 sentences.  To receive full credit for this question, you must (1) display the code you used to run the test, (2) state the p-value from the test, and (3) state your formal conclusion from the test, in context.
+
+```{r}
+tab1a <- table(titanic$Pclass)
+chisq.test(tab1a)
+```
+
+**[The p-value from the test is p < 2.2e-16, X^2 is 87.761, and df = 2, I reject the null hypothesis because the p-value is less than 0.05 so the distribution of ticket class is not uniform(the 3rd class is significantly more common than the 1st and 2nd)]**
+
+
+__1(d) [6 pts]__ Now we will improve your graph from part __(a)__.  First, copy-and-paste your code from part __(a)__.  Then, make the following two changes to your graph:
+
++ Report the p-value from part __(c)__ somewhere on your graph other than the title.  If you got an extremely small p-value, it's fine if you describe the p-value as "chi-squared test p-value approximately zero," or "chi-squared p-value $< \epsilon$," where you would put some small round number in place of $\epsilon$.  
++ Currently, your graph likely has the labels 1, 2, 3, which denote the levels for `Pclass`.  Change these to "Upper", "Middle", "Lower", respectively, which are the names of the categories for which this variable is meant to stand in proxy (see Variable Notes for the data [here](https://www.kaggle.com/c/titanic/data)).
+
+For this part, all you have to do is include the desired graph (and corresponding code).
+
+**Hint**: To do the second part, you might have to ensure that `Pclass` is treated as a factor when making your graph.  It may also be helpful to visit [this page](http://www.sthda.com/english/wiki/ggplot2-axis-ticks-a-guide-to-customize-tick-marks-and-labels), which uses functions very similar to what we saw in assignment 1.
+
+```{r}
+
+tab1a <- table(titanic$Pclass)
+chisq.test(tab1a)
+
+
+ggplot(titanic, aes(x = factor(Pclass, levels = c(1, 2, 3), labels = c("Upper", "Middle", "Lower"))))+ geom_bar(fill = "green", color = "black") + geom_text(x = 2, y = 360, label = "Chi-squared p-value < 2.2e-16") + labs(title = "Titanic Passengers by Class", x = "Ticket class", y = "Number of passengers")
+
+```
+
+
+***
+***
+
+
+# Problem 2: Writing and Working with Functions in `R` [18 pts]
+
+Functions can be very useful when making visualizations, especially as our data structures get more complex over the course of the semester.  So, in this problem we will get practice writing functions in `R`.  In short, functions are "mini programs" that allow you to reuse code for different variables and datasets.  This problem may be a review for you if you're very familiar with `R` or any coding language; nonetheless, functions are extremely helpful for making nuanced graphics (as we'll see in problem 2).
+
+If you're unfamiliar with functions in `R` (or need a refresher), take a look at chapter 10 of the `R` project's "An Introduction to R" [available here](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf) on writing `R` functions before you proceed.
+
+
+__2(a) [3 pts]__ Write an `R` function called `abssum` that takes four inputs: `a`, `b`, `x`, and `y`, and returns the quantity $ax + b|y|$.  Test your function and demonstrate that it works for at least three different combinations of the inputs.
+
+```{r}
+abssum <- function(a, b, x, y){
+  abssum <- (a * x) + (b * abs(y))
+  return(abssum)
+}
+
+result <- abssum(1, 2, 3, 4)
+result1 <- abssum(5, 6, 7, 8)
+result2 <- abssum(9, 10, 11, 12)
+
+result
+result1
+result2
+```
+
+
+__2(b) [3 pts]__ Type `abssum(x = 1, y = 1)` into your code block.  What happens when you only specify these two arguments?  Why does this happen?  (*Note*: when knitting your final document for submission, comment this line of code out, so that it does not produce an error.)
+
+```{r}
+abssum <- function(a, b, x, y){
+  abssum <- (a * x) + (b * abs(y))
+  return(abssum)
+}
+
+result <- abssum(1, 2, 3, 4)
+result1 <- abssum(5, 6, 7, 8)
+result2 <- abssum(9, 10, 11, 12)
+
+result
+result1
+result2
+#abssum(x = 1, y = 1)
+
+```
+
+**[It says this "Error in abssum(x = 1, y = 1) : argument "a" is missing, with no default", the abssum function requires 4 arguements and this command was only supplied x and y, a and b have no default values so R can't evaluate the function.]**
+
+
+__2(c) [3 pts]__ Create a new function, `abssum2`, that has default values for `a = 1`, `b = 1`.  Type `abssum2(x = 1, y = 1)` into your code block.  What happens when you only specify the two arguments now?
+
+```{r}
+abssum2 <- function(a = 1, b = 1, x, y) {
+  a * x + b * abs(y)
+}
+
+abssum2(x = 1, y = 1)
+
+```
+
+**[it returns 2 now, since a = 1 and b = 1 are set as default]**
+
+
+__2(d) [3 pts]__ Note that typing `1:10` in `R` produces the numbers 1 through 10.  (Try this in the Console.)  What happens when you call the function with the following input: `abssum2(x = 1:10, y = 1:10)`?  Why does this happen?
+
+```{r}
+abssum2(x = 1:10, y = 1:10)
+```
+
+**[Rs arithmetic is vectorized, since a/b = 1, the function does x + abs(y) for 1 through 10, so it is just each number doubled basically, because a and b stay 1 as default consistently]**
+
+
+__2(e) [3 pts]__ Use `help(rnorm)` to learn about the function `rnorm`, which generates Gaussian random variables.  Generate 5000 independent standard Normal random variables (i.e., a Gaussian distribution with mean 0 and variance 1) and assign them to a variable called `Z`.  Repeat the same procedure and assign the new values to `W`.  Then, un-comment the following code (which uses the base `R` `plot()` function to produce a scatterplot):
+
+```{r}
+
+Z <- rnorm(5000, mean = 0, sd = 1)
+W <- rnorm(5000, mean = 0, sd = 1)
+
+plot(W, abssum2(x = Z, y = W), cex = .5, pch = 16, xlab = "W", ylab = "Z + |W|")
+```
+
+Describe the graph that shows up, and explain why this happens.
+
+**[The graph shows like a V shaped cloud of black points from W = 0, it is symmetric, it is centered around y = abs(W), because Y = Z + abs(W), and Z ~ N(0, 1) for any fixed W = w, the conditional distribution of Y is N(abs(w), 1) so the points concentrate around the curve at y = abs(w), with a fairly constant vertical speed (sd = 1) from the added Z, it more thick and dense at W = 0 because W ~ N(0, 1) places more mass around zero and symmetric in W because of the absolute value ]**
+
+
+__2(f) [3 pts]__ Now use `ggplot()` to create the same plot (functionally, not literally identical) as in part __(e)__.  Be sure to include a title and axis labels in your plot.  All you need to submit for this part is the same scatterplot as part __(e)__, but using `ggplot()` (and potentially other `ggplot2` functions).
+
+**Hint**: The point of this exercise is to demonstrate how you make a plot with `ggplot()` after you've created several variables like `W` and `Z`.  One frustrating thing about `ggplot()` is that it requires all variables to be contained in a single dataset.  So, after you have defined `W` and `Z`, create a data frame with `D = data.frame(V1 = W, V2 = abssum2(x = Z, y = W))`.  Then, you can use this dataset to make the same scatterplot via `ggplot()`.
+
+```{r}
+Z <- rnorm(5000, mean = 0, sd = 1)
+W <- rnorm(5000, mean = 0, sd = 1)
+
+D <- data.frame(W = W, Y = abssum2(x = Z, y = W))
+
+ggplot(D, aes(x = W, y = Y)) + geom_point(alpha = 0.5, size = 0.6) + labs(title = "Scatter of Z + |W| vs. W", x = "W", y = "Z + |W|")
+```
+
+
+***
+***
+
+
+# Problem 3: Visualizing Cereal Uncertainty [42 pts]
+
+In this problem, we will work with a dataset of cereals manufactured in the United States.  The following code loads the dataset (called `UScereal`) into `R`:
+
+```{r}
+library(MASS)   # Load the MASS library
+data(UScereal)  # Load the "UScereal" dataset into your workspace (as a data.frame in R)
+help(UScereal)  # Help documentation for this dataset; can be commented out once you're 
+                #  satisfied with it
+```
+
+
+__3(a) [4 pts]__ For this problem, we will focus on the manufacturer variable, `mfr`.  First, produce a contingency table of the counts of different cereal manufacturers in the dataset.  Then, answer the following: which manufacturer is the most frequent, and which is the least frequent?  In your answer, please include the names of the actual manufacturers, rather than just the initials.
+
+```{r}
+tablemfr <- table(UScereal$mfr)
+tablemfr
+
+```
+
+**[The manafacturer that is the most freqeunt is general mills and the least frequent is Nabisco]**
+
+
+__3(b) [4 pts]__ Produce a bar plot of the `mfr` variable on the count scale.  Make the color of the bars something other than gray.  Be sure to add appropriate labels and a title to your plot (generally, people wouldn't know what you mean by `mfr`).  If you use ggplot to make this plot, center your title by adding the line `theme(plot.title = element_text(hjust = 0.5))` to your code.  After making your plot, summarize it in 1-2 sentences.
+
+```{r}
+
+barplot(tablemfr, names.arg = c("General Mills","Kelloggs","Nabisco","Post","Quaker Oats","RP"), xlab = "Manufacturer", ylab = "Number of cereals", main = "Counts of U.S. Cereal Manufacturers", col = "blue")
+
+```
+
+**[General Mills and Kellogg's account for most cereals (22 and 21 respectively), while post is mid tier (9), quaker oats and ralston purina are smaller at (5), nabisco is least frequent at 3, the distribution is fairly uneven and significantly dominated by the first 2 manafactuers ]**
+
+
+__3(c) [8 pts]__ Now we're going to work towards adding confidence intervals to the plot you made in part __(b)__.  For this part, write a function called `getPropCI()` that computes the 95% confidence intervals for the *proportion* of each manufacturer.  Your function should take in a frequency table `freqTable` produced by the `table()` function:
+
+```{r}
+freqTable <- table(UScereal$mfr)
+freqTable
+```
+
+To get you started, below is some template code.  As you can see from the template code, you must use `freqTable` to do three things:
+
++ Compute the total sample size in `UScereal`
++ Compute the proportions of each category of `mfr`
++ Compute the standard error of the proportions
+
+Thus, you only need to write three additional lines of code for `getPropCI()`.
+
+```{r}
+getPropCI <- function(freqTable, alpha = 0.05) {
+  n <- sum(freqTable)
+  proportions <- as.vector(prop.table(freqTable))
+  SE <- sqrt(proportions * (1 - proportions) / n)
+  CI.lower <- proportions - qnorm(1 - alpha / 2) * SE
+  CI.upper <- proportions + qnorm(1 - alpha / 2) * SE
+  CIs <- rbind(CI.lower, CI.upper)
+  colnames(CIs) <- names(freqTable)
+  return(CIs)
+}
+
+```
+
+After you've written `getPropCI()`, uncomment the following line of code so that `R` returns and displays (as numerical output) the confidence intervals:
+
+```{r}
+getPropCI(freqTable)
+```
+
+After you've successfully displayed your confidence intervals above, answer the following: is there anything unintuitive with any of the confidence intervals you've computed?  State yes or no, and give a 1-2 sentence explanation.
+
+**[Yes, The lower bound for Nabisco is negative around −0.0049, which is not possible for a proportion. This is because of the Normal approximation CI with a small count for N, with a small n it can be outside 
+[0,1.]**
+
+
+__3(d) [3 pts]__ Given your work in part __(c)__, write one line of code that displays the 95% confidence intervals for the *counts* of each `mfr`.  For this part, you just need to write code that displays the confidence intervals.
+
+(**Hint**: Remember that the proportion for any category $j$ is defined as $p_j = \frac{n_j}{n}$, where $n_j$ is the number of observations in category $j$ and $n$ is the total sample size.  You already have the confidence interval for $p_j$ and just need the confidence interval for $n_j$.)
+
+```{r}
+getPropCI(freqTable) * sum(freqTable)
+```
+
+
+__3(e) [9 pts]__ Now - finally - we're going to produce a bar plot with the 95% confidence intervals.  Again I'm going to give you template code, which you must edit to create the correct plot.
+
+Note that a bar plot with 95% confidence intervals ultimately displays only four pieces of information:
+
++ The name of each category
++ The counts of each category
++ The lower bound of the 95% confidence interval for each category
++ The upper bound of the 95% confidence interval for each category
+
+Thus, first, we're going to make a new `data.frame` that appropriately summarizes the data we need for our plot:
+
+```{r}
+countCIs <- getPropCI(freqTable) * sum(freqTable)
+
+
+mfr_map <- c(G = "General Mills",
+             K = "Kellogg's",
+             N = "Nabisco",
+             P = "Post",
+             Q = "Quaker Oats",
+             R = "Ralston Purina")
+
+UScereal.CIs <- data.frame(
+  mfr    = mfr_map[names(freqTable)],
+  counts = as.vector(freqTable),
+  lower  = as.vector(countCIs["CI.lower", ]),
+  upper  = as.vector(countCIs["CI.upper", ])
+)
+
+```
+
+Your main goal for this part is to appropriately fill in the above "?".  Don't just "hard code" the names/counts of each manufacturer; figure out a way to use the code you've already written to define these arguments in a way that they would continue to be correct if original dataset were changed.  Because there are six manufacturers in the data, `UScereal.CIs` should only have six rows (one for each manufacturer).  **Hint**: part __(a)__ should give you everything you need for `mfr` and `counts`, and part __(d)__ should give you everything you need for `lower` and `upper`.
+
+If you've defined `UScereal.CIs` correctly, the following code should produce the desired bar plot:
+
+```{r}
+library(ggplot2)
+ggplot(UScereal.CIs, aes(x = mfr, y = counts)) +
+  geom_col(fill = "blue", color = "black") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  labs(title = "Counts of U.S. Cereal Manufacturers with 95% Confidence Intervals",
+       x = "Manufacturer", y = "Number of cereals")
+```
+
+Just uncomment the above code after you've defined `UScereal.CIs`.  Then, take a moment to add color, appropriate labels, and a title to the plot, as you did in part __(b)__.
+
+
+__3(f) [6 pts]__ Now we're going to interpret the confidence intervals you visualized in part __(e)__.  Let's say that Professor J. Walters is particularly interested in cereal, and asks the following questions:
+
++ Does it appear that there are any significant differences in counts among manufacturers that *are not* General Mills or Kellogg's?
+
+**[No, among Nabisco, Post, Quaker Oats, and Ralston Purina, 95% CIs all overlap.]**
+
++ For which manufacturers does General Mills appear to have significantly different counts?
+
+**[It is significantly higher than Nabisco, Quaker Oats, and Ralston Purina because General Mills lower CI bound is higher than their upper bounds, but it isn't significantly different from Kelloggs, those intervals overlap a lot, and it is not distinctly different from Post.]**
+
+For the above questions, ignore issues of multiple testing; we will address that in the next part.  And for each question, explain your reasoning in 1-3 sentences. **Hint**: When answering these questions, it may be helpful to look at the actual confidence intervals you computed in part __(d)__.
+
+
+__3(g) [8 pts]__ In part __(f)__, Professor Walters asked you to make several pairwise comparisons between one manufacturer and another.  You can find that there are 15 different pairwise comparisons you could make from your bar graph.  As a result, if we attempt to make multiple pairwise comparisons from a single graph with 95\% confidence intervals, our chance of making at least one Type 1 error is greater than 5\%.
+
+To address this issue, make a bar graph similar to part __(e)__, but with confidence intervals __that incorporate the Bonferroni correction for 15 comparisons__.  In other words, your graph here should be exactly the same as the graph in part __(e)__, but with wider confidence intervals, which reflect the Bonferroni correction.  Then, discuss (in 1-2 sentences) how you constructed the Bonferroni confidence intervals.  After you've done that, re-answer Professor Walters's same questions from part __(f)__, but using the graph you've made here.
+
+**Hint**: In general, $\alpha$-level confidence intervals are constructed using the Normal quantile $z_{1-\frac{\alpha}{2}}$.  When we construct 95\% confidence intervals, $\alpha = 0.05$, and thus we use $z_{1-\frac{\alpha}{2}} = z_{0.975}$ (computed via `qnorm(0.975)`).  This is exactly what we did with `propCI()` in part __(c)__, where we set `alpha = 0.05` by default.  When we use the Bonferroni correction, $\alpha$ is instead set to $\frac{0.05}{k}$, where $k$ is equal to the number of comparisons.  Thus, for this part, all you need to do is appropriately use `propCI()`, which you've already written, and then make a new graph.
+
+```{r}
+n <- sum(freqTable)
+alpha_bonf <- 0.05/15
+countCIs <- getPropCI(freqTable, alpha = alpha_bonf) * n
+
+
+
+mfr_map <- c(G = "General Mills",
+             K = "Kellogg's",
+             N = "Nabisco",
+             P = "Post",
+             Q = "Quaker Oats",
+             R = "Ralston Purina")
+
+UScereal.CIs <- data.frame(
+  mfr    = factor(mfr_map[names(freqTable)], levels = mfr_map[names(freqTable)]),
+  counts = as.vector(freqTable),
+  lower  = as.vector(countCIs["CI.lower", ]),
+  upper  = as.vector(countCIs["CI.upper", ])
+)
+
+library(ggplot2)
+ggplot(UScereal.CIs, aes(x = mfr, y = counts)) +
+  geom_col(fill = "blue", color = "black") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  labs(title = "Counts of U.S. Cereal Manufacturers with Bonferroni (k = 15) 95% CIs",
+       x = "Manufacturer", y = "Number of cereals")
+```
+
+**[I redid the confidence intervals with a bonferroni adjusted level of a = 0.05/15, inside the the getpropCI() function so it uses z1-a/2, then I converted the proportions of CI to count CIs by multiplying by the total numbers of cereal n, then plotted the error bar. To reanswer prof walters question, so among non general mills and non kelloggs manafacturer, the bonferroni intervals for post, quaker oats, ralston purina , and nabisco all overlap, and compared to general mills, general mills is significantly higher than nabisco, quaker oats, and ralston purina(its lower bound sits above their upper bounds), but not significantly different from kelloggs or post after the bonferroni widening is done.]**
+
+
+***
+***
+
+
+#  Problem 4: Resisting the First Order for Categories [15 pts]
+
+For this problem, we'll work with the `starwars` dataset that is included in the [`dplyr` package](https://dplyr.tidyverse.org/reference/starwars.html), which should already be installed with the tidyverse.  The following code chunk loads the data, then uses the `unnest` function [with documentation appearing here](https://tidyr.tidyverse.org/reference/nest.html) to make a new dataset `starwars_character_films`, wherein each row corresponds to a character appearance in a film.  Type `help(starwars)` in the console to view more information about the `starwars` dataset.
+
+```{r, warning = FALSE, message = FALSE}
+data("starwars")
+starwars_character_films <- starwars %>%
+  dplyr::select(name, films) %>%
+  unnest(films)
+```
+
+We will focus on the `films` variable, which indicates the film a particular character appeared in.  *Note*: this dataset only goes up to film VII.  Specifically, we will demonstrate how to reorder categories on graphs in `R`.  This is particularly useful when visualizing categorical variables, because the plotting order that `R` chooses by default may not be the best choice for your graphs.  
+
+
+__4(a) [3 pts]__ First, make a bar plot of the `films` variable.  It's okay if your plot isn't properly titled/labeled, but be sure to choose a non-default color.  After making your plot, answer the following: what is the default plotting order for categorical ("character" or "factor") variables in `R`?  (You should be able to determine this from glancing at the order of the categories in your graph.)  You will notice that you can't read the labels on the x-axis.  A simple fix to this is to add `+ coord_flip()` to your plot to flip the axes. (Note the `coord_flip` order starts from the bottom.)
+
+```{r}
+ggplot(starwars_character_films, aes(x = films)) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Star Wars character appearances by film",
+       x = "Film", y = "Number of character–film rows") + coord_flip()
+
+```
+
+**[It is lexicographic order of the category names, so it is the factor levels, ]**
+
+
+__4(b) [3 pts]__ Read [this introduction](https://forcats.tidyverse.org/) to the `forcats` package, which was designed to work with categorical data in `R`.  The cheatsheet on that page will be particularly useful.  Install and load the `forcats` package to your computer.  Answer the following:
+
++  What function in the `forcats` package can be used to reorder the levels of a factor to any order you want?
+
+**[forcats::fct_relevel()]**
+
++  What function in the `forcats` package can be used to reorder the categories from most frequent to least frequent?
+
+**[forcats::fct_infreq()]**
+
++  What combination of functions in the `forcats` package can be used to reorder the categories from least frequent to most frequent?
+
+**[forcats::fct_rev(forcats::fct_infreq(x))]**
+
+
+__4(c) [3 pts]__ Recreate the plot in part __(a)__ but this time, order the categories from most frequent to least frequent.  This time, be sure that your graph is appropriately labeled.
+
+```{r}
+starwars_character_films %>%
+  mutate(films = fct_infreq(films)) %>%   # most → least frequent
+  ggplot(aes(x = films)) +
+  geom_bar(fill = "steelblue", color = "black") +
+  coord_flip() +
+  labs(title = "Star Wars Character Appearances by Film (Most → Least)",
+       x = "Film",
+       y = "Number of character–film rows")
+
+```
+
+
+__4(d) [3 pts]__ Recreate the plot in part __(a)__, but this time, order the categories in a logical order (such as episode order: The Phantom Menace, Attack of the Clones, ..., The Force Awakens; or release date order: A New Hope, The Empire Strikes Back, ..., The Force Awakens).  Again, be sure that your graph is appropriately labeled.  One could consult the [Star Wars wikipedia page](https://en.wikipedia.org/wiki/Star_Wars#The_Skywalker_saga) for the episode and release orders. 
+
+```{r}
+episode_order <- c(
+  "The Phantom Menace",
+  "Attack of the Clones",
+  "Revenge of the Sith",
+  "A New Hope",
+  "The Empire Strikes Back",
+  "Return of the Jedi",
+  "The Force Awakens"
+)
+
+ggplot(starwars_character_films,
+       aes(x = forcats::fct_relevel(films, episode_order))) +
+  geom_bar(fill = "blue", color = "black") +
+  coord_flip() +
+  labs(title = "Star Wars Character Appearances by Film (Episode Order I–VII)",
+       x = "Film", y = "Number of character–film rows")
+```
+
+
+__4(e) [3 pts]__ Recreate the plot from part __(d)__, but this time, rename the categories so that they use the following film abbreviations: I, II, III, IV, V, VI, VII.  **Hint:** check the help documentation for `fct_recode()`.  See the Star Wars wikipedia page above for the episode order.  *Note*: you would now be able to read the x-axis labels without any overlap if you were to exclude the `+ coord_flip()`.
+
+```{r}
+episode_order <- c(
+  "The Phantom Menace",
+  "Attack of the Clones",
+  "Revenge of the Sith",
+  "A New Hope",
+  "The Empire Strikes Back",
+  "Return of the Jedi",
+  "The Force Awakens"
+)
+
+ggplot(
+  starwars_character_films,
+  aes(x = films |> fct_relevel(episode_order) |> fct_recode(
+          I   = "The Phantom Menace",
+          II  = "Attack of the Clones",
+          III = "Revenge of the Sith",
+          IV  = "A New Hope",
+          V   = "The Empire Strikes Back",
+          VI  = "Return of the Jedi",
+          VII = "The Force Awakens"
+        ))) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Star Wars Character Appearances by Episode (I–VII)",
+       x = "Episode", y = "Number of character–film rows")
+```
+
+
+# Problem 5: Survey [3 pts]
+
+How long would you estimate you spent, in total, working on this assignment?
+
+**[6 hours]**
+
+

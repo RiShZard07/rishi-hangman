@@ -1,0 +1,263 @@
+---
+title: "36-309 / 36-749 Homework 2: Your Experiences are Valid, but are Your Experiments?"
+subtitle: Due Wednesday, September 18, 11:59pm on Gradescope
+author: "Rishi Damarla"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: Considering Experimental Design Principles in a Real Study (50 points [65 points for 36-749])
+
+For this part, you must read the paper, "The Tennessee Study of Class Size in the Early School Grades" by Frederick Mosteller (1995) published in the academic journal *The Future of Children*. (The paper is available on Canvas.) This paper discusses the results from a famous experiment, the Tennessee STAR experiment (where STAR stands for Student-Teacher Achievement Ratio). In this experiment, children from kindergarten to 3rd grade across Tennessee were randomly assigned to one of three types of classrooms:
+
+1.	Small classes of 13-17 students
+2.	Regular-sized classes of 22-25 students
+3.	Regular-sized classes of 22-25 students with an additional teacher's aide in the class.
+
+The goal of the experiment was to assess if reducing class sizes or adding more class staff affected students' achievement. The author of this paper (Frederick Mosteller) was one of the most influential statisticians of the 20th century -- he attended what was the Carnegie Institute of Technology and was the founding chairman of Harvard's Statistics Department. He also cared deeply about education. So, when reading this paper, you will get to see how an expert statistician interpreted the design and analysis of an important experiment. Despite Mosteller's technical expertise, this paper was written for education researchers without a statistical background (in the paper, Mosteller even gives tutorials on what we mean by "standard deviation" and "effect size," which you might find helpful).
+
+What follows are questions about the design and analysis of the Tennessee STAR experiment. You should be able to answer some of the questions just by reading the paper; however, some questions will take a bit more thinking about the course material. **YOUR ANSWER TO EACH QUESTION SHOULD NOT BE MORE THAN 4 SENTENCES LONG. MANY QUESTIONS DO NOT REQUIRE MORE THAN 1-2 SENTENCES.** This is meant to assure you that only short answers - not essays - are required for each question.
+
+a. (5pts) In the "Study Design and Execution" section (starting on Page 115), it is discussed that students and teachers were randomly assigned to one of the three types of classes. What complications would have arose if only students or only teachers had been randomized to the three types of classes? Discuss how your answer relates to the concept of **internal validity**.
+
+**[If only students or only teachers had been randomized to the three types of classes, there could have been different complication that arose. For example, differences in teaching quality and methods or student responses and behavior to different teaching styles across the class types which all lead to more confounding variables. So if only students were randomized, teachers may gain experience with different teaching styles that has worked on a variety of student classes impacting their achievement, but it wouldn't necessarily be from class size. Then, if only teachers were randomized, differences in student ability, behavior, and success across the class types would affect outcomes rather than class size. These would both affect internal validity since the observed effects may not be representative to class size or teaching style by different teachers, it would concern more individualistic characters of the students themselvesd or other confounding variables from the unbalanced distribution of teacher or student characteristics.]**
+
+b. (10pts) Discuss how the paragraph on Page 115 (starting with "To be eligible to participate in the experiment...") relates to one or more (but not necessarily all) of the following concepts: **internal validity**, **external validity**, and **construct validity**. (In other words: For each concept you think is relevant for this paragraph, mention it and explain why. However, if you don't think a concept is relevant for this paragraph, do not mention it.)
+
+**[I think the paragraph on page 115 relates to external validity and construct validity. For external validity, the paragraph talks about the requirements for participating schools and the types of students in the experiment. This relates to external validity because it adheres to the generalizability and applications of the study's findings. The schools and students participating need to be representative of the external population of schools and students so then it can continue to be applied to other contexts or problems. For construct validity, the paragraph talks about classroom organization and how the experiment was implemented with small and regular classes. This shows that the study accurately reflects the concepts it will measure, as the validity of the conclusions from the study depends on the influence of accurate class size depiction since it has to be relatable in other educational contexts.]**
+
+c. (5pts) On Page 116, it is stated that, "During the first year, the study involved about 6,400 pupils in 108 small classes, 101 regular-sized classes, and 99 regular-sized classes with teachers’ aides." The goal of the experiment was to compare these three groups, so it may be sensible to use ANOVA to compare the mean outcomes of these three groups. Remember that ANOVA has three assumptions: Normality, equal variance, and independent measurements. For this question, let's give special attention to the independent measurements assumption. Consider two scenarios:
+
++ *Scenario 1*: We treat "classroom" as the subject of the experiment, such that there are treatment group sizes of 108, 101, and 99 subjects.
+
++ *Scenario 2*: We treat "students" as the subject of the experiment – meaning that there are about 6,400 total subjects, with some number of subjects in each of the three treatment groups.
+
+Do you think the independent measurements assumption is (1) More Plausible in Scenario 1 than Scenario 2, (2) More Plausible in Scenario 2 than Scenario 1, or (3) Equally Plausible in Scenario 1 and Scenario 2? State one of the three answers, and then give a 1-3 sentence explanation.
+
+**[In my opinion, independent measurements assumption is (1) more plausible in scenario 1 than scenario 2. Because classrooms are less likely to influence each other, the independence assumption is more likely to be true in Scenario 1, where the classroom is regarded as a subject and every measurement indicates a different classroom. Scenario 2, where students represent the subjects, may not be independent because students will have similar outcomes and experiences if in the same classroom with the same teaching style.]**
+
+d. (10pts) Discuss how the following paragraph (Page 117) relates to one or more (but not necessarily all) of the following concepts: **internal validity**, **external validity**, and **construct validity**.
+
+"In assessing student performance, two types of tests were used: (1) standardized tests, which have the advantage of being used nationally but the disadvantage of not being directly related to any particular curriculum or course of study; and (2) curriculum-based tests, which reverse the advantages and disadvantages of standardized tests. Curriculum-based tests measure more directly the student's increased knowledge of what was actually taught, but they give little indication of where local results stand in the national picture."
+
+(In other words: For each concept you think is relevant for this paragraph, mention it and explain why. However, if you don't think a concept is relevant for this paragraph, do not mention it.)
+
+**[This paragraph is relevant for construct validity and external validity. Construct validity because it uses two types of tests the standardized and curriculum-based tests both having different aspects of student achievement. Standardized tests may lower construct validity because they don't align with specific content taught in the experiment, but curriculum-based tests are closely aligned with specific content but they may not measure overall achievement. External validity is because the results can be generalizable and compared to the nation which provides a good context.]**
+
+e. (5pts) Please look at Table 2 of the paper (Page 121). This table suggests that there is a positive effect size on student performance from (1) smaller class sizes and (2) including a teacher's aide in a regular-sized class. As seen in Project Challenge, the state of Tennessee took this as enough evidence to install smaller class sizes in many school districts. However, is this also enough evidence to suggest that it would be helpful to install teacher's aides in those smaller classes? If so, why? If not, why not, and how would you have changed the STAR experiment to address that issue?
+
+**[No, the evidence in Table 2 is not enough to suggest that it would be helpful to install teacher's aides in smaller classes. The STAR experiment did not assess the effect of adding teacher's aides in small classes, but it compared regular-sized classes with aides to both small classes and regular-sized classes without aides. Then, the experiment doesn't show whether or not teacher aides would help small classes. I would have changed the STAR experiment to include a second treatment group, where teacher's aides were assigned to smaller classes, to address the problem. Then it would make it possible to compare small classes with and without teacher aides directly, providing more value of teacher aides in smaller classes.]**
+
+f. (5pts) As discussed in Box 1 and Page 122 of the paper, after the STAR experiment, Tennessee implemented Project Challenge, where small classes were installed in kindergarten and 1st, 2nd, and 3rd grades for the 17 lowest-income school districts. In this case, these 17 school districts can be considered the "teatment group." As discussed on Page 122, studies claimed that installing small classes for these districts were effective by comparing to some kind of control group. What is the implicit control group for such a comparison? Why does Mosteller say that these comparisons "must be regarded as weaker [than the STAR experiment]"? (**Hint**: Just saying "because this new investigation is less well controlled" isn't an adequate answer.)
+
+**[The implicit control group for comparing the effectiveness of installing small classes in the 17 lowest-income school districts under Project Challenge is the remaining school districts in Tennessee that did not implement small classes. Mosteller says that these comparisons "must be regarded as weaker [than the STAR experiment]" because Project Challenge doesn't involve random assignment of students or schools to the control and treatment groups. When there is no randomization, there could be systematic differences between the treatment group and the implicit control group, like within demographics, teacher quality, school resources, or other unmeasured confounding variables. This makes it harder to assigned the effects on student performance purely to smaller class size which lowers the internal validity of the comparisons compared to the well-controlled STAR experiment.]**
+
+g. (5pts) It is stated on Page 115 that, "No new textbooks or curricula were to be introduced [during the Tennessee STAR experiment]." Why did the researchers of this experiment make sure that no new textbooks or curricula were introduced during the experiment?
+
+**[The researchers made sure that no new textbooks or curricula were introduced during the Tennessee STAR experiment to maintain the internal validity by isolating class size and the presence of a teacher's aide on student performance. So if new textbooks or curricula were introduced, differences in student success may be because of these new materials rather than the class size or staff. So by maintaining the textbook and curricula similar across all classes it offsets for any confounding variables.]**
+
+h. (5pts) Overall, the Tennessee STAR experiment suggests that smaller class sizes improve students' achievement. Does this suggest that "smaller is always better"? For example, does the experiment suggest that, ideally, classes would consist of one teacher and one student? Why or why not?
+
+**[No, the Tennessee STAR experiment does not suggest that "smaller is always better" or that the ideal class size would be one teacher and one student. The experiment found positive effects for student achievement for smaller class sizes. But, it doesn't provide evidence for one-on-one instruction. This is because social interaction, collaboration, communication, and overall competition also help with student success which may not be present in smaller class sizes making it not practical for smaller class sizes. So the experiment concludes that there are benefits to reducing class sizes up to a certain range but not till one teacher and one student.]**
+
+i. **(REQUIRED ONLY FOR 36-749 STUDENTS, BONUS FOR 36-309 STUDENTS)** (15 points) Now you can analyze the study yourself. The following code loads data for first graders in the STAR experiment, where each row corresponds to the measurements for one student. (Download it from Canvas).
+
+```{r}
+starData <- read.csv("star.csv")
+```
+The variables are:
+
+- star1: factor indicating the STAR class type in 1st grade: regular, small, or regular-with-aide.
+- gender: factor indicating student's gender
+- ethnicity: factor indicating student's ethnicity
+- lunch1: factor indicating whether the student qualified for free lunch in 1st grade.
+- read1: total reading scaled score in 1st grade.
+- math1: total math scaled score in 1st grade.
+
++ (5pts) Given these variables, does it seem that the study has good *internal validity*? Use an appropriate form of EDA and explain your reasoning in 1-2 sentences.
+
+```{r}
+
+boxplot(starData$read1 ~ starData$star1,
+        main = "Reading Scores vs Class Type", 
+        xlab = "Class Type", ylab = "Reading Score")
+
+boxplot(starData$math1 ~ starData$star1,
+        main = "Math Scores vs Class Type", 
+        xlab = "Class Type", ylab = "Math Score")
+
+table(starData$star1, starData$gender)
+table(starData$star1, starData$ethnicity)
+table(starData$star1, starData$lunch1)
+
+
+
+```
+
+
+
+**[The study has good internal validity, because the boxplots for reading and math scores acros the different class types are fairly similar with no extreme differences to disagree with random assignment. Got the contingency tables, the distribution of males and females across class types is equal, the ethnicity has mostly caucasian and african american with small variation in the other groups, and the lunch status have even distributions for free and non free, so overall it supports random assignment with no extreme imbalances.  ]**
+
++ (5pts) Use appropriate statistical tests to determine whether the treatment impacts math and reading scores. (Note that this and the question below mimic  the first row of Table 2 of the paper (Page 121)). In 1-2 sentences, what do you conclude? (You do not need to worry about assessing the assumptions for the tests now, but generally you will in the future.)
+
+```{r}
+summary(aov(math1 ~ star1, data = starData))
+summary(aov(read1 ~ star1, data = starData))
+
+```
+
+**[The p-value is less than 2e-16, which is less than 0.05 for math and reading scores, this means there is a statistically significant difference in math scores between dif. class types and reading scores between dif. class types. So the treatment does impact math and reading scores. ]**
+
++ (5pts) For this question, we'll add a variable that indicates whether a student was assigned to a small class (relative to a large class with or without an aide).
+```{r}
+starData$smallClass = ifelse(starData$star1 == "small", 1, 0)
+```
+Use appropriate statistical tests to determine whether or not there is an effect on math and reading scores of small class sizes specifically, relative to a large class with or without an aide. In 1-2 sentences, what do you conclude? (You do not need to worry about assessing the assumptions for the tests now, but generally you will in the future.)
+
+```{r}
+
+t.test(math1 ~ smallClass, data = starData)
+t.test(read1 ~ smallClass, data = starData)
+
+```
+
+**[The t-test for math scores shows a significant difference with t = -9.1462 and the p-value being less than 2.2e-16, also the 95% confidence interval is (-13.582042, -8.786738) which doesn't include 0, and finally the mean math score in group 0 is 527.9041 and in group 1 it is 539.0885. As for reading scores this also shows a significant difference where the t = -8.0259 and the p-value is 1.407e-15, then the 95% confidence interval is(-15.655940, -9.508365) which doesn't include 0, and finally the mean reading score in group 0 is 517.3411 and in group it is 529.9233. These show that smaller class sizes improve math and reading scores because the p-values are very low <0.05, and confidence intervals don't have 0.]**
+
+
+
+# Question 2: Assessing the Validity of Two Experiments (50 points)
+
+In this question, we will consider two simulated experiments. Let's say that a school board is considering redeveloping their literacy program for first-grade students. In particular, they are considering three different programs: The "standard" program that has been implemented for years, a new "writing" program that tries to improve students' literacy with writing exercises, and a new "reading" program that tries to improve students' literacy with reading exercises. The school board would like to know if the different programs affect students' literacy ability.
+
+To help answer this question, the school board enlists Professor D. Brown and Professor F. Gibbs to each conduct a randomized experiment in a given school district. For each experiment, students are randomly assigned to one of three literacy programs ("standard", "writing", or "reading"). After students go through their respective programs, they take a literacy test to measure their literacy at the end of the experiment. Professor Brown and Professor Gibbs are also given each student's family annual income at the beginning of the experiment, as a baseline measurement.
+
+Professor Brown conducted his experiment in one school district, and Professor Gibbs conducted his experiment in another school district. You are given the data that resulted from each of their experiments  (available on Canvas):
+
+```{r}
+#loading the brown experiment
+brown = read.csv("brown.csv")
+#loading the gibbs experiment
+gibbs = read.csv("gibbs.csv")
+```
+
+Both datasets contain three variables: `income`, `test`, and `program`. The `income` variable is measured in thousands of US dollars, `test` ranges from 0 to 100, and `program` is a categorical variable with categories "standard", "writing", and "reading".
+
+Professor Brown and Professor Gibbs randomized `program` within their respective school districts, and thus both of these datasets come from a randomized experiment. We'll assess how well each of these experiments were conducted, and how to interpret them. So, *you don't want to mix up these two datasets*. Throughout this problem, I'll call the `brown` dataset the "Brown experiment" and the `gibbs` dataset the "Gibbs experiment."
+
+a. (11pts) For this part, answer the following two questions.
+
++ (6pts) First, perform two one-way ANOVA tests that are appropriate for these datasets: one for the Brown experiment and one for the Gibbs experiment. For each one-way ANOVA test, **only use the test and literacy program variables** (i.e., ignore income for now). After running your one-way ANOVA tests, state the scientific conclusion for both ANOVAs in terms of null hypotheses, being sure to state the hypotheses within the context of these datasets.
+
+```{r}
+
+summary(aov(test ~ program, data = brown))
+
+summary(aov(test ~ program, data = gibbs))
+
+
+```
+
+**[From the brown experiment, f-value is 0.31 and the p-value is 0.733, since the p-value is greater than 0.05 we fail to reject the null hypothesis, meaning there is no statistically significant difference in literacy test scores between the 3 literacy programs. For the gibbs experiment, the f-value is 9.39 and the p-value is 9.65e-05, which is less than 0.05 so we reject the null hypothesis, meaning there is a statistically significant difference in literacy test scores between the 3 literacy programs. ]**
+
++ (5pts) As we've discussed in class and lab, one of the statistical modeling assumptions involved in one-way ANOVA is that the outcome variable is Normally distributed within each treatment group. Using *residual analysis*, assess the Normality assumption for the two one-way ANOVA tests you ran in the previous part. For each experiment (Brown and Gibbs), state whether you think the Normality assumption is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible, and explain in 1-3 sentences. (**Hint**: If you're unsure what I mean by "residual analysis," it'll be helpful to revisit Lab3.)
+
+```{r}
+anovaModelbrown = aov(test ~ program, data = brown)
+resbrown = residuals(anovaModelbrown)
+hist(resbrown)
+qqnorm(resbrown)
+qqline(resbrown)
+
+anovaModelgibbs = aov(test ~ program, data = gibbs)
+resgibbs = residuals(anovaModelgibbs)
+hist(resgibbs)
+qqnorm(resgibbs)
+qqline(resgibbs)
+
+
+```
+
+**[For both brown and gibbs, it is a relatively normal distribution, with a few deviations from the theoretical line in the ends, but most of the residuals are at normal distribution being close to the line. The histogram shows a mostly symmetrical distribution being centered on 0 and a few deviations at the extreme similar to the q-q plot. I would say the normality assumption is somewhat plausible for brown and gibbs.]**
+
+b. (13pts) Now we'll consider the `income` variable. For this part, answer the following questions.
+
++ (8pts) In both datasets, students were randomized to the three programs. Because of this, on average, the students in each of the three programs should have similar income levels. For this part, use EDA **AND** formal statistical tests to assess if the average income levels are similar across the three programs for the Brown experiment and for the Gibbs experiment. After conducting your EDA **AND** tests for **EACH** experiment, explain in 1-3 sentences why these EDA and tests are appropriate for making this assessment. (**Hint**: For each dataset, you only need to produce one form of EDA and one statistical test.)
+
+```{r}
+
+boxplot(brown$income ~ brown$program, 
+        main = "Income by Program for Brown Experiment",
+        xlab = "Program", ylab = "Income")
+
+summary(aov(income ~ program, data = brown))
+
+
+
+boxplot(gibbs$income ~ gibbs$program, 
+        main = "Income by Program for Gibbs Experiment",
+        xlab = "Program", ylab = "Income")
+
+summary(aov(income ~ program, data = gibbs))
+
+
+```
+
+**[For the brown experiment, the average income levels are not similar across the three programs because the p-value is 0.0101 which is less than 0.05 so there is a statistically significant difference in income levels for at least 2 of the groups. So for the brown experiment, the income levels aren't entirely balanced. For the gibbs experiment, the average income levels are similar across the 3 different programs because the p-value is 0.992 which is greater than 0.05, meaning there is no statistically significant difference in income levels between the program groups. So for the gibbs experiment, the income levels are balanced across the programs. The EDA and tests are appropriate for making this assessment because the boxplots show slight variation or more consistency in distribution for the three programs and the anova gives us the p-value to show if income levels are similar across the 3 groups. These EDA and tests help us visually assess randomization, balance, provide statistics, and overall internal validity.]**
+
++ (5pts) Based on your EDA and tests from the previous part, which of the two experiments has higher **internal validity**? Explain in 1-2 sentences. Furthermore, given what you've found here, which experimental result from Part A would you "trust" more - the one from the Brown experiment or the one from the Gibbs experiment? Explain in 1-2 sentences. (**Hint**: For the "trust" question, you don't need to worry about statistical modeling assumptions, including Normality. Instead, focus on your findings for this part.)
+
+**[The gibbs experiment has high internal validity since the income levels are similar across the three groups meaning more effective randomization of participants by income, it is also more balanced from the boxplot. The brown experiment, has statistically significant differences across income levels for the three groups and is more unbalanced suggesting confounding effects. I would trust the results grom the gibbs experiment since it is more balanced, has more internal validity, randomization, it is probably not effected too heavily by external factors or confounding variables.]**
+
+c. (14pts) In the previous two questions, you should have considered differences across all three treatment groups. Now we'll consider differences in mean test scores between pairs of treatment groups: standard vs writing, writing vs reading, and standard vs reading. Specifically, we'll run six t-tests making each of these three comparisons for each of the two datasets. The following code conducts these t-tests for you.
+
+```{r}
+# T-TESTS FOR THE BROWN EXPERIMENT
+#standard and writing (for brown)
+brown.SW = subset(brown, program != "reading")
+t.test(test ~ program, data = brown.SW)
+#writing and reading (for brown)
+brown.WR = subset(brown, program != "standard")
+t.test(test ~ program, data = brown.WR)
+#standard and reading (for brown)
+brown.SR = subset(brown, program != "writing")
+t.test(test ~ program, data = brown.SR)
+
+# T-TESTS FOR THE GIBBS EXPERIMENT
+#standard and writing (for gibbs)
+gibbs.SW = subset(gibbs, program != "reading")
+t.test(test ~ program, data = gibbs.SW)
+#writing and reading (for gibbs)
+gibbs.WR = subset(gibbs, program != "standard")
+t.test(test ~ program, data = gibbs.WR)
+#standard and reading (for gibbs)
+gibbs.SR = subset(gibbs, program != "writing")
+t.test(test ~ program, data = gibbs.SR)
+```
+
+Note that you could have written this code yourself, but I spared you having to do the same thing six times. However, it is your responsibility to understand what the t-test code is doing, and how to interpret the output. For this part, answer the following questions:
+
+
++ (8pts) For each of the six tests above, what is your scientific conclusion? Specifically, for each conclusion, be sure to mention a null hypothesis and what you conclude about the mean test score for different programs.
+
+**[For Standard vs Writing(brown), the null hypothesis is that there is no difference in the mean test score for students in standard program and in the writing program. Since the p-value is 0.4883 which is greater tha 0.05, we fail to reject the null hypothesis meaning there is no significant difference in the mean test scores for students in the standard program and in the writing program. For Writing vs Reading(brown), the null hypothesis is that there is no difference in the mean test score for students in writing program and in the reading program. Since the p-value is 0.9932 which is greater tha 0.05, we fail to reject the null hypothesis meaning there is no significant difference in the mean test scores for students in the writing program and in the reading program. For Standard vs Reading(brown), the null hypothesis is that there is no difference in the mean test score for students in standard program and in the reading program. Since the p-value is 0.497 which is greater tha 0.05, we fail to reject the null hypothesis meaning there is no significant difference in the mean test scores for students in the standard program and in the reading program. For Student vs Writing(gibbs), the null hypothesis is that there is no difference in the mean test score for students in standard program and in the writing program. Since the p-value is 0.013 which is less than 0.05, we reject the null hypothesis meaning there is a significant difference in the mean test scores for students in the standard program and in the writing program, and standard program has higher scores. For Writing vs Reading(gibbs), the null hypothesis is that there is no difference in the mean test score for students in writing program and in the reading program. Since the p-value is 0.07955 which is greater than 0.05, we fail to reject the null hypothesis meaning there is no significant difference in the mean test scores for students in the standard program and in the writing program, and standard program has higher scores. For Standard vs Reading(gibbs), the null hypothesis is that there is no difference in the mean test score for students in standard program and in the reading program. Since the p-value is 1.463e-05 which is less than 0.05, we reject the null hypothesis meaning there is a significant difference in the mean test scores for students in the standard program and in the reading program, and standard program has higher scores.]**
+
++ (6pts) Given your answer above, which comparisons (standard vs writing, writing vs reading, standard vs reading) do the Brown experiment and Gibbs experiment agree (in terms of scientific conclusion) and for which do they disagree? Furthermore, explain *why* there may be these agreements and disagreements for these datasets. (**Hint**: In Part A you should have found that your one-way ANOVA conclusions between the two datasets disagreed, and your answer in Part B should have suggested a possible explanation for this disagreement. Meanwhile, in this part, you should find that some conclusions agree and some disagree. Thus, it may be helpful to look back at your EDA in Part B to come up with an explanation for this.)
+
+**[The Brown and Gibbs experiments agree that there is no significant difference between the writing and reading programs. They disagree on the standard vs writing and standard vs reading, where the Gibbs experiment has significant differences while the Brown experiment doesn't. The reason for these disagreements is the lower internal validity in the brown experiment, meaning there is more variation in income levels across the program groups. The variation in income levels may have led to potential differences in test scores for certain program comparisons in the Brown experiment. However, the Gibbs experiment has more similar and consistent income levels across the programs so it could find differences more reliably and efficiently. ]**
+
+d. (12pts) So far we have considered the internal validity of these experiments. For this last question, we'll consider external validity and construct validity.
+ 
++ (6pts) The Brown experiment and the Gibbs experiment were meant to assess whether different programs affected first-graders' literacy ability. Let's say that a policy maker wants to use these studies to determine how these programs would affect first-graders' literacy ability across the United States (i.e., for students in general, not just within the two school districts where these experiments were conducted). What additional information would we need to gather to determine whether the Brown experiment or the Gibbs experiment had higher external validity? Furthermore, how would you use that information to determine which experiment had higher external validity? Explain in 1-3 sentences. (**Hint**: For the sake of this question, assume that these datasets already contain all the information we could gather for these experiments. Thus, this question is asking about information you would need *outside of the experiments* done here, and how you would use that information to determine which experiment has higher external validity.)
+
+**[The additional information we would need to gather to determine whether the Brown experiment or the Gibbs experiment had higher external validity is demographics, race, ethnicity, geographics, socioeconomic status for the students in each experiment then this needs to compared to the national averages in the United States of first grade students. Then we also need information on how well they are taught and their learning environment in the districts compares to those of other first graders in the U.S. After obtaining this information, we could determine which experiment's student population of first graders is more similar to the average and general U.S. first grader population, which would determine which experiment has higher external validity. The comparision of these different factors would then be more generalizable and representative across the U.S. population for literacy ability, meaning they could have a more efficient and similar affect for all students from what was done in the specific study with higher external validity.]**
+
++ (6pts) Give an example of additional information that would make you think that the construct validity for these experiments was low, as well as an example of additional information that would make you think the construct validity is high. For each example, explain why that additional information would make you think the construct validity was high or low for these experiments.
+
+**[An example of additional information that would make me think that the construct validity for these experiment was low is if the literacy tests only tested reading comprehension but not writing, grammar, oral literacy, etc. This is low construct validity because they are limiting the construct of literacy ability into 1 factor when there are many extensive factors to look into and it wouldn't fully reflect or be representative of the literacy ability skills the program wanted. An example of high construct validity is if the program was for all components of literacy like vocabulary, reading, writing, grammar, spelling, speaking, etc. because this assesses the full construct of literacy ability not limiting the components for better results but making sure it has everything.  ]**
+

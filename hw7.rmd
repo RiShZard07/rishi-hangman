@@ -1,0 +1,277 @@
+---
+title: "36-309 / 36-749 Homework 7: Multiple Testing"
+subtitle: Due Wednesday, November 6, 11:59pm via Gradescope
+author: "RISHI DAMARLA"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: Combining Planned and Unplanned Comparisons (54 points)
+
+Dr. N. A. Bubble works for a company that manufactures sparkling water, and he's recently been tasked with studying to what extent the carbonation methodology affects the quality of the water his company produces. The company has provided some resources to run an experiment. In the experiment, sparkling water is produced with one of three carbonation methodologies: with a carbonator, with dry ice, or with yeast. (Yes, apparently you can make sparkling water with dry ice or yeast---however, these methods have to be done with great care to be safe, so I don't recommend trying this at home.) 60 cans of sparkling water are created using each methodology. Then, each can is rated by the company's taste-testing team. Thus, the quantitative outcome of this experiment is taste (no need to worry about how this is measured for this homework - assume that this has high construct validity).
+
+Furthermore, Dr. Bubble has the following **planned comparisons**:
+
+1) the average of dry ice and yeast vs. carbonator
+2) dry ice vs. yeast
+
+Dr. Bubble wants to do the first comparison because it compares a traditional method (the carbonator approach) to two non-traditional methods (dry ice and yeast). Meanwhile, the second comparison let's him compare the two non-traditional methods to each other.
+
+Here is the dataset from this experiment (available on Canvas):
+
+```{r}
+water = read.csv("water.csv")
+```
+Here are the two variables in this dataset:
+
++ `method`: "carbonator", "dryIce", or "yeast"
++ `taste`: a quantitative outcome on a 0-to-100 scale (where higher denotes better taste)
+
+## PART A (11pts)
+
+We'll first consider running one-way ANOVA for this dataset. For this part, answer the following questions.
+
++ (6pts) First, run the relevant one-way ANOVA for this dataset, and be sure to produce `summary()` output. Then, state what the null hypothesis is for this one-way ANOVA. In your answer, please use mathematical notation involving µs, and be sure to clearly define your notation. Finally, using your ANOVA output, state your scientific conclusion in terms of this null hypothesis.
+
+```{r}
+
+water <- read.csv("water.csv")
+
+water$method <- factor(water$method)
+
+summary(aov(taste ~ method, data = water))
+
+```
+
+**The null hypothesis is that there is no difference in the mean taste scores across the three carbonation methods. H0 : μ carbonator = μ dryIce = μ yeast, where μ carbonator is the mean taste score for the carbonator method, μ dryIce is the mean taste score for the dry ice method, and μ yeast is the mean taste score for the yeast method. The alternative hypothesis is that at least one of the mean taste score is different from the others. There is an f-value of 22.92 with a p-value of 1.41e-09 which is less than 0.05, so we reject the null hypothesis meaning that there is a statistically significant difference in the mean taste scores among the 3 carbonation methods.]**
+
++ (5pts) Now create a relevant side-by-side boxplot that complements the one-way ANOVA. Then, interpret the boxplot in 1-3 sentences. In particular, in your interpretation, be sure to compare and contrast the *center* of the outcome variable across the treatment groups in this experiment.
+
+```{r}
+boxplot(taste ~ method, data = water,
+        main = "Taste Ratings by Carbonation Method",
+        xlab = "Carbonation Method",
+        ylab = "Taste Rating")
+```
+
+**[The yeast method has the highest median taste rating, then the dry ice method, finally the carbonator method has the lowest median taste rating. Additionally, the spread of ratings is slightly wider for the yeast method, it has a few outliers, meaning more variability in taste ratings for this method compared to the others. This shows that there are some differences in taste ratings between the methods.]**
+
+## PART B (13pts)
+
+Now we'll consider contrast null hypotheses. For this part, answer the following questions.
+
++ (8pts) Look back at the two **planned comparisons** at the beginning of this question. Write each of these planned comparisons in terms of a **contrast null hypothesis**, with µs on the left-hand side and 0 on the right-hand side. **In your answer, write the µs in the same order as how the levels of `method` are ordered by default in R.** Thus, please also provide code that allows you to determine the order of the levels of `method`, as set by default in R. (**Hint**: Your answer should involve the same mathematical notation you defined in Part A.)
+
+```{r}
+levels(water$method)
+```
+
+**[Comparison of the average of dry ice and yeast vs. carbonator, Null Hypothesis: (μ dryIce + μ Yeast)/2 - (μ  carbonator) = 0, this comparison tests whether the combined average taste rating of the non - traditional methods(dry ice and yeast) is equal to the taste rating of the traditional method(carbonator), Comparison of dry ice vs yeast: Null Hypothesis: μ dryIce - μ yeast = 0, this comparison tests whether there is a difference in taste ratings between 2 non-traditional methods(dry ice and yeast).]**
+
++ (5pts) Now write the two sets of contrast coefficients corresponding to each of the contrast null hypotheses you wrote in the previous part. Again, be sure that your coefficients are in the same order as how the levels of `method` are ordered in R.
+
+**[The constrast coefficients for the comparison of the average of dry Ice and yeast vs. carbonator are (-1, 1/2, 1/2) where -1 is to carbonator, 1/2 is to dry Ice, and 1/2 is to yeast. The contrast coefficients for the comparison of dry ice vs. yeast are (0, 1, -1), where 0 is to carbonator, 1 is to dry Ice, and -1 is to yeast to match the R level order.]**
+
+## PART C (15pts)
+
+Now we'll consider testing the two planned comparisons from the beginning of this question. For reference, Dr. Bubble's planned comparisons were:
+
+1) the average of dry ice and yeast vs. carbonator
+2) dry ice vs. yeast
+
+For this part, answer the following questions.
+
++ (8pts) Recall that there are **four conditions for planned comparisons**. Do each of these four conditions hold for these two planned comparisons? State whether each condition Holds or Does Not Hold, and be sure to provide an explanation for each condition.
+
+**[The condition of orthogonality holds because these comparisons are independent. The first comparison contrasts traditional carbonator and non-traditional dry ice and yeast methods, while the second comparison examines the two non-traditional methods relative to each other. They aren't overallping information. The condition of exhaustiveness holds because the comparisons altogether meet all three levels of the carbonation method factor. The first comparison includes all three levels by comparing the average of dry ice and yeast to carbonator, and the second comparison directly looks at dry ice and yeast. The condition of linear independence holds because the two comparisons are linearly independent of each other. The first comparison tests the average effect of dry ice and yeast against carbonator, while the second comparison only tests the difference between dry ice and yeast. Neither comparison can be expressed as a linear combination of the other. The condition of relevance to hypotheses is held because both comparisons are relevant for Dr. Bubble’s research. The first comparison tests if there is a difference between the traditional and non-traditional carbonation methods, while the second comparison tests if there is a difference between the two non-traditional methods.]**
+
++ (7pts) Now, regardless of your answer to the previous part, use the `glht()` function to test both of these planned comparisons. Then, state your scientific conclusion for each planned comparison, within the context of this experiment. In your answer, please keep in mind that Dr. Bubble is interested not only in whether differences among these methods exist, but also which method performs better than others (if indeed a difference exists). (**Hint**: In order to run the `glht()` function, you first need to write `library(multcomp)` in your .Rmd file. Furthermore, in order for `library(multcomp)` to work, you need to install the `multcomp` R package; if you haven't done this yet, see Task 2 of Lab8.)
+
+```{r}
+
+library(multcomp)
+
+anova_model = aov(taste ~ method, data = water)
+water$method = factor(water$method)
+glht.fit1 = glht(model = anova_model, 
+                 linfct = mcp(method = c(-1, 0.5, 0.5)))
+summary(glht.fit1)
+
+glht.fit2 = glht(model = anova_model, 
+                 linfct = mcp(method = c(0, 1, -1)))
+
+summary(glht.fit2)
+
+```
+
+**[For Contrast 1, the Average of Dry Ice and Yeast vs. Carbonator, The test for Contrast 1 has an estimate of 4.633 and a highly significant p-value (p = 0.000126). This indicates that there is a statistically significant difference between the carbonator method and the average of the dry ice and yeast methods. Since the estimate is positive, it means the carbonator method yields higher taste ratings on average compared to the combined average of the dry ice and yeast methods. For Constrast 2, Dry Ice vs. Yeast, The test for Contrast 2 shows an estimate of 7.533 with a very significant p-value p = 1.19e-07, meaning a statistically significant difference between the dry ice and yeast methods. The positive estimate implies that dry ice yields a higher taste rating on average than yeast. Both planned comparisons have significant differences in taste ratings. The carbonator method performs better than the combined dry ice and yeast methods, and for the non-traditional methods, dry ice performs better than yeast. Dr. Bubble can conclude that the carbonation methodology impacts taste, with the traditional carbonator method performing best overall.]**
+
+## PART D (15pts)
+
+Now we will consider using the Tukey procedure for some additional unplanned comparisons. Please answer the following:
+
++ (5pts) Note that we've already tested the two planned comparisons in Part C. Which two **additional** null hypotheses can be tested using the Tukey procedure? Please write out your null hypotheses using the µ notation you've used in previous parts. Be sure to explain why these additional null hypotheses are appropriate for the Tukey procedure in particular.
+
+**[H0: μ carbonator = μ dryIce, and H0: μ carbonator = μ yeast. These null hypotheses are appropriate for the Tukey procedure because the Tukey method is designed to conduct all possible pairwise comparisons among groups while controlling for family-wise error rate. Planned comparisons have already been conducted, the Tukey procedure tests the remaining pairwise comparisons in an unplanned manner. This approach helps protect against Type I errors that could occur from conducting multiple comparisons without prior planning. They Tukey method ensures that these additional pairwise comparisons are statistically significant.]**
+
++ (5pts) Now use the Tukey procedure to test the two additional null hypotheses you wrote in the previous bullet. State what your scientific conclusion is for both of these null hypotheses, within the context of this experiment. In your answer, please keep in mind that Dr. Bubble is interested not only in whether differences among these methods exist, but also which method performs better than others (if indeed a difference exists).
+
+```{r}
+
+TukeyHSD(aov(taste ~ method, data = water))
+
+
+```
+
+**[For Dry Ice vs. Carbonator: The p-value for the comparison between dryIce and carbonator is 0.8010213, which is much greater than 0.05. This indicates that there is no statistically significant difference in taste ratings between the dry ice and carbonator methods. Therefore, we conclude that the dry ice and carbonator methods do not differ significantly in their taste ratings. For Yeast vs. Carbonator: The p-value for the comparison between yeast" and carbonator is around 0, which is less than 0.05. This suggests a statistically significant difference in taste ratings between the yeast and carbonator methods, with yeast having a higher taste rating. We conclude that the yeast method yields a significantly better taste rating compared to the carbonator method. Yeast vs. Dry Ice: The p-value for the comparison between yeast and dryIce is also very small at 0.0000004, indicating a significant difference in taste ratings between the yeast and dry ice methods. With a mean difference of 7.533, the yeast method again has a higher taste rating. We can conclude that the yeast method produces a significantly better taste rating than the dry ice method. The yeast method outperforms both the carbonator and dry ice methods in terms of taste ratings, while the dry ice and carbonator methods are not significantly different from each other. So yeast is the best performing carbonation method among the three, according to the taste-test results.]**
+
++ (5pts) Finally, state one additional complex null hypothesis that **has not been tested in this homework** and for which we **cannot test using the Tukey Procedure**. (You do not need to test it.) Please state your complex null hypothesis in words **as well as** mathematical notation.
+
+**[Null Hypothesis: The combined average taste rating of the carbonator and dry Ice methods is equal to the taste rating of the yeast method, Null Hypothesis: (μ carbonator + μ dryIce)/2 = μ yeast. This hypothesis is complex because it involves comparing the average of two methods carbonator and dry ice against a third method yeast, which is a contrast that cannot be directly tested using the pairwise comparisons available in the Tukey Procedure. The Tukey Procedure is designed for testing simple pairwise differences rather than these types of combined comparisons.]**
+
+# Question 2: Revisiting the Coffee Dataset (46 points)
+
+During the first several weeks of class, we considered the following dataset from an experiment about brewing espresso:
+
+During the first several weeks of class, we considered everyone's favorite dataset from an experiment about brewing espresso (to make this dataset easy to find, it is linked on the Canvas page for this homework):
+
+```{r}
+coffee = read.csv("coffee.csv")
+# make sure the categorical variables are factors
+# this time I did it for you
+# HINT: did I set the categorical variable to be a factor in Question 1?
+coffee$tempC = factor(coffee$tempC)
+coffee$pressBar = factor(coffee$pressBar)
+```
+
+
+As a reminder, in this experiment, researchers considered changing the water temperature (`tempC`) and pressure (`pressBar`) when brewing espresso. The outcome variable was the percentage of the espresso that is foam (`foamIndex`). The `tempC` explanatory variable has three levels (75, 80, and 85 degrees celsius), and the `pressBar` explanatory variable has two levels (15 and 20 bar).
+
+In class, we found that the "no interaction" (additive) two-way ANOVA model is most appropriate for this dataset. Thus, we will focus on the no interaction two-way ANOVA model in this homework:
+
+```{r}
+summary(aov(foamIndex ~ tempC + pressBar, data = coffee))
+```
+
+Now we will revisit this dataset within the context of multiple hypothesis testing.
+
+## PART A (7pts)
+
+For this part, answer the following:
+
++ (3pts) For a moment, let's say we had never seen this dataset before, and we wanted to consider some *planned* follow-up comparisons for this experiment. For this dataset, what is the *maximum* number of planned comparisons we could test? Explain your reasoning in 1 sentence.
+
+**[The maximum number of planned comparisons we could test for this dataset is 3. This is because there are two levels of tempC (temperature) so 3 planned pairwise comparisons between them and two levels of pressBar (pressure) with one planned comparision between them, so 2 + 1 = 3.]**
+
++ (4pts) Because we've already analyzed this dataset previously, it will be impossible to conduct planned comparisons for this dataset. For this dataset, there are two factors: `tempC` and `pressBar`. According to  the two-way ANOVA table, for which factor(s) is it most natural to conduct additional follow-up tests? Explain your reasoning in 1-2 sentences.
+
+**[According to the two-way ANOVA table, it is most natural to conduct additional follow-up tests for both tempC and pressBar. This is because both factors show statistically significant F-values with p-values of 0.006656 and 0.000351, respectively, meaning that there are meaningful differences in foamIndex across the levels of each factor. Follow-up tests would help to identify specific differences between the levels within each factor.]**
+
+## PART B (12pts)
+
+Let's say there are three professors interested in this dataset: Professor T. Cup, Professor O. Milk, and Professor F. White. They state the following comparisons (in terms of mean `foamIndex`) they are interested in:
+
++ Professor Cup: "I would like to compare the low temperature to the medium temperature, as well as the low temperature to the high temperature."
+
++ Professor Milk: "I would like to compare the low temperature to the medium temperature, the low temperature to the high temperature, and the medium temperature to the high temperature."
+
++ Professor White: "I would like to compare the average of the medium and high temperatures to the low temperature."
+
+All three professors are communicating *unplanned* comparisons. In class, we've discussed three procedures for unplanned comparisons: the Bonferroni procedure, Tukey's procedure, and Dunnett's procedure. For *each* professor's comparisons, state *which procedures* could be used to test *all* of that professor's comparisons, while also controlling the Type 1 error rate. For each, explain your reasoning in 1-2 sentences. (**Hint**: For each professor, it may be the case that multiple procedures could be used to test all of their comparisons. If that's the case, you should state *all* the procedures that could be used, and explain why.)
+
+**[For Professor Cup, they want to make two comparisons: low temperature vs. medium temperature and low temperature vs. high temperature. These comparisons involve a control group (low temperature) against multiple other groups, Dunnett's procedure is appropriate because it is specifically designed for comparing multiple treatments to a single control while controlling the Type 1 error rate. Bonferroni's procedure could also be used since it is a flexible method that can handle any number of comparisons by adjusting significance level for each comparison. For Professor Milk, they are interested in all pairwise comparisons including low vs. medium, low vs. high, and medium vs. high. Tukey's procedure is suitable here, as it is specifically designed for all pairwise comparisons while controlling the family-wise Type 1 error rate. Bonferroni's procedure could also be used as it adjusts the alpha level for multiple comparisons, though Tukey's is generally preferred for all pairwise comparisons due to being more significant. For Professor White, he wants to compare the average of the medium and high temperatures to the low temperature. This comparison is not a pairwise comparison but a custom contrast. Bonferroni's procedure is the most appropriate here because it is flexible enough to handle custom contrasts while controlling the Type 1 error rate. Tukey’s and Dunnett's procedures are not suitable in this case because they are designed specifically for all pairwise or control-vs-treatment comparisons, respectively, and not for averaging groups like Professor White.]**
+
+## PART C (12pts)
+
+In Part B, Professor Milk stated *three* comparisons they were interested in: (1) low temperature vs medium temperature, (2) low temperature vs high temperature, and (3) medium temperature vs high temperature. These are *pairwise comparisons*, in the sense that they compare pairs of temperature levels. Now we'll conduct tests for these (unplanned) paired comparisons. For this part, answer the following questions.
+
++ (4pts) First, use the `pairwise.t.test()` function to obtain "t-test like" p-values for each of these three paired comparisons. To do this, within the `pairwise.t.test()` function, set `p.adjust.method = "none"`. For this part, all you need to do is write code that displays p-values for each paired comparison using `pairwise.t.test()`.
+```{r}
+coffee <- read.csv("coffee.csv")
+
+coffee$tempC <- factor(coffee$tempC)
+
+pairwise.t.test(coffee$foamIndex, coffee$tempC, p.adjust.method = "none")
+
+```
+
++ (4pts) Now write code that produces Bonferroni-based p-values for each of three paired comparisons. All you need to do is write code that displays the appropriate p-values for this problem.
+```{r}
+pairwise.t.test(coffee$foamIndex, coffee$tempC, p.adjust.method = "bonferroni")
+
+```
+
++ (4pts) Finally write code that produces Tukey-based p-values for each of the three paired comparisons. All you need to do is write code that displays the appropriate p-values for this problem.
+```{r}
+
+TukeyHSD(aov(foamIndex ~ tempC, data = coffee))
+
+```
+
+## PART D (15pts)
+
+Now we'll reflect on the different sets of p-values you obtained in Part C. For this part, answer the following questions.
+
++ (3pts) In Part C, you should have found *three sets* of p-values: One from a typical t-test, one from the Bonferroni procedure, and one from the Tukey procedure. Which p-values are the largest (the ones from t-test, Bonferroni, or Tukey)? Furthermore, which p-values are the smallest (the one from t-test Bonferroni, or Tukey)?
+
+**[The Bonferroni-adjusted p-values are generally the largest among the three sets, as the Bonferroni method is a conservative adjustment to control the Type I error rate in multiple comparisons. This adjustment tends to yield larger p-values compared to both the typical t-test and Tukey adjustments. The typical t-test p-values with no adjustment are the smallest since they do not account for multiple comparisons and therefore lack the conservative adjustments that the Bonferroni and Tukey methods apply. This results in lower p-values for each comparison, making them more likely to indicate significance without adjusting for the family-wise error rate.]**
+
++ (4pts) When considering **only the Type 1 error rate**, which sets of p-values (from t-test, Bonferroni, or Tukey) would you most prefer? Explain your reasoning in 1-2 sentences.
+
+**[When considering only the Type 1 error rate, the Bonferroni-adjusted p-values would be most preferable, as this method is highly conservative and specifically designed to control the Type 1 error rate across multiple comparisons. This adjustment reduces the likelihood of false positives, making it ideal for minimizing Type 1 errors in multiple testing scenarios.]**
+
++ (4pts) When considering **only power**, which sets of p-values (from t-test, Bonferroni, or Tukey) would you most prefer? Explain your reasoning in 1-2 sentences.
+
+**[When considering only power, the p-values from the t-test would be most preferable because they are unadjusted and therefore less conservative, increasing the likelihood of detecting true effects. Higher power equals a greater chance of rejecting the null hypothesis when it is false, which is helpful when minimizing Type 2 errors is the goal.]**
+
++ (4pts) When considering **BOTH Type 1 error rate and power**, which sets of p-values (from t-test, Bonferroni, or Tukey) would you most prefer? Explain your reasoning in 1-2 sentences.
+
+**[When considering both Type 1 error rate and power, the p-values from the Tukey procedure would be most preferable. The Tukey procedure has a balance between controlling the Type 1 error rate family-wise across multiple comparisons while maintaining reasonable power, making it a preferrable option for scenarios involving multiple pairwise tests.]**
+
+# Question 3 (ONLY REQUIRED FOR 36-749 STUDENTS; BONUS QUESTION FOR 36-309 STUDENTS; 5pts)
+
+Say that Professor A. Pear ran a randomized experiment with **six treatment groups**. He decided to run a t-test for **each pairwise comparison** among the treatment groups (e.g., treatment 1 vs treatment 2, treatment 1 vs treatment 3, etc.) Thus, Professor Pear conducted multiple t-tests, but he did not do any corrections for multiple hypothesis testing. In this question, Professor Pear will give you information about his (uncorrected) tests, and we'll incorporate corrections for multiple hypothesis testing. Answer the following two questions.
+
++ (2.5pts) Professor Pear says: "For the t-test where I compared the first treatment group to the second treatment group, I got a p-value of 0.01." What would be the "adjusted p-value" after the Bonferroni correction? Explain how you arrived at your answer in 1-2 sentences. (**Hint**: This question is meant to demonstrate that you don't even need the actual data to figure out the Bonferroni-corrected p-value.)
+
+**[The adjusted p-value is 0.15, because using the Bonferroni correction I multiplied the p-value by the total number of pairwise comparisons, since there are six treatment groups so 15 possible pairwise comparisons so the adjusted p-value is 0.01 x 15 = 0.15. ]**
+
++ (2.5pts) Now Professor Pear says: "I want to compute the 95% confidence interval for the first-versus-second treatment group t-test. I assigned 20 subjects to each treatment group, the mean difference between the first and second treatment groups (first minus second) was 3.25, and the standard error was 1.25. Thus, the 95% confidence interval for this mean difference is:"
+
+```{r}
+alpha = 0.05
+meanDiff = 3.25
+se = 1.25
+n = 40
+t.quant = qt(p = 1-alpha/2, df = n - 2)
+
+#lower and upper bound of 95% CI
+c(meanDiff - t.quant*se, meanDiff + t.quant*se)
+```
+
+Professor Pear is telling the truth: This is indeed the (uncorrected) 95% confidence interval for the two-sample t-test.
+
+Your goal for this problem is to compute the **Bonferroni-corrected 95% confidence interval**, i.e., the 95% confidence interval that incorporates the Bonferroni correction for multiple testing. For this part, write code that produces the desired confidence interval, and then state what the confidence interval is and how you arrived at your answer. (**Hint**: Note that, for a single hypothesis test, we reject the null hypothesis if the p-value is less than alpha, which is typically 0.05. This is indeed why the above code produces the 95% confidence interval for a single hypothesis test, where we set `alpha = 0.05`. Given this, you should write code similar to the above that incorporates the Bonferroni correction, which recognizes that Professor Pear didn't conduct just one hypothesis test.)
+
+```{r}
+alpha_bonferroni <- 0.05 / 15
+meanDiff <- 3.25
+se <- 1.25
+n <- 40
+t.quant_bonferroni <- qt(p = 1 - alpha_bonferroni / 2, df = n - 2)
+
+
+c(meanDiff - t.quant_bonferroni * se, meanDiff + t.quant_bonferroni * se)
+
+```
+
+**[The Bonferroni-corrected 95% confidence interval for the mean difference between the first and second treatment groups is [− 0.6653 , 7.1653 ]. I used the Bonferroni adjustment to show that multiple pairwise comparisons were conducted among the six treatment groups. Since there are 15 possible comparisons, I divided the original significance level of 0.05 by 15, providing the adjusted alpha level. This adjustment helps control the overall Type I error rate across all comparisons, reducing the chance of falsely identifying a significant effect due to the number of tests performed. With this adjusted alpha, we calculated the critical t-value and applied it to the standard error to determine the lower and upper bounds of the interval. As a result, this corrected interval, [− 0.6653 , 7.1653 ] is wider than the original uncorrected interval, meaning a more conservative estimate. This wider interval reflects the criteria imposed by the Bonferroni correction, helping to make sure that any significant findings are less likely to be due to random chance.]**
+
+

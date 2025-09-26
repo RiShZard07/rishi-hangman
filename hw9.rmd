@@ -1,0 +1,221 @@
+---
+title: "36-309 / 36-749 Homework 9: Review, Chi-Squared Tests, and Logistic Regression"
+subtitle: Due Wednesday, November 20, 11:59pm via Gradescope
+author: "YOUR NAME"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+The dataset contains information about reddit.com (Reddit). For those unfamiliar, Reddit is a website where users anonymously submit posts - questions, jokes, recipes, memes, gifs, and many other things - and other users reply with "upvotes", "downvotes", and comments. Within Reddit, there are many "subreddits," which are basically subforums dedicated to particular topics.
+
+The focus of this homework is on assessing to what extent there are gender biases on Reddit. For example, are Reddit posts made by women treated differently than posts made by men? This is difficult to assess because Reddit is anonymous, and thus we usually do not know users' gender. However, on the /r/relationships subreddit - where users ask for advice about relationships (which could be romantic, platonic, professional, etc.) - it is very common for users to "declare" their gender. In this way, the /r/relationships subreddit is uniquely different from most other parts of Reddit. For example, someone may make a post with the title,  "My [25F] roommate [24M] refuses to do the dishes." In this case, the poster has "declared" that they are a 25-year-old female with a 24-year-old male roommate.
+
+
+This dataset (on Canvas) contains a random set of 10,000 posts from the /r/relationships subreddit, each algorithmically labeled as being made by a "male" or "female" author (or at least the ones that had a [F] or [M] label, like in the aforementioned example. Non-binary posters we excluded because there was no consistent way that these posters declared their gender).
+
+```{r}
+reddit = read.csv("redditData36309.csv")
+#ensure categorical variables are factors
+reddit$postID = factor(reddit$postID)
+reddit$gender = factor(reddit$gender)
+reddit$success = factor(reddit$success)
+```
+
+Here are the columns/variables in this dataset:
+
++ `postID`: a unique number that (uncreatively) ranges from 1 to 10000.
++ `num_comments`: The number of comments that post received.
++ `word.count`: The length (in words) of the post.
++ `gender`: The gender stated by the author of the post ("female" or "male").
++	`success`: An indicator variable equal to one if the author received 18 or more comments and equal to 0 otherwise. 
+
+In Questions 1 and 2, we will use `num_comments` as the outcome variable. In Question 3, we will use `success` as the outcome variable. The first half of this homework is review of old material to help prepare you as we move towards the end of the semester; the second half of the homework is about new material.
+
+# Question 1: Internal, External, and Construct Validity (18 points)
+
+## PART A (8pts)
+
+Before looking at the data, we'll first consider the construct validity and external validity for this study.  Everything you need to know to answer this question is in the description of the homework, so you do not need to be familiar with Reddit to adequately answer this question. For this part, answer the following two questions.
+
++ (4pts) In this homework, we will use the number of comments as the "construct" for the reception of a post. In other words, more comments will be considered "better reception" for a post. Do you think number of comments has good construct validity? State Yes or No, and discuss in 1-2 sentences.
+
+**[PUT YOUR ANSWER HERE]**
+
++ (4pts) In this homework, we are focusing on the /r/relationships subreddit. Thus, our findings are restricted to this subreddit, but the hope is that these findings can be generalized to other parts of Reddit (i.e., other subreddits about different topics). In this sense, do you think that this dataset has good external validity? Discuss in 1-2 sentences.
+
+**[PUT YOUR ANSWER HERE]**
+
+## PART B (10pts)
+
+Note that `word.count` is an explanatory variable, and `gender` can be viewed as our "treatment" variable. In this part, we will assess the internal validity of this dataset in terms of `word.count` variable. For this part, complete the following **two** tasks.
+
++ (5pts) First, create some form of graphical EDA to assess internal validity in terms of `word.count`. After creating your EDA, in 1-3 sentences, explain how your EDA relates to internal validity, and discuss whether you think there is high internal validity based on your EDA.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+
++ (5pts) Now, run a statistical test that allows you to assess internal validity in terms of `word.count`. By "statistical test," I mean an analysis that provides a p-value, and thus formally tests a null hypothesis. After running your test, in 1-3 sentences, explain how your test relates to internal validity, and discuss whether you think there is high internal validity based on your test.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+
+# Question 2: Linear Regression and ANCOVA (27pts)
+
+In this question, we will consider the following statistical models:
+
+**Model 1**: `num_comments` linearly regressed on `word.count`.
+
+**Model 2**: `num_comments` linearly regressed on `word.count` and `gender` (but NOT their interaction). 
+
+**Model 3**: `num_comments` linearly regressed on `word.count`, `gender`, and the interaction between `word.count` and `gender`.
+
+Model 1 is *simple linear regression* because it involves a single quantitative explanatory variable and a quantitative outcome variable. Model 2 is an *additive ANCOVA model* because it involves (1) a quantitative explanatory variable, (2) a categorical explanatory variable, and (3) a quantitative outcome variable. Model 3 is an *interactive ANCOVA model* because it involves an interaction between the two explanatory variables.
+
+## PART A (9pts)
+
+For this part, answer the following two questions.
+
++ (5pts) First, write code running **Model 1**, **Model 2**, and **Model 3**; in your code, define your models as `linReg1`, `linReg2`, and `linReg3`, and print out the `summary()` output for each model.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+Then, using your R output above, write out the *prediction equation* for **Model 2**. Please write your answer in terms of a *single* prediction equation, rather than two prediction equations. Be sure to clearly define any notation you use to write your equation. (**Hint**: In order to do this, you will have to define some new notation involving indicator variables.)
+
+**[PUT YOUR ANSWER HERE]**
+
++ (4pts) Now look at the estimated *Intercept* for **Model 2**. In 1-2 sentences, write your interpretation of this estimated intercept in terms of the estimated mean number of comments.
+
+**[PUT YOUR ANSWER HERE]**
+
+## PART B (9pts)
+
+First use the `anova()` function to determine whether you prefer `linReg1`, `linReg2`, or `linReg3`. In your answer, first display the `anova()` output, then state which model you prefer (Model 1, Model 2, or Model 3), and discuss in 1-2 sentences how you arrived at your answer.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+
+Now look at your `anova()` output. You should see two p-values: One in Row 2, one in Row 3. Using ßs in your answer, what is the null hypothesis for the p-value in Row 2? What is the null hypothesis for the p-value in Row 3? In your answer, please be sure to specify what your ßs refer to, in terms of Models 1, 2, and/or 3.
+
+**[PUT YOUR ANSWER HERE]**
+
+## PART C (9pts)
+
+*For the model you preferred in Part B*, make a quantile-normal plot of the residuals, and interpret it (in 1-2 sentences) in terms of the assumptions made for this linear regression model. Then, make a residual-vs-fit plot, and interpret it (in 1-2 sentences) in terms of the assumptions made for this linear regression model. Be sure to discuss to what extent you believe the appropriate assumptions are violated, according to your residual plots. Specifically, state whether each assumption is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible.
+
+**[PUT YOUR ANSWER HERE]**
+
+# Question 3: Logistic Regression (40 points)
+
+As an alternative to using a quantitative outcome variable, it is very common to dichotomize the outcome into a "success" or "failure" and use that as the outcome instead. After doing some basic EDA, we can find that the 75% quantile of `num_comments` is 18. In the dataset a post is defined as "successful" if it received 18 or more comments. This is captured in the `success` variable, which we will use as the outcome for this question. (As an aside: It is very common to use quantiles to dichotomize a quantitative variable.)
+
+## PART A (12pts)
+
+For this part, answer the following two questions.
+
++ (6pts) Write out the *statistical model* for logistic regression using  `success` as the outcome variable and `word.count` and `gender` (but not their interaction) as explanatory variables. Please write your model using ß symbols. (**Hint**: Your statistical model should specify and describe the *distribution* placed on the `success` variable for the logistic regression model described here. Furthermore, you will have to use some notation involving indicator variables to properly incorporate the explanatory variables into your model.)
+
+**[PUT YOUR ANSWER HERE]**
+
++ (6pts) Your statistical model should include an intercept coefficient, as well as a coefficient related to `gender` in some way. What is the interpretation of the intercept coefficient *in terms of the log-odds of success*? And what is the interpretation of your coefficient related to `gender` *in terms of the log-odds of success*?
+
+**[PUT YOUR ANSWER HERE]**
+
+## PART B (16pts)
+
+For this part, answer the following three questions.
+
++ (6pts) First, run the regression model you wrote in Part A using the `glm()` function. Print out the `summary()` output from this function. Your summary output should display a row for `word.count`.  What is the null hypothesis for the p-value in the `word.count` row? Please write your null hypothesis using the mathematical notation you used in Part A.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+
++ (4pts) Now, using the `summary()` output, write out the *prediction equation* for this model *in terms of the probability of success*. (**Hint**: Your prediction equation should have P(`success` = 1) on the left-hand side, and the right-hand side should involve terms with exp(), i.e., the natural exponential function. Your equation should also involve real numbers.)
+
+**[PUT YOUR ANSWER HERE]**
+
++ (6pts) Finally, using your prediction equation, what is the estimated probability of success for a male post that is 150 words long? What is the estimated probability of success for a female post that is 150 words long? In addition to your answer, please provide code that demonstrates how you arrived at your answer.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+
+## PART C (12pts)
+
+Using your `summary()` output from Part B, answer the following two questions.
+
++ (6pts) Write out your interpretation of the "Estimate" in the `word.count` row in terms of the *odds of success*. Then, write out your interpretation of the "Estimate" in the `gendermale` row in terms of the *odds of success*.
+
+**[PUT YOUR ANSWER HERE]**
+
++ (6pts) Based on your `summary()` output from the logistic regression model, what are your scientific conclusions for this dataset in terms of how gender and the word length of a post are related to the probability of a post being "successful"? Please explain how you used the `summary()` output to arrive at your answer.
+
+**[PUT YOUR ANSWER HERE]**
+
+# Question 4: Chi-squared Tests (15 points)
+
+In the previous part, we categorized `num_comments` into just two categories: a "success" or a "failure" (i.e., a high or low number of comments). Now we will consider categorizing `num_comments` into multiple categories. Note that the 25\%, 50\%, and 75\% quantiles of `num_comments` are 4, 8, and 18, respectively:
+```{r}
+quantile(reddit$num_comments, prob = c(0.25, 0.5, 0.75))
+```
+Thus, we will create a four-category version of `num_comments`, which denotes whether someone's post was in the first, second, third, or fourth quantiles in terms of `num_comments`:
+
+```{r}
+#define the categorized version of num_comments
+reddit$num_comments_cat = ifelse(reddit$num_comments < 4, "first",
+	ifelse(reddit$num_comments < 8, "second",
+		ifelse(reddit$num_comments < 18, "third", "fourth")))
+#ensure that the factor is listed in an intuitive order
+reddit$num_comments_cat = factor(reddit$num_comments_cat,
+                                  levels = c("first", "second", "third", "fourth"))
+```
+
+Note that, by default, `R` displays the levels of categorical variables in alphabetical order; thus, by default, `R` would display the levels of `num_comments_cat` as: "first", "fourth", "second", "third", which is not an intuitive order (hence the second line of code).
+
+Please just take a moment to see what this variable looks like (e.g., by running `reddit$num_comments_cat` in the Console), and then answer the following questions.
+
++ (5pts) As EDA, write code to produce (and turn in) three tables:
+
+1) A table that contains the counts of each combination of `gender` and `num_comments_cat`.
+2) A table that contains the percentages of each combination of `gender` and `num_comments_cat`, where the percentages add up to 100% for each level of `gender`.
+3) A table that contains the percentages of each combination of `gender` and `num_comments_cat`, where the percentages add up to 100% for each level of `num_comments_cat`.
+
+For this part, you just have to write code that produces the three tables described above.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
++ (5pts) After you've made your tables, answer the following: Between Table 2 and Table 3, which one would be more useful for *assessing gender equality among different number-of-comments categories*? In other words, which one would be more useful for assessing if there are a roughly equal number of male and female posts in each level of `num_comments_cat`? Explain your answer in 1-2 sentences.
+
+**[PUT YOUR ANSWER HERE]**
+
++ (5pts) As formal analysis, conduct the appropriate chi-squared test for this dataset using `gender` and `num_comments_cat`. After you do this, state your scientific conclusion from the test. In your answer, be sure to state the null hypothesis that is being tested, and whether you reject or fail to reject this hypothesis.
+
+```{r}
+# PUT YOUR CODE HERE
+```
+
+**[PUT YOUR ANSWER HERE]**
+

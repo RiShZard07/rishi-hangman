@@ -1,0 +1,431 @@
+---
+title: "36-315 Homework 1; Fall 2025"
+author: "Rishi Damarla"
+date: "Due Wednesday, Sep. 10, 2025 11:59pm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+  pdf_document:
+urlcolor: blue
+---
+
+## Introduction to `R`, RStudio, Data Types, and Critiquing Graphics
+
+***
+***
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to write your name at the top of this page in the author section.
+
++ When writing out answers to questions, please put them in the section designated by **[PUT YOUR ANSWER HERE]** so that your answers are in bold to differentiate them from the problem statements.  Each answer must be supported by written statements (unless otherwise specified).  **Thus, even if you think your code output is self-explanatory, be sure to answer questions with written statements outside of code blocks.**
+
++ For your homework submission, generate an .html file and an .Rmd file (named as: [AndrewID]-315-lab01.Rmd -- e.g. "fsk-315-lab01.Rmd").  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either knit to PDF (see Lab 0) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code block.  Your code should produce plots/output that will be automatically embedded in the output (.html) file.  Your lab and homework files will include the template code chunks like the following:
+
+```{r}
+# PUT YOUR CODE AND PLOT HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own. Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism. In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
+
+***
+***
+
+
+# Problem 1: Critiquing Graphs [15 pts]
+
+As part of your course grade for 36-315, you must submit three files describing and critiquing three visualizations you found online from recent sources (see syllabus for details; this problem will approximately serve as a template for your first submission).  In this question, you will get practice doing this, so that expectations for these submissions are clear.  Note that the following is for homework credit; you CANNOT use the graphic you discuss here for any of your actual graphics critiques.
+
+
+__1(a) [5 pts]__ Find a graph from the Internet from the past 30 days (e.g., from a news article, blog post, online forum, etc.).  For this part, all you have to do is include the graph.  You have three choices here: 
+
++ Option 1 (HTML likely): embed the graph/image directly in RMarkdown (see below for instructions - __this approach may not work if knitting to PDF!__), or 
+
+*OPTION 1 INSTRUCTIONS: replace image address in the code below with your graph/image address (just use copy image address and paste it in below).  Then set echo = FALSE so the code is NOT displayed in your submission.*
+
+```{r, echo = TRUE}
+knitr::include_graphics("https://fingfx.thomsonreuters.com/gfx/mkt/znvnnmwgdvl/Oracle1.jpg")
+echo = FALSE
+```
+
++ Option 2 (HTML or PDF): save the image locally and refer to the file-path in a code chunk, but also provide a link to the source of the image, or
+
+*OPTION 2 INSTRUCTIONS: Save the image on your computer in the same directory as this Rmd file, then just update the file name (ensure the file type is correct, e.g., change jpg to png etc.) in the code below and uncomment to knit it.*
+
+```{r, echo = TRUE}
+#knitr::include_graphics("insert_graph_name_here.jpg")
+```
+
+ANSWER: I knitted with a locally stored copy of the file, but the image is the first and only figure, found at the top of the page at the following URL: https://flowingdata.com/2022/08/11/serena-williams-career-rankings/
+
++ Option 3 (HTML or PDF, but only if you cannot use option 2): include a link to the graph in your answer to this question.
+
+ANSWER: [This sentence is a link to the graph that will be in the solutions.](https://flowingdata.com/wp-content/uploads/2022/08/serena-williams-ranking.png)  This is from a New York Times article, but I accessed it from the [FlowingData](https://flowingdata.com/2022/08/11/serena-williams-career-rankings/) website managed by Nathan Yau.
+
+
+__1(b) [5 pts]__ **Describe the graph** in 2-5 sentences.  Be sure that your description touches on the following points:
+
++ What does the graph show? 
++ What variables are plotted, and how, whether it's via symbols, color, or other features of the graph?
++ What is the main result of the graph?
+
+**[The graph shows the stock price of Oracle which is the blue filled region and the right y-axis is in dollars, as well as it's forward 12 month P/E ratio which is the orange line with the left y-axis over the time period x-axis 2016 – 2025. The price series shows a filled region to portray level and growth, and the valuation multiple is indicated by a line. Both series are proportionately constrained up till 2016–2020, increasing in 2021–2024, and increasing significantly up through 2025, with P/E and price increasing together. Overall, both the share price of Oracle and the P/E multiple itself have increased dramatically recently, meaning higher priced shares relative to anticipated earnings.]**
+
+
+__1(c) [5 pts]__ **Critique the graph** in 2-5 sentences.  Be sure that your critique touches on the following points:
+
++ What are the main goal(s) of the graph? 
++ Does the graph do a good job of achieving its goals?
++ What are the strengths and weaknesses (if any) of the graphic? 
++ What would you change (if anything) about this graphic?
+
+**[The chart's main goal is to emphasize the path over time of Oracle's price and forward P/E, highlighting the recent drastic rise. The graph does doa. good job of achieving it's goals, the title is clear and specific, the two series are evident as blue is filled for the price and orange line for P/E, and the 2025 spike is highlighted clearly. A weakness is the double-axis use, can indirectly signal a tighter correlation than actually present, also y-axis on the left P/E isn't labeled with units or a name, and the filled area for price has too dark ink which overemphasizes change. I'd make the filled area for the price a line, and both series index the same single-axis scale with both at 100, and more specific labeling for clarity.]**
+
+***
+***
+
+
+# Problem 2: Visit the Piazza for 36-315 [5 pts]
+
+All questions about assignments and course material should either be asked in office hours or on Piazza. Thus, **it is critical that you are aware of the course's Piazza**, because we'll often answer questions that you or your classmates may have.
+
+
+__2(a) [1 pt]__ Visit the course Piazza page by navigating to the course Canvas page and clicking on the "Piazza" button on the left-side menu.  You can edit your e-mail notification setting from Piazza by clicking the Settings gear/wheel icon in the top-right corner.  Under Account & Email Settings, click Edit Email Notifications, then click on the 36315 class.  Make sure they are to your liking.  (I like a ~2 hour Smart Digest for the first part, Real Time for the second part, and checking the "Automatically follow every question and note" checkbox.)  Go back to the "Q & A" (top panel), and check the pinned comment in which office hours will be/is already posted.  What comment number is this note?  (Near the top of the comment, you'll find the comment number preceded by an $@$.)
+
+**[12]**
+
+
+__2(b) [4 pts]__ In the syllabus for 36-315, read the section "Discussion Board" under "Resources and  Materials".  Then, write the following sentence: "I certify that I have read, understood, and will follow the syllabus' rules about Piazza discussion.  I will not make posts that effectively just ask what the answer is to an assigned problem."  Then type your name.  If you have any questions about rules on Piazza discussion, please email Dr. Koerner.
+
+**[I certify that I have read, understood, and will follow the syllabus' rules about Piazza discussion - Rishi Damarla]**
+
+***
+***
+
+
+# Problem 3: The Data Will Go On [35 pts]
+
+For this problem we'll use a dataset based on the Titanic survival data, which is a famous dataset for understanding how to work with categorical variables.  This dataset was obtained from Kaggle (a popular site for finding publicly-available datasets) and was modified for this assignment.  Here are the data:
+
+```{r}
+#  Load the data into R
+library(tidyverse)
+titanic <- read_csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/titanic.csv")
+# Note the read_csv function is the tidyverse version of read.csv().
+# If this doesn't work, then use read.csv (the base R function instead), 
+#  and the tibble function, transforming the resulting data.frame into 
+#  the same structure as read_csv's output:
+#titanic <- tibble(read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/titanic.csv"))
+```
+
+
+__3(a) [3 pts]__ What are the number of rows and columns in this dataset?  What are the names of the variables in this dataset?  For this part, be sure to include any code you used to answer these questions.
+
+```{r}
+nrow(titanic)
+ncol(titanic)
+names(titanic)
+```
+
+**[712 rows, 12 columns, names: PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked]**
+
+
+__3(b) [5 pts]__ [Read this Kaggle description](https://www.kaggle.com/c/titanic/data) to better understand the Titanic dataset.  In particular, look at the Data Dictionary and Variable Notes sections.  For this question, please do the following:
+
++ Name at least two categorical variables.
+
+**[Sex, ticket number]**
+
++ Name at least two quantitative variables.
+
+**[age, fare]**
+
++ Name one ordinal categorical variable.
+
+**[Pclass]**
+
+
+__3(c) [7 pts]__ For the remainder of this problem we're going to focus on the `Embarked` variable.  For this part, use the `ggplot()` function to create a bar chart of the `Embarked` variable.  Make sure your plot has the following characteristics:
+
++ Its axes are properly labeled and has a proper title.
++ Each bar in the graph has the same color by using `+ geom_bar(fill = "pink", color = "black")`.
+
+After making your plot, change the `fill` and `color` arguments.  What do each of them do?  (**Note**: The final plot you display in this question should have non-pink and non-black colors, denoting that you tried changing the `fill` and `color` arguments).
+
+```{r}
+library(tidyverse)
+
+titanic %>%
+  ggplot(aes(x = Embarked)) +
+  geom_bar(fill = "orange", color = "gray") +   # <- NON-pink / NON-black
+  labs(title    = "Titanic Passengers by Port of Embarkation", subtitle = "C = Cherbourg, Q = Queenstown, S = Southampton", x = "Embarked", y = "Number of Passengers")
+```
+
+**[The fill sets the inside color of the bars and color sets the border and outline of the bars.]**
+
+
+__3(d) [5 pts]__ Using your graph from part __(c)__, describe the distribution of the `Embarked` variable in 1-2 sentences.  In particular: which port did the most passengers embark on, and which port did the fewest passengers embark on?  Be sure to write your description as if it were for someone who isn't familiar with the data.  **In your answer, be sure to use the actual port names, and not just "C", "Q", "S".**  In general, your descriptions of graphs should make sense to people who are not familiar with the actual dataset.
+
+**[The port that most passengers embarked at wasSouthampton, and the port which the fewest passengers embarked on was Queenstown. The distribution is significantly concentrated at Southampton with Queenstown having smallest number of passengers, and finally a smaller portion of passengers that embarked at Cherbourg.]**
+
+
+__3(e) [6 pts]__ Now make a spine chart of the `Embarked` variable.  Make sure to correctly label the axes, and include an appropriate title.  In your spine chart, what are the widths of the bars proportional to (if anything)?  What are the heights of the bars proportional to (if anything)?  How is this different from the bar chart?
+
+```{r}
+library(tidyverse)
+
+titanic %>%
+   ggplot(aes(x = "", fill = Embarked)) +
+   geom_bar() +
+   labs(title = "Titanic Passengers by Port of Embarkation (Spine Chart)",
+        x = NULL, y = "Number of Passengers", fill = "Port")
+```
+
+
+**[In the spine chart there is one vertical bar and the width is constant throughout without any data. The heights of the colored segments are proportional to the number of passengers who embarked at each port. It is different from the bar chart as it shows separate bars for C, Q, and S comparing absolute counts, it also stacks all categories into one bar to highlight the overall composition and diversity across ports.]**
+
+
+__3(f) [3 pts]__ `ggplot()` allows us to easily flip the orientation of our graphs without changing much of the code.  To do this, you simply have to add `+ coord_flip()` to your existing code.  Do this in a separate code block for the spine chart from part __(e)__, and discuss the differences in the two plots.
+
+
+
+```{r}
+library(tidyverse)
+
+titanic %>%
+   ggplot(aes(x = "", fill = Embarked)) +
+   coord_flip() +
+   geom_bar() +
+   labs(title = "Titanic Passengers by Port of Embarkation (Spine Chart)",
+        x = NULL, y = "Number of Passengers", fill = "Port")
+```
+**[The spine chart is now rotated 90 degrees so the single stacked bar runs horizontally segment lengths along the x-axis which represent the counts before the segment heights on the y-axis did that. The data, order and proportions are the same only the axes are swapped. The flipped version may be easier to comprehend and analyze not too much of a difference really than the orientation]**
+
+
+__3(g) [6 pts]__ Now make a rose diagram of the `Embarked` variable.  Be sure to correctly label the axes and include an appropriate title.  In your rose diagram, what is the radius of each rose petal proportional to?  What does the angle associated with each rose petal correspond to (if anything)?  What is the area of each rose petal proportional to?
+
+```{r}
+titanic %>%
+   ggplot(aes(x = Embarked)) +
+   geom_bar(fill = "darkblue") +
+   coord_polar() + 
+   scale_y_sqrt() +
+   labs(title = "Rose Diagram: Titanic Passengers by Port of Embarkation",
+        subtitle = "C = Cherbourg, Q = Queenstown, S = Southampton",
+        x = "Embarked", y = "Number of Passengers (sqrt scale)")
+```
+
+**[The radius of each rose petal is proportional to the square root of the count for that port. The angle associated with each rose petal is constant and just separates categories, it doesn't have a value. The area of each rose petal is proportional to the count, as area in polar coords is 1/2(theta)r^2, where theta is constant and r is directly proportional to the sqrt(count)]**
+
+
+# Problem 4: Visualizing really old data with modern ggplot2 [20 pts]
+
+Let's explore the data from the first statistical graphic examining the estimated longitudinal distance between Toledo and Rome, that was visualized in 1644 by Van Langren.  Far more went into this chart than we discussed in class, but we'll see that Van Langren collected estimators of the quantity of interest to him, not only from different individuals, but sources over a large swath of time, from countries all around Europe and Africa, sometimes using different methods to go about the estimation (e.g., basing the measurement on then-modern maps rather than astronomical calculations).
+
+Install the `HistData` package.  Then, load the `Langren1644` dataset into `R` by typing `data(Langren1644)`.  See below for some example code (which also corrects a naming error in the `Langren1644` dataset).  Before starting this problem, be sure to uncomment the example code below.  Note that you'll have to make sure the packages at the beginning of the code block are installed for the code to properly run.
+
+```{r, warning=FALSE, message=FALSE}
+
+
+library(tidyverse)
+library(HistData)
+
+
+data("Langren1644")
+
+
+Langren1644 <- Langren1644 %>%
+mutate(Country = stringr::str_trim(Country),Country = forcats::fct_drop(Country))
+```
+
+
+__4(a) [6 pts]__ The plots you made for the Titanic data in problem __3__ visualize a single variable; now we will visualize multiple variables within a single graph.  We'll discuss the statistical nuances of graphs with multiple variables later on---the purpose of this problem is just to further explore the `ggplot()` function in more depth.
+
+In this part, we'll create a [scatterplot](https://en.wikipedia.org/wiki/Scatter_plot); I'm assuming most of you are familiar with such a plot, but we'll talk about it in depth later in the course.  For now, **the goal of this problem is to make a scatterplot where**:
+
++ `Longitude` is on the x-axis
++ `Year` is on the y-axis
++ The points in the scatterplot are colored by `Country`
+
+To help you with this problem, I've given you some "template code" below that creates a scatterplot of longitude and latitude with blue points.  Modify the code below such that you've made the scatterplot I've described above.
+
+**After you've made your scatterplot, write 1-2 sentences describing what the scatterplot is showing.**  You may have to look at the help documentation at `help(Langren1644)` to understand what the variables in your scatterplot are.
+
+```{r}
+Langren1644 %>%
+ggplot(aes(x = Longitude, y = Year, color = Country)) +
+  geom_point() +
+  labs(
+    title = "Longitude Estimates Between Toledo and Rome (van Langren, 1644)",
+    x = "Estimated longitude difference (degrees)",
+    y = "Year of estimate",
+    color = "Country"
+  )
+```
+
+
+**[The scatterplot shows estimated value of the longitude distance between Toledo and Rome (x-axis) against the year associated with this determination (y-axis), and the color of the points shows the country of the source. Most of the estimates from 1500 to 1600 are between 20 and 28 degrees, with evident clustering for the countries and no specific time trend, Egypt is an early outlier too way before the others, meaning large variability and some country specific bias for these estimates.]**
+
+
+__4(b) [6 pts]__ Note that even though a scatterplot is considered a "two dimensional" visual, your scatterplot in part __(a)__ should have three variables (longitude, year, and country), and therefore, it's sort of like a "3D plot."  Now we're going to make a "4D plot."  **The goal of this problem is to make a scatterplot where**:
+
++ `Longitude` is on the x-axis
++ `Year` is on the y-axis
++ The points in the scatterplot are colored by `Country`
++ The shape of the points correspond to the **source** of longitudinal measurement.
++ There's a vertical line indicating the true longitudinal distance between Toledo and Rome.
+
+To do this problem, first copy-and-paste the code you wrote for part __(a)__. After you do that, the first three bullet points are already done!  Meanwhile, to change the shape of the points, mimic what you did with the `color` parameter in `aes`, but this time use `aes(color = ..., shape = ...)`, where `color` and `shape` are appropriately specified.  Then, to add a vertical line, first use Google or `help(Langren1644)` to figure out the true longitudinal distance between Toledo and Rome.  Then, use  ` + geom_vline(aes(xintercept = _))` right after your `geom_point(...)` code, where you should replace `_` with the longitudinal distance between Toledo and Rome.
+
+**For this part, all you need to do is write the code to produce the desired scatterplot (as well as display the scatterplot, which your code should do automatically).**
+
+```{r}
+ggplot(Langren1644, aes(x = Longitude, y = Year, color = Country, shape = Source)) +
+  geom_point() +
+  geom_vline(xintercept = 12.5 - (-4.03)) +
+  labs(title = "Longitude vs. Year by Country and Source",
+       x = "Estimated longitude difference (degrees)",
+       y = "Year", color = "Country", shape = "Source")
+
+```
+
+
+__4(c) [8 pts]__ Now we're going to make one more scatterplot. First,  copy-and-paste your code from the previous part (part __(b)__) and place it here.  Then, after your `geom_point(...)` call, use `+ geom_text(aes(label = Name), hjust = -0.05, vjust = -0.05, angle = -90)`. This should add text next to each point; revisit `help(Langren1644)` to understand what exactly this text is.  It's okay if some of the text isn't displayed in the plot (particularly the bottom part of the plot).  Add a title that accurately (but briefly) describes the plot. 
+
+```{r}
+ggplot(Langren1644, aes(x = Longitude, y = Year, color = Country, shape = Source)) +
+  geom_point() +
+  geom_text(aes(label = Name), hjust = -0.05, vjust = -0.05, angle = -90) +
+  geom_vline(xintercept = 12.5 - (-4.03)) +
+  labs(title = "Longitude vs. Year by Country and Source (Labeled by Name)", x = "Estimated longitude difference (degrees)", y = "Year", color = "Country", shape = "Source")
+
+```
+
+Then, answer the following questions:
+
++ Who gave the most accurate estimate?
+
+**[G. Janssonius]**
+
++ Which country gave the most accurate estimates?
+
+**[Flanders]**
+
++ Is the oldest estimate the worst? 
+
+**[Yes]**
+
++ Which source seems more accurate?
+
+**[The triangles]**
+
+***
+***
+
+
+# Problem 5: Variable Types [22 pts]
+
+In this question, we will consider a toy dataset of 100 people with the following variables:
+
++ `hair`: The hair color of each person (black, brown, blonde, red, or other).
++ `age`: Number of years this person has been alive.
++ `income`: Measured in US dollars.
++ `children`: Number of children this person has.
++ `opinion`: Response to the statement: "There shouldn't be any 36-315 homework." Here, 3 = agree, 2 = not sure, 1 = disagree.
+
+[The toy dataset can be viewed here.](https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/hw1DataTypes.csv)
+
+
+__5(a) [5 pts]__ Below is some code to read in the dataset:
+
+```{r}
+#reading in the data
+data <- read.csv("https://raw.githubusercontent.com/FSKoerner/F25-36315-data/main/hw1DataTypes.csv")
+#names of the variables
+names(data)
+#classes of the variables
+class(data$hair)
+class(data$age)
+class(data$income)
+class(data$children)
+class(data$opinion)
+```
+
+**You do not have to turn in any code for this question.** Just answer the two prompts below for each of the five variables.
+
+For each of the five variables, write down:
+
+1) Whether the variable is categorical (nominal), categorical (ordinal), quantitative (discrete), or quantitative (continuous).
+
+2) The class of the variable according to `R`.  (Hint: You can use the `class()` function to figure this out, as shown for the `hair` variable below. We can see that the class of the `hair` variable is "character", so already you have one of the answers!)  (Note: For some versions of `R`, the class for `hair` may appear as `"factor"` instead of `"character"`, which is fine.)
+
+**[hair(categorical(nominal), character), age(quantitative(discrete), integer), income(quantitative(continuous), numeric), children(quantitative(discrete), integer), opinion(categorical(ordinal), integer)]**
+
+
+__5(b) [2 pts]__ In `R`, quantitative variables should usually have class `"numeric"` or `"integer"`, while categorical variables should usually have class `"factor"` or `"character"`. Given this and your answer in part __(a)__, which variables in the dataset have unintuitive classes?  Explain your answer in 1-2 sentences.
+
+**[opinion, is unintuitive, it represents an ordered categorical response since 1 is disagree, 2 is not sure, and 3 is agree, so classifying it as a numeric can result in incorrect or mismatched operations, it should be an ordered factor with labeled levels]**
+
+
+__5(c) [5 pts]__ For this part, use `ggplot()` to make a scatterplot where:
+
++ `age` is on the x-axis
++ `income` is on the y-axis
++ The points are colored by `opinion`
+
+You should be able to use code very similar to problem __4__ to do this.  Your scatterplot should have a color legend for the `opinion` variable on the right-hand side.  From this legend, how many possible values do there appear to be for the `opinion` variable?
+
+```{r}
+
+ggplot(data, aes(x = age, y = income, color = (opinion))) +
+  geom_point() +
+  labs(title = "Income vs. Age Colored by Opinion", x = "Age (years)", y = "Income (USD)", color = "Opinion\n1 = Disagree\n2 = Not sure\n3 = Agree")
+```
+
+**[3 possible values for opinion variable]**
+
+
+__5(d) [5 pts]__ It's often helpful to change the class of variables using functions like `as.numeric()` and `as.factor()`.  Luckily, `ggplot()` makes it very easy to convert variables to factors: simply place `factor()` "around" a variable name within `ggplot()`.
+
+Now make the same scatterplot from part __(c)__, but with `opinion` converted to a factor by using `factor(opinion)`.
+
+```{r}
+ggplot(data, aes(x = age, y = income, color = factor(opinion))) +
+  geom_point() +
+  labs(title = "Income vs. Age Colored by Opinion (factor)",
+       x = "Age (years)", y = "Income (USD)", color = "Opinion")
+```
+
+Your scatterplot should still have a color legend for the `opinion` variable on the right-hand side.  From this legend, how many possible values do there appear to be for the `opinion` variable?  Which scatterplot do you think is more intuitive - the one in this part, or the one in part __(c)__?  Explain your answer in 1-2 sentences.
+
+**[3 possible values for opinion, the one in this part is more intuitive because it shows 3 distinct categories with different colors and categorical legend matching the variables ordinal/categorical type. 5c has a continuous scale and is misleading since it doesnt have factor.]**
+
+
+__5(e) [5 pts]__ The color legend in your part __(d)__ probably looks a bit ugly, in the sense that people not familiar with this dataset may have trouble understanding it.  For this part, first copy-and-paste your code from part __(d)__ and place it here.  Then, to make the color legend more understandable, make the following changes to your plot:
+
++ Notice that your color legend displays "factor(opinion)", which doesn't look too great.  Change this to "Opinion" instead of "factor(opinion)".
+
++ Notice that your color legend just has the labels 1, 2, and 3, which readers not familiar with this dataset won't understand.  Change these labels to something more meaningful based on the definition of `opinion` given at the beginning of this problem.
+
+**Hint**: [Use this guide](http://www.cookbook-r.com/Graphs/Legends_%28ggplot2%29/), specifically the section "Modifying the text of legend titles and labels."  Since you specified `color` in your plot, you'll need to use the `scale_color_discrete()` function.
+
+```{r}
+ggplot(data, aes(x = age, y = income, color = factor(opinion, levels = c(1,2,3)))) +
+  geom_point() +
+  scale_color_discrete(name = "Opinion", labels = c("Disagree","Not sure","Agree")) +
+  labs(title = "Income vs. Age Colored by Opinion", x = "Age (years)", y = "Income (USD)")
+
+```
+
+# Problem 6: Survey [3 pts]
+
+How long would you estimate you spent, in total, working on this assignment?
+
+**[4 hours]**
+
+

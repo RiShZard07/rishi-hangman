@@ -1,0 +1,273 @@
+---
+title: "36-309 / 36-749 Homework 6: Power"
+subtitle: Due Wednesday, October 30, 11:59pm on Gradescope
+author: "YOUR NAME"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: Computing Error Rates across Many Experiments (28pts)
+
+Professor T. Test performs 1000 treatment-vs-control experiments in her lifetime. She always uses a significance level of alpha = 0.05. *She does not know this*, but because I am omniscient I can tell you the following information:
+
+
+1) In 160 of her studies the null hypothesis is true.
+2) In 200 of her studies the null hypothesis is false with 20% power for the true effect size.
+3) In 360 of her studies the null hypothesis is false with 55% power for the true effect size.
+4) In 280 of her studies the null hypothesis is false with 80% power for the true effect size.
+
+Given this information, answer the following questions.
+
+## PART A (16pts)
+
+First we will consider "positive results" and "negative results." For this part, answer the following two questions.
+
++ (8pts) Out of all 1000 studies, how many "positive results" (i.e., reject the null hypothesis results) do we expect, and how many "negative results" (i.e., fail to reject the null hypothesis results) do we expect? Please show your work for how you arrived at your answer.
+
+**[For the 160 studies where the null hypothesis is true, we use the significance level, alpha = 0.05 , meaning there’s a 5% chance of incorrectly rejecting the null hypothesis which is Type I error. 160 × 0.05 = 8 positive results and  160 - 8 = 152  negative results in this group. Next, in the 200 studies where the null hypothesis is false with 20% power, we correctly reject the null in 20% of cases, giving  200 × 0.20 = 40 positive results, and 200 - 40 = 160 negative results. For the 360 studies with 55% power, we anticipate  360 × 0.55 = 198 positive results and  360 - 198 = 162 negative results. For the 280 studies with 80% power, we expect  280 × 0.80 = 224 positive results and  280 - 224 = 56 negative results. There is a total of  8 + 40 + 198 + 224 = 470 positive results and  152 + 160 + 162 + 56 = 530 negative results.]**
+
++ (8pts) What *percentage* of the *positive results* are expected to be correct? Furthermore, what *percentage* of the *negative results* are expected to be correct? Please show your work for how you arrived at your answer. (**Hint**: This question is asking about percentages *among positive results specifically* and *among negative results specifically*. For example, if we expected 100 positive results, and we expected 20 of those positive results to be correct, then the answer would be 20%.)
+
+**[To determine the accuracy of positive and negative results, we examine the expected correct results among positive and negative outcomes separately. For positive results, when the null hypothesis is rejected, correct rejections happen in cases where the null hypothesis is false and the study has sufficient power. In the 200 studies with 20% power, 200 × 0.20 = 40 correct positives. In the 360 studies with 55% power, 360 × 0.55 = 198 correct positives, and in the 280 studies with 80% power = 224 correct positives.So, 40 + 198 + 224 = 462 correct positive results. Since there are 470 total positive results, the percentage of correct positives is  462/470 × 100 = 98.3 %. For negative results, correct outcomes occur when we fail to reject the null hypothesis in studies where it is true. With 160 true-null studies, 160 × 0.95 = 152 correct negatives. Given 530 total negative results, the percentage of correct negatives is  152/530 × 100 ≈ 28.7 %.So, 98.3% of positive results and 28.7% of negative results to be correct.]**
+
+
+## PART B (12pts)
+
+Now we'll consider making "errors" when hypothesis testing. For this part, answer the following two questions.
+
++ (6pts) Above we communicated four kinds of studies, labeled (1) through (4). For which of these studies is it possible to make a *Type 1 error*, and for which of these studies is it possible to make a *Type 2 error*? Please explain in 1-3 sentences, and please use the (1) through (4) labels to refer to these studies in your answer.
+
+**[A Type 1 error a false positive is possible in studies where the null hypothesis is actually true, leading to incorrectly rejecting it. A Type 1 error can occur in studies labeled (1). A Type 2 error false negative,when we fail to reject a false null hypothesis, is possible in studies where the null hypothesis is false. Type 2 errors can occur in studies (2), (3), and (4) because the null hypothesis is false but might still not be rejected depending on the study’s power.]**
+
++ (6pts) Out of all 1000 studies, what is the expected total number of **incorrect** hypothesis testing conclusions? Please show your work for how you arrived at your answer.
+
+**[Type 1 errors occur when the null hypothesis is true but we mistakenly reject it. There are 160 studies where the null hypothesis is true, and with a significance level alpha of 0.05, 5% of these studies yield false positives. 160 × 0.05 = 8 Type 1 errors. Type 2 errors are when the null hypothesis is false but we fail to reject it. For the studies with false null hypotheses, we calculate Type 2 errors for each group based on its statistical power. For the 200 studies with 20% power, 80% Type 2 error rate, giving  200 × 0.80 = 160 errors. For 360 studies with 55% power, there is 45% Type 2 error rate, leading to  360 × 0.45 = 162 errors. For the 280 studies with 80% power, the Type 2 error rate is 20%, resulting in  280 × 0.20 = 56 errors. So, 8 + 160 + 162 + 56 = 386 total incorrect conclusions across all studies out of 1000 studies.]**
+
+# Question 2: Type 1 and 2 errors and their relationship with alpha (12pts)
+
+
+We often use alpha = 0.05 when doing statistical hypothesis testing; alpha = 0.05 corresponds to rejecting the null hypothesis when the p-value is below 0.05. **For this problem, consider raising to alpha = 0.1 instead of 0.05.** Given this, answer the following questions.
+
++ (4pts) When we raise alpha to 0.1 instead of 0.05, does the **Type 1 error rate** increase, decrease, or stay the same? Discuss your reasoning in 1-2 sentences.
+
+**[When we raise alpha from 0.05 to 0.1, the Type 1 error rate increases. This is because the Type 1 error rate is directly related to the alpha level; it represents the probability of rejecting the null hypothesis when it is actually true. Setting alpha to a higher threshold of 0.1, there is a greater probability of falsely rejecting the null hypothesis increasing the Type 1 error rate.]**
+
++ (4pts) When we raise alpha to 0.1 instead of 0.05, does the **Type 2 error rate** increase, decrease, or stay the same? Discuss your reasoning in 1-2 sentences.
+
+**[When we raise alpha to 0.1 instead of 0.05, the Type 2 error rate decreases. This is because increasing alpha lowers the threshold for rejecting the null hypothesis, which makes it easier to detect an effect so the probability of failing to reject the null hypothesis when it is false decreases.]**
+
++ (4pts) When we raise alpha to 0.1 instead of 0.05, does the **power** increase, decrease, or stay the same? Discuss your reasoning in 1-2 sentences.
+
+**[When we raise alpha to 0.1 instead of 0.05, the power of the test increases. Power is defined as 1 − Type 2 error rate, so as the Type 2 error rate decreases from higher alpha, the power of the test, or the probability of correctly rejecting a false null hypothesis also increases.]**
+
+# Question 3: Power and Sample Size Calculations (60pts)
+
+Let's say we're working at a tech company, and the company is considering updating their app to a new design. Their software engineering and human-computer interaction teams have developed two possible new designs (which we'll call Design A and Design B). The company has decided it would be beneficial to run an experiment, where they enroll a set of current app users, and then randomize them to one of three treatment groups: an app with Design A, an app with Design B, or an app with the Old Design. After this happens, the company will measure how much time each user spends on the app, which will be the outcome for the experiment.
+
+There are three treatment groups and a quantitative outcome. Thus, the most appropriate statistical analysis will be one-way ANOVA. However, the company would like to get some more information before implementing the experiment. The company has assigned us to run a power analysis to better understand how the experiment should be run. We'll explore various aspects of power analyses for this example.
+
+## PART A (11pts)
+
+For simplicity, the company is first considering enrolling 65 subjects in each of the three treatment groups. Given this information, answer the following three questions.
+
+
++ (3pts) For this hypothetical experiment, what is the between-groups degrees of freedom and within-groups degrees of freedom? Explain in one sentence.
+
+**[In this experiment, with three treatment groups (Design A, Design B, and Old Design) and 65 subjects in each group, the between-groups degrees of freedom is calculated as the number of groups minus one, which is 3 − 1 = 2. The within-groups degrees of freedom is calculated as the total number of subjects minus the number of groups, which is 195 − 3 = 192.]**
+
++ (4pts) Let's say we ran this hypothetical experiment and observed an F statistic equal to 1. What would be the p-value in that case? Explain how you arrived at your answer, and provide any code you used to arrive at your answer.
+
+```{r}
+df_between <- 2
+df_within <- 192
+
+F_observed <- 1
+
+1 - pf(F_observed, df1 = df_between, df2 = df_within)
+
+
+```
+
+**[The p-value is 0.370, which indicates the probability of obtaining an F statistic as extreme as 1 under the null hypothesis of no effect between groups. This p-value is calculated based on an F distribution with 2 degrees of freedom for the between-groups variation and 192 degrees of freedom for the within-groups variation. Since a p-value of 0.370 is greater than 0.05, we fail to reject the null hypothesis, meaning that the observed differences between the groups are not statistically significant.]**
+
++ (4pts) Let's say that we would reject the null hypothesis only if the p-value from the one-way ANOVA was less than 0.05. What would be the critical F value in this case?, and provide any code necessary to arrive at your answer.
+
+```{r}
+df_between <- 2
+df_within <- 192
+
+alpha <- 0.05
+
+qf(1 - alpha, df1 = df_between, df2 = df_within)
+
+
+```
+
+**[To determine the critical F value of approximately 3.043, we used the one-way ANOVA setup and specified significance level. Given three treatment groups, the degrees of freedom for the between-groups term was calculated as 2 (3 groups - 1), and for within-groups, it was 192 (total observations, 195, minus the number of groups, 3). We want to identify the 0.95 quantile of the F distribution for our calculated degrees of freedom. This critical value represents the threshold above which we would reject the null hypothesis.]**
+
+## PART B (10pts)
+
+In the remaining parts of this homework, we'll conduct some power analyses for some hypothetical experiments. But first, we'll take a step back and consider power in theory. In class, we discussed how to approximate the expected value of the F statistic under the alternative hypothsis.
+What are three ways that we can *increase* power, according to that approximation? In your answer, **do not** explicitly mention the terms $\sigma^2$, $\sigma^2_A$, and $n$ from lecture; instead, please discuss these terms qualitatively within the context of our tech experiment.
+
+**[1. Increase the number of participants per group by enrolling more users in each treatment group of Design A, Design B, and Old Design so we gain more specific estimates of how much time users spend on each design. Also Larger sample sizes help detect smaller differences in user engagement, it is more likely for a statistically significant effect if one truly exists. 2. We enhance the difference between groups so we make the new designs Design A and Design B different from the Old Design, to see a clear impact on user engagement. 3. We reduce variability within each group so users react similarly to the design within each group, it becomes easier to detect meaningful differences between groups. Reducing within-group variability lets us observe the effects of each design more clearly, increasing the power of the experiment.]**
+
+## PART C (15pts)
+
+Now we'll compute statistical power for one possible proposed experiment. For this part, let's say the company is still considering enrolling 65 subjects in each of the three treatment groups. Answer the following questions.
+
++ (4pts) This actually isn't the first experiment this company has run. Looking back at some reports, the company provides the following one-way ANOVA table that was produced after a similar experiment (see the PDF for easier readability):
+
+|        | Df          |   Sum Sq  | Mean Sq  |  F value |  p-value |
+| ------------- |:-------------:| :-----:|:-----:|:-----:|:-----:|
+| design      | 3 | 5640 |  1880 | 1.88 | 0.137
+| Residuals     |   116  |  117160 |  1010 | |
+
+Note that it isn't necessary that this past experiment had the same number of treatment groups or subjects as the new proposed experiment. Using the above one-way ANOVA table, what was the estimate of sigma-squared based on this old experiment? Explain in one sentence, and define this estimate as `sigma2` (template code given below; be sure to uncomment your code such that `sigma2` is defined).
+
+```{r}
+sigma2 = 1010
+sigma2
+```
+
+**[The estimate of sigma-squared based on the previous experiment's one-way ANOVA table is 1010, which is the Mean Square of the Residuals and represents the within-group variance.]**
+
++ (5pts) Recently, users have spent about 55 minutes on the app, on average. Meanwhile, the company would be very happy if either of the new designs (Design A or Design B) changed users' time on the app by 15 minutes (i.e., from 55 to 70). It also does not necessarily anticipate that either Design A or Design B will be better. Thus, the company proposes the following treatment group means to consider:
+```{r}
+groupmeans.better = c(55, 70, 70)
+groupmeans.worse = c(55, 40, 40)
+```
+The first vector, `groupmeans.better`, is the case where Design A and Design B perform better than the Old Design, and `groupmeans.worse` is the case where they perform worse.
+
+Using your estimate of sigma-squared `sigma2` from the previous part, what is the *effect size* (which we've defined as "eta" in class and lab) for these two different treatment group means? Remember that the company has proposed to enroll 65 subjects for each of the three treatment groups. Template code is provided below, which you must fill in. Your code should successfully print out the two effect sizes, `eta.better` and `eta.worse`. (**Hint**: If you did everything correctly, you should find that `eta.better` and `eta.worse` are equal. It's worth thinking about why they're equal.)
+
+```{r}
+eta.better = sqrt(sum((65/195) * (groupmeans.better - mean(groupmeans.better))^2) / sigma2)
+eta.better
+eta.worse = sqrt(sum((65/195) * (groupmeans.worse - mean(groupmeans.worse))^2) / sigma2)
+eta.worse
+```
+
++ (6pts) Now, compute the *statistical power* we would achieve if we ran an experiment where we had 65 subjects in each of the three treatment groups, the sigma-squared was equal to your `sigma2` above, and the group means were equal to `groupmeans.better` above, and we used alpha = 0.05 when testing the null hypothesis. After computing the statistical power, write your interpretation of that power value within the context of this experiment in 1-2 sentences. (**Hint**: Use `power.anova.test()`.)
+
+```{r}
+power.anova.test(groups = 3, n = 65, between.var = var(groupmeans.better), within.var = sigma2)
+```
+
+**[The calculated power of approximately 0.902 means there is a 79.42% probability of correctly rejecting the null hypothesis, if there is a real difference in time spent on the app due to the new designs. This high power indicates that the experiment is well-designed to detect an effect of 15 minutes in usage time, making it more likely to reveal significant differences between the app designs.]**
+
+## PART D (10pts)
+
+In Part C, you should have computed the statistical power for one particular setting. For this part, we'll still assume that sigma-squared is equal to your `sigma2` in Part C, the group means are equal to `groupmeans.better` in Part C, and we use alpha = 0.05. However, now we'll consider what happens to power when we change the sample size.
+
+(For the sake of this part, it's okay if your `sigma2` is incorrect---we'll grade according to the `sigma2` you computed.)
+
+The company would like to consider the following sample sizes for each treatment group:
+```{r}
+n.seq = seq(10, 400, by = 10)
+```
+In the above code, the variable `n.seq` is defined as a vector of numbers between 10 and 400 in increments of 10 (i.e., 10, 20, 30, etc.)
+
+In this part, your task is to compute the statistical power for each sample size in `n.seq`. Then, make a *scatterplot*, with `n.seq` on the x-axis, and power on the y-axis. Finally, write a 1-2 sentence interpretation of the plot, where you discuss the relationship between sample size and power according to the plot. Template code is provided below, which you must fill in. (**Hint**: The "for loop" below simply runs `power.anova.test()` for each element in `n.seq`. It's okay if you aren't familiar with for loops, especially because we have not covered them in this class; all you need to do is specify `groups`, `between.var`, and `within.var` as you've done previously.)
+
+```{r}
+groups = 3
+between.var = var(groupmeans.better)
+within.var = sigma2
+
+power.seq = vector(length = length(n.seq))
+for(j in 1:length(n.seq)){
+  power.seq[j] = power.anova.test(
+    groups = groups,
+    n = n.seq[j],
+    between.var = between.var,
+    within.var = within.var,
+    sig.level = 0.05
+  )$power
+}
+
+plot(n.seq, power.seq, type = "b", xlab = "Sample Size per Group", ylab = "Power", main = "Effect of Sample Size on Power")
+
+```
+
+**[The plot shows that as the sample size per group increases, the statistical power of the test also increases, meaning a higher likelihood of correctly detecting a true effect. Power levels off as it approaches 1, meaning that beyond a certain sample size, additional subjects contribute very minimally to further increases in power.]**
+
+## PART E (14pts)
+
+Now we'll consider computing the minimum sample sizes and minimum effect sizes to achieve 80% power. For this part, we'll still assume that sigma-squared is equal to your `sigma2` in Part C, the group means are equal to `groupmeans.better` in Part C, and we use alpha = 0.05. Answer the following two questions.
+
+(For the sake of this part, it's okay if your `sigma2` is incorrect---we'll grade according to the `sigma2` you computed.)
+
++ (6pts) Given `sigma2` and `groupmeans.better`, what is the *minimum sample size* we could assign to each treatment group and still obtain at least 80% power? Please report your answer as a whole number. Explain how you arrived at your answer, and provide any code you used to arrive at your answer.
+
+```{r}
+power.anova.test(groups = 3, 
+                           between.var = var(groupmeans.better), 
+                           within.var = sigma2, 
+                           power = 0.8)
+
+```
+
+**[To determine the minimum sample size required to achieve at least 80% power, I used the power.anova.test() function. This allows us to specify the number of groups which is 3, the variance between groups (var(groupmeans.better)), the within-group variance (sigma2), a significance level (alpha = 0.05), and a target power level (0.8). By setting the power argument to 0.8, power.anova.test() calculates the sample size needed per group to reach the power threshold.]**
+
++ (8pts) After looking at your answer above, the company's CEO said, "L'anno scorso mi sono dato un grosso bonus, quindi non c'è modo che potremmo permetterci un esperimento così grande. Il numero massimo di soggetti che sarei disposto ad assegnare a ciascuno dei tre gruppi di trattamento è di 75 soggetti."^[Did I mention that we're still in Italy?] Again, luckily you haven taken 82-216 Intermediate Italian I and you know that this translates to: "I gave myself a big bonus last year, so there's no way that we could afford an experiment this big. The most subjects I'd be willing to assign to each of the three treatment groups is 75 subjects." Given this and `sigma2`, what is the *minimum variance in treatment group means* you could successfully detect with at least 80% power? After finding this minimum, answer the following: Is this bigger or smaller than the variance of `groupmeans.better`? Explain how you arrived at your answer, and provide any code you used to arrive at your answer.
+
+```{r}
+# Given parameters
+n_groups <- 4  # Number of groups
+effect_size <- 0.05  # Cohen's f
+power <- 0.8  # Desired power
+alpha <- 0.05  # Significance level
+
+# Conduct the power analysis
+power.anova.test(groups = 4, between.var = 0.05^2, within.var = effect_size^2, power = power, sig.level = alpha)
+
+# Display the required number of participants per group
+result$n
+
+
+```
+
+**[65.757, The calculated minimum variance required to achieve 80% power with 75 subjects per group is 65.757. This is smaller than the variance of groupmeans.better, which we computed as 75. So the current configuration of treatment group means (groupmeans.better = c(55, 70, 70)) is more than sufficient to achieve 80% power with 75 subjects per group. So with this variance in treatment group means, we can detect a statistically significant difference with at least 80% power. I arrived at this conclusion by comparing the calculated minimum variance of 65.757 with the actual variance of the proposed group means of 75. So, the required minimum is less than the available variance, so the setup meets the power requirement.]**
+
+# Question 4 (5pts; ONLY REQUIRED FOR 36-749 STUDENTS; BONUS QUESTION FOR 36-309 STUDENTS)
+
+
+In Question 3D you should have created what's known as a "power curve," where you visualized how power changes with different sample sizes. In general, you can create power curves for different experimental design specifications. For this part, you'll create another power curve, this time varying sigma-squared.
+
+For this question, still consider the case where there are three treatment groups, with means equal to `groupmeans.better` used throughout this homework. Furthermore, assume that we'll assign 65 subjects to each of the three treatment groups.
+
+Given this, define a vector of variances, `sigma2.seq`, equal to a vector of numbers between 25 and 1050 in increments of 25 (i.e., 25, 50, 75, etc.) Then, for each variance in `sigma2.seq`, compute the statistical power. Call the vector of power values `power.seq.var`. Finally, make a scatterplot, with `sigma2.seq` on the x-axis and `power.seq.var` on the y-axis.
+
+After making the plot, write a 1-2 sentence interpretation of the plot, where you discuss the relationship between variance and power according to the plot.
+```{r}
+groupmeans.better <- c(55, 70, 70)
+n <- 65
+alpha <- 0.05
+sigma2.seq <- seq(25, 1050, by = 25)
+power.seq.var <- numeric(length(sigma2.seq))
+
+between.var <- var(groupmeans.better)
+
+for (j in seq_along(sigma2.seq)) {
+  power.seq.var[j] <- power.anova.test(groups = 3, n = n,
+                                       between.var = between.var,
+                                       within.var = sigma2.seq[j])$power
+}
+
+
+plot(sigma2.seq, power.seq.var, type = "o", pch = 16, 
+     xlab = "Sigma Squared (Within-Group Variance)", ylab = "Power",
+     main = "Power Curve: Effect of Variance on Power")
+
+```
+
+**[The plot illustrates that as the within-group variance (sigma-squared) increases, the statistical power decreases. This inverse relationship occurs because higher within-group variance makes it more challenging to detect true differences between treatment group means, which reduces the experiment's likelihood of correctly rejecting the null hypothesis when it is false.]**
+

@@ -1,0 +1,668 @@
+---
+title: Statistical Computing -- 36-350
+author: "Rishi Damarla"
+subtitle: |
+  Lab 3: More Control Flow and Functions\
+  Due Friday, September 12, 11:59pm \
+title-block-style: none
+ipynb-shell-interactivity: all
+execute:
+  cache: true
+latex-tinytex: false
+format:
+  html:
+    page-layout: full
+    code-overflow: wrap
+    fontsize: 12px
+  pdf: default
+urlcolor: blue
+---
+
+Name: Rishi Damarla
+
+Andrew ID: rdamarla
+
+Collaborated with: 
+
+External resources used: 
+
+***
+***
+
+***General instructions for all homework assignments***: 
+
++ Use this file as the template for your submission.  Be sure to fill out your name, Andrew ID, etc., at the top of this page.
+
++ For your homework submission, complete a .qmd file (named as: [AndrewID]-350-lab01.qmd -- e.g. "fsk-350-lab01.qmd"), then an .html file to ensure everything appears that you want to appear.  When you're done, submit it to Gradescope (a button taking you to the course's Gradescope page can be found on left side of the course's Canvas page).  Gradescope only accepts PDFs, so either render pdf directly from `RStudio` (the **preferred** solution) or take a moment to convert your .html file to a PDF using https://html2pdf.com/ (or a similar converter).
+
++ Your file should contain the code to answer each question in its own code cell, making your answers clear and differentiated from the problem statements.  Your code should produce output that will be automatically embedded in the output (.html) file.  Your lab files will include the template code chunks like the following:
+
+```{r qex}
+# YOUR ANSWER GOES HERE
+```
+
++ Although it's okay to discuss homework problems with other students, all of your homework (code, written answers, etc.) should be only your own.  Instances of identical, nearly identical, or copied homework will be considered cheating and plagiarism.  In other words, you must follow rules of academic integrity (as detailed in the syllabus).
+
++ You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted PDF file on Gradescope, by Friday 11:59pm. 
+
+
+```{r,include=FALSE}
+## For reproducibility - don't change this!
+library(reticulate)
+library(quarto)
+# this should print TRUE
+py_available(TRUE)
+set.seed(2025)
+```
+
+```{python,include=FALSE}
+## For reproducibility - don't change this!
+import random
+import numpy as np
+random.seed(2025)
+```
+
+```{r wrap-hook,include=FALSE}
+## For readability - don't change this!
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+***
+***
+
+# Control Flow: Looping
+
+
+## Question 1
+
+Write a `for` loop to add, element-wise, the vectors `x` and `y` defined below.  Place each sum into the vector `x_plus_y` (which you can initialize using, e.g., `x_plus_y <- rep(NA, 4)`, where `NA` means "not available" or missing, or `x_plus_y = np.empty([4])`), then after the `for` loop, display `x_plus_y`.
+
+```{r linewidth=80}
+x <- c(1, 2, 3, 4)
+y <- c(-2, 2, -3, 3)
+x_plus_y <- rep(NA, 4)
+for (ii in x) {
+  x_plus_y[ii] <- x[ii] + y[ii] 
+}
+x_plus_y
+```
+
+```{python}
+x = np.array(range(1, 5))
+y = np.array([-2, 2, -3, 3])
+x_plus_y = np.empty([4])
+for i in range(len(x)):
+  x_plus_y[i] = x[i] + y[i]
+print(x_plus_y)
+```
+
+
+## Question 2
+
+Write a `for` loop to sum the natural logarithms of all positive elements of the vector `z`, defined below.  (Use `if` to check if a relevant scalar is positive.)   Display the result.  Show that you can perform the same task without a `for` loop, by instead utilizing logical-based vector subsetting and one call to `sum()`.
+
+```{r linewidth=80}
+z <- c(-5, 1, 2, -4, 3, 4, -3, 6)
+y <- 0
+for (ii in z) {
+  if (ii > 0){
+    y <- y + log(ii)
+    
+  }
+}
+y
+
+sum(log(z[z > 0]))
+```
+
+
+```{python}
+import numpy as np
+z = np.array([-5, 1, 2, -4, 3, 4, -3, 6])
+y = 0.0
+for i in z:
+  if (i > 0):
+    y += np.log(i)
+
+print(y)
+
+print(np.sum(np.log(z[z > 0])))
+```
+
+
+## Question 3
+
+Write a `while` loop that computes the sum of the first 100 positive integers.  (Set the variable `s` equal to zero, then increment its value with each loop.)  Then display the result.  (It should be 5050.)
+
+```{r linewidth=80}
+s <- 0      
+i <- 1      
+while (i <= 100) {
+  s <- s + i
+  i <- i + 1
+}
+s
+
+  
+```
+
+```{python}
+s = 0
+i = 1
+while (i <= 100):
+  s += i
+  i += 1
+  
+print(s)
+```
+
+
+## Question 4
+
+Repeat Question 3, but use a `for` loop instead.
+
+```{r linewidth=80}
+s <- 0
+for (ii in 1:100) {
+  s <- s + ii
+}
+s
+
+
+```
+
+```{python}
+s = 0
+for i in range(1, 101):   
+    s += i
+print(s)
+
+```
+
+
+## Question 5
+
+Write a `while` loop that samples one value from a standard normal (see `rnorm()`/`numpy.random.normal()`), then breaks when the value is greater than 4.  Also include an incrementing variable that increments by one with each loop, and display its value when the loop is broken.  (In other words: display how many loops occurred before a sampled value of >4 was observed.)  (*Note*: you can model this with a geometric distribution.  The expected number of loops is `1/p = 1/(1-pnorm(4))`.)
+
+```{r linewidth=80}
+set.seed(300)
+i <- 0
+x <- 0       
+
+while (x <= 4) {
+  i   <- i + 1
+  x <- rnorm(1)
+}
+
+i
+x
+
+```
+
+```{python}
+import numpy as np
+np.random.seed(300)
+i = 0
+x = 0
+
+while(x <= 4):
+  i += 1
+  x = np.random.normal(1)
+  
+print(i)
+print(x)
+
+
+
+```
+
+
+## Question 6
+
+Now, write a `for` loop, that loops up to 1000 times, that samples a single datum from a standard normal.  In order, in the loop: sample the single datum using `rnorm()`, utilize `next`/`continue` if that datum is less than 1, then print the index of the datum via `cat()`/`print()` with a subsequent line break (i.e., you'll need "\\n" in `R`), and last utilize `break` if the datum is greater than 2.  (The last digit shown should be very much less than 1000.  The expected value of the number of times we would sample from a standard normal before observing a value greater than 2 is now `1/p = 1/(1-pnorm(2))`, or about 44.)
+
+```{r linewidth=80}
+set.seed(401)
+for (i in 1:1000){
+  z <- rnorm(1)
+  if(z < 1) next
+    cat(i,"\n" )
+  if(z > 2)break
+}
+
+```
+
+```{python}
+import numpy as np
+np.random.seed(401)
+
+for i in range(1, 1001):        
+    z = np.random.normal()      
+    if z < 1:
+        continue               
+    print(i)           
+    if z > 2:
+        break              
+
+```
+
+
+## Question 7
+
+Write a `for` loop to multiply the matrices `A` and `B` defined below.  Call the result `C`, and check that it matches the result of direct matrix multiplication by comparing with the output of `A%*%B` (i.e., print both `C` and `A%*%B`).  *Hint*: you'll need to nest at least one `for` loop within another.  (Remember that to perform matrix multiplication, we need to sum the products of the $i^{th}$ row of `A` and the $j^{th}$ column of `B` to produce the $(i,j)^{th}$ element of the matrix `C`.)
+
+```{r linewidth=80}
+A <- matrix(c(-0.1, -0.3, 0.7, -0.6, 0.0, -0.1), 3, 2)
+B <- matrix(c(0.6, -0.7, 0.9, -0.7, -0.7, 0.8, 0.0, -0.7), 2, 4)
+
+r <- nrow(A)
+c <- ncol(B)
+K <- ncol(A)
+C <- matrix(0, r, c)
+
+for (i in 1:r) {
+  for (j in 1:c) {
+    s <- 0
+    for (k in 1:K) {
+      s <- s + A[i, k] * B[k, j]
+    }
+    C[i, j] <- s
+  }
+}
+
+C
+A %*% B
+
+
+```
+
+```{python}
+import numpy as np
+
+A = np.array([[-0.1, -0.6], [-0.3, 0.0], [0.7, -0.1]])
+B = np.array([[0.6, 0.9, -0.7, 0.0], [-0.7, -0.7, 0.8, -0.7]])
+
+r = A.shape[0]
+c = B.shape[1]
+K = A.shape[1]
+C = np.zeros((r, c))
+
+for i in range(r):
+    for j in range(c):
+        s = 0.0
+        for k in range(K):
+            s += A[i, k] * B[k, j]
+        C[i, j] = s
+
+print(C)
+print(np.matmul(A, B))
+
+```
+
+
+## Question 8
+
+Write a `while` loop that simulates the flipping of six coins and loops until all six coins are heads or all six coins are tails, at which point you should break out of the loop.  Define a counter that increments by one every time through the loop, and print the value of that counter after you break out of it.  For full credit, utilize an `if` construct with an appropriate logical `or`.  *Hint*: `rbinom(1, 6, 0.5)` returns the number of successes when flipping a fair coin six times.
+
+```{r linewidth=80}
+set.seed(271)
+
+count <- 0
+while (TRUE) {
+  k <- rbinom(1, 6, 0.5)
+  countnt <- count + 1
+  if (k == 6 | k == 0) break
+}
+count
+
+```
+
+```{python}
+import numpy as np
+np.random.seed(271)
+count = 0
+while True:
+    k = np.random.binomial(6, 0.5)
+    count += 1
+    if (k == 6) or (k == 0):
+        break
+print(count)
+
+```
+
+
+## Question 9
+
+I've been told that a parenting rite of passage is informing one's three-year-old child that "Despite how happy you were to beat me, winning at Chutes and Ladders doesn't actually require any skill."  Here, you will write a `while` loop that simulates a single game of Chutes and Ladders.  First, see the image of the game board:
+
+![](https://raw.githubusercontent.com/willtownes/cmu-statcomp/main/figs/CAL_board.jpg){fig-align="center"}
+
+available at [this URL](https://raw.githubusercontent.com/willtownes/cmu-statcomp/main/figs/CAL_board.jpg).  Here are the rules, in case you've forgotten or never played: you start at 0 (off the board) and spin a spinner that randomly selects an integer between 1 and 6, inclusive.  (You can think of this as rolling a fair six-sided die.  Use `sample`/`numpy.random.randint`.)  Move your piece that number of spaces.  If you end up at the bottom of a ladder, you move to the top of the ladder (so if you are at 0 and spin a 4, you end up at 14); if you end up at the top of a chute, you move to the bottom of the chute.  (Beware space 87!)  The game ends when you reach 100 exactly (so, for instance, if you are at 97 and spin a 4, you do not move...but if you spin a 1, you move to 98 and slide down the chute to 78).  (Observe that there is no counterplay between players whatsoever, i.e., in effect, *you may as well be the only one playing* the game: it's, somehow, an even more boring version of Solitaire.)  *Hint*: after each spin and move, use `which`/`numpy.where()` to determine which element of, e.g., the vector `ladder_bottom` equals your new position; call its output "`w`".  If the length of `w` is greater than zero, then you are at the bottom of a ladder, so you'd set your position to the corresponding top of the ladder: `ladder_top[w]`.  You'd repeat this process, checking if you are at the top of a chute.  Also, remember: if your new position after a spin would be greater than 100, you don't move!  After your while loop runs, you should print the number of spins it took to complete, i.e. print the variable `number_of_spins` or whatever you called the object keeping track.
+
+**You only need to complete this problem in one language - you may choose which.**
+
+```{r linewidth=80}
+set.seed(750)
+ladder_bottom <- c(1, 4, 9, 21, 28, 36, 51, 71, 80)
+ladder_top <- c(38, 14, 31, 42, 84, 44, 67, 91, 100)
+chute_top <- c(16, 47, 49, 56, 62, 64, 87, 93, 95, 98)
+chute_bottom <- c(6, 26, 11, 53, 19, 60, 24, 73, 75, 78)
+# YOUR ANSWER GOES HERE
+```
+
+```{python}
+import numpy as np
+np.random.seed(750)
+ladder_bottom = np.array([1, 4, 9, 21, 28, 36, 51, 71, 80])
+ladder_top = np.array([38, 14, 31, 42, 84, 44, 67, 91, 100])
+chute_top = np.array([16, 47, 49, 56, 62, 64, 87, 93, 95, 98])
+chute_bottom = np.array([6, 26, 11, 53, 19, 60, 24, 73, 75, 78])
+
+position = 0
+spins = 0
+while position != 100:
+    s = np.random.randint(1, 7)
+    if position + s <= 100:
+        position += s
+    w = np.where(ladder_bottom == position)[0]
+    if w.size > 0:
+        position = ladder_top[w[0]]
+    w = np.where(chute_top == position)[0]
+    if w.size > 0:
+        position = chute_bottom[w[0]]
+    spins += 1
+print(spins)
+
+```
+
+
+***
+
+# Functions
+
+The logistic function is defined as:
+
+$$
+f(x) = \frac{L}{1+e^{-k(x-x_o)}} \,,
+$$
+
+where $L$ is the curve's maximum value, $x_o$ is the $x$-value of the curve's midpoint (i.e., where $y = L/2$), and $k$ is a variable
+that controls how steep the curve is (i.e., how quickly it transitions from 0 to $L$).
+
+
+## Question 10
+
+Write two functions `logistic()` that have arguments `x`, `L`, `x_o`, and `k`, and return $f(x)$ as defined above.  Display the return value for $x = x_o$ and ensure that it is $L/2$.  You need not add any comments describing the function input/output.  (*Note*: in `R`, $e^x$ is computed by `exp(x)`, in `Python`, you'll want `numpy.exp()`.)
+
+```{r linewidth=80}
+logistic <- function(x, L, x_o, k) 
+
+L / (1 + exp(-k * (x - x_o)))
+
+L <- 5
+x_o <- 2
+k <- 1
+logistic(x_o, L, x_o, k)
+L/2
+
+```
+
+```{python}
+import numpy as np
+
+def logistic(x, L, x_o, k):
+    return L / (1 + np.exp(-k * (x - x_o)))
+
+L = 5
+x_o = 2
+k = 1
+print(logistic(x_o, L, x_o, k))
+print(L/2)
+
+```
+
+
+## Question 11
+
+Modify your logistic functions from Question 10 so that `L`, `x_o`, and `k` are assigned reasonable default values.  Ensure that you get return values when you specify `x` alone.
+
+```{r linewidth=80}
+logistic <- function(x, L = 1, x_o = 0, k = 1) {
+  L / (1 + exp(-k * (x - x_o)))
+}
+
+logistic(0)
+logistic(c(-2, 0, 2))
+
+```
+
+```{python}
+import numpy as np
+
+def logistic(x, L=1, x_o=0, k=1):
+    x = np.array(x)          
+    return L / (1 + np.exp(-k * (x - x_o)))
+
+print(logistic(0))      
+print(logistic([-2, 0, 2]))  
+
+```
+
+
+## Question 12
+
+Uncomment the following three lines of code.  Do they give the same results? If not, why not?
+
+```{r linewidth=80}
+logistic(x = 1, L = 1, x_o = -1, k = 2)
+logistic(k = 2, L = 1, x = 1, x_o = -1)
+logistic(2, 1, 1, -1)
+```
+
+```
+No, the first 2 are the same the last one is different, because the first 2 have named arguements in dif. orders so they bind to same values so same result, the third call uses positional arguement so there is a different parameter set so there is different inputs so there is a different result.
+```
+
+
+## Question 13
+
+Again modify your `logistic()` function (but only the `R` version) so that it checks to see if `x`, `L`, `x_o`, and `k` are of type "numeric".  If any of these variables is not numeric, your function should return the value `NULL` (without quotes).  A way to do this for a generic variable `x` would be via a line like
+
+```{r linewidth=80}
+logistic <- function(x, L = 1, x_o = 0, k = 1) {
+  if (!(is.numeric(x) && is.numeric(L) && is.numeric(x_o) && is.numeric(k))) {
+    return(NULL)
+  }
+  L / (1 + exp(-k * (x - x_o)))
+}
+```
+
+Using logical operators, you can combine all the checks into a single `if` statement.  Verify that `NULL` is returned when at least one of the variables is not numeric.
+
+```{r linewidth=80}
+logistic(0)                   
+logistic("a")                 
+logistic(0, L = "a")          
+logistic(c(1,3))             
+    
+
+```
+
+
+## Question 14
+
+It is often a good practice to record the values of arguments in function output, so that you can look later and determine what values were used when computing $f(x)$.  Amend your `R`-based logistic function so that it returns the values of $x$, $f(x)$, $L$, $x_o$, and $k$.  Call the function once (with two values of $x$ specified, i.e., with $x$ as a two-element vector) and display your output.
+
+```{r linewidth=80}
+logistic <- function(x, L = 1, x_o = 0, k = 1) {
+  if (!(is.numeric(x) && is.numeric(L) && is.numeric(x_o) && is.numeric(k))) 
+    return(NULL)
+  fx <- L / (1 + exp(-k * (x - x_o)))
+  list(x = x, fx = fx, L = L, x_o = x_o, k = k)
+}
+
+logistic(c(-2, 2))
+
+```
+
+
+## Question 15
+
+Did you know that a function can return a function?  Run the code below and explain what is happening here.
+
+```{r linewidth=80}
+h <- function(x) {
+  return(function(y){y^x})
+}
+z <- h(2)
+z(3)
+z <- h(3)
+z(2)
+```
+
+```
+h is a function that returns another function, h(2) creates a new function that remembers x, h(2) makes the square function --> 9, and h(3) makes a cube function --> 8
+```
+
+
+## Question 16
+
+What does the following code output?  Explain how that output is generated.
+
+```{python}
+x = 1
+def h():
+  y = 2
+  def i():
+    z = 3
+    return np.array([x, y, z])
+  return i()
+h()
+```
+
+```
+array([1, 2, 3]), x = 1 is global, inside the h() y = 2 is constructed and the nested function i() is defined, then inside i() z = 3 which returns np.array([x, y, z]), when h() is called it calls i() immediately after and the result is returned from that 
+```
+
+
+## Question 17
+
+Code what is possibly the simplest example of recursive function use: the factorial function, i.e., $x! = x \times (x-1) \times \cdots \times 1$, for positive whole number $x$.  Note that the name `factorial()` is already used for a function in `R`'s base package, so call the functions `my_factorial()` instead.  Comments are not necessary, and note that your function body *can* (though doesn't need to) be very short in both languages (even a single line).  Compute $7!$.
+
+```{r linewidth=80}
+my_factorial <- function(x) {
+  if (x <= 1) {
+    1
+  } else {
+    x * my_factorial(x - 1)
+  }
+}
+
+my_factorial(7)
+```
+
+```{python}
+def my_factorial(x):
+    if x <= 1:
+        return 1
+    return x * my_factorial(x - 1)
+
+print(my_factorial(7))
+```
+
+
+## Question 18
+
+Create a function `char2int()` that returns the position of the input character value in the English alphabet.  For instance, "A" returns 1 and "z" returns 26.  Make use of `R`'s built-in constants (see, e.g., `?Constants`), and perform checks on the input: return `NULL` if the input is not of type `character`, if the input string contains more than one character, or if the input string contains non-alphabetical characters.  (Also, limit the length of the input vector of strings to one.)  Comments are optional.  Test your function with inputs 1, "abc", "2", c("a","b"), and "m".  Only the last input should yield a non-NULL output.  **NOTE**: do not use the `match()` function anywhere in your function!  It would do the job of `char2int()` trivially, but the idea here is to build your own function that mimics what `match()` is doing.
+
+```{r linewidth=80}
+char2int <- function(x) {
+  if (!is.character(x) || length(x) != 1L) 
+    return(NULL)
+  if (nchar(x) != 1L) 
+    return(NULL)
+  ch <- x
+  if (!(ch %in% c(LETTERS, letters))) 
+    return(NULL)
+  which(letters == tolower(ch))
+}
+
+char2int(1)
+char2int("abc")
+char2int("2")
+char2int(c("a","b"))
+char2int("m")
+
+```
+
+
+## Question 19
+
+Write a function `h()` that returns a function; that second function, given an input $y$, should return $-y$ if the input to `h()` is negative or $y$ if the input to `h()` is zero or positive.  Test your `h()` function given inputs $-2$, 0, and 2.
+
+```{r linewidth=80}
+h <- function(x) {
+  if (x < 0) {
+    function(y) -y
+  } 
+  else {
+    function(y) y
+  }
+}
+
+h(-2)(3)
+h(0)(3)
+h(2)(3)
+
+```
+
+
+## Question 20
+
+The Babylonians devised the following algorithm to compute $\sqrt{x}$, using only basic arithmetic operations.  First one guesses the root $r$; for instance, let's start with $r = x/2$.  Then, either $r^2 > x$ or $r^2 < x$.  (Unless we are dealing with perfect squares, $r^2 = x$ is just not gonna happen.)  We replace $r$ with the average of $r$ and $x/r$ and repeat.  Write a function `root()` that takes as input $x$ and a tolerance $t$ that dictates when you've converged to a solution, i.e., when $|r^2 - x| \leq t$ you stop.  Make $10^{-6}$ the default value for $t$.  Your `root()` function should output a list with two elements: `sqrt_x`, the value of $r$ at convergence; and `n_iter`, the number of iterations required to achieve convergence.  Display results for $x$ = 11, 101, and 1001, and compare those results to those achieved by using the `numpy.sqrt()` function (by computing the absolute difference between `sqrt_x` and the output of `sqrt()`).  How many iterations were needed to achieve convergence in each case?  (Answer this by displaying the number of iterations; you don't need to add text to your answer.)  *Note*: you need not add comments here, if you choose; just remember: in real life, you should always add comments so that others can understand your code.
+
+**You only need to complete this problem in one language - you may choose which.**
+
+```{r linewidth=80}
+# YOUR ANSWER GOES HERE
+```
+
+```{python}
+import numpy as np
+
+def root(x, t=1e-6):
+    r = x / 2.0
+    n_iter = 0
+    while abs(r * r - x) > t:
+        r = 0.5 * (r + x / r)
+        n_iter += 1
+    return {"sqrt_x": r, "n_iter": n_iter}
+
+for x in [11, 101, 1001]:
+    res = root(x)
+    diff = abs(res["sqrt_x"] - np.sqrt(x))
+    print(x, res["sqrt_x"], diff, res["n_iter"])
+
+```
+
+
+## Question 21
+
+How long would you estimate you spent, in total, working on this lab?
+
+```
+10 hours
+```
+
+

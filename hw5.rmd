@@ -1,0 +1,261 @@
+---
+title: "36-309 / 36-749 Homework 5: Multiple Linear Regression and ANCOVA"
+subtitle: Due Wednesday, October 9, 11:59pm on Gradescope
+author: "Rishi Damarla"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+This homework is based on data CMU faculty have analyzed. The data (a simplified version of the real data) is on Canvas. Download it and load into `R`:
+
+```{r}
+italyData = read.csv("italyData.csv")
+#make sure that grant is a categorical variable
+italyData$grant = factor(italyData$grant)
+```
+
+The dataset consists of 400 first-year college students at the University of Pisa or the University of Florence from 2004-2006. In Italy, state universities offer financial grants to students whose families are deemed low-income. The grant is substantial: Students have their tuition waived, get free meals and accommodations, and receive a stipend of around 3,000 euros. However, to receive the grant, students must apply for it. The lower a student's income, the more likely they are to apply, because they are more likely to believe that they are "low income enough" to get the grant.
+
+The dataset includes the following information:
+
++	`income`: A measure of the student's annual family income (in euros)
++ `hsGrade`: Summary measure of high school grades (in \%)
++	`grant`: Whether or not they received the financial grant (yes or no)
++	`collegeGrade`: Summary measure of college grades after their first year (in \%)
+
+The Italian education system was interested in assessing whether offering low-income students the financial grant would improve their college grades.
+
+# Question 1 (10pts)
+
+For this part, answer the following two questions.
+
++ (5pts) First, using only the outcome variable (`collegeGrade`) and the treatment variable (`grant`), perform the appropriate formal statistical analysis for assessing whether receiving the grant is associated with a change in students' college grades. After running your analysis, state your scientific conclusion from that analysis. In your answer, please report the p-value, treatment effect point estimate *for the mean college grade under `grant = "yes"` minus the mean college grade under `grant = "no"`*, and confidence interval for this quantity. Also be sure to mention whether this suggests that the grant is helpful or harmful, in terms of college grades. 
+
+```{r}
+
+mean_yes <- mean(italyData$collegeGrade[italyData$grant == "yes"])
+mean_no <- mean(italyData$collegeGrade[italyData$grant == "no"])
+treatment_effect <- mean_yes - mean_no
+treatment_effect
+
+
+t.test(collegeGrade ~ grant, data = italyData)
+
+
+```
+
+**[My scientific conclusion from the analysis is that receiving the grant is associated with a mean difference in college grades of approximately -5.92, so students who received the grant had lower college grades on average compared to those who did not. The p-value for this test is 2.78e-09, which shows a statistically significant difference between the two groups since it is less than 0.05. The 95% confidence interval for this mean difference is between 4.02 and 7.82. This shows evidence that receiving the grant may be linked to a decline in academic performance rather than an improvement, as students who received the grant performed worse academically on average than those who did not receive it.]**
+
++ (5pts) In this homework, we will run regression models involving the outcome (college grade), the treatment variable (whether or not a student receives the financial grant), and the other explanatory variables. When we interpret different variables' coefficients for these models, will we ever be able to make claims about causal effects, or will we only be able to make claims about association? Explain your answer in 1-2 sentences.
+
+**[When we interpret different variables' coefficients for these models, we will only be able to make claims about association, not causation. This is because the study design is observational, and a randomized controlled experiment, so other unaccounted for factors may affect both the receipt of the grant and college grades.]**
+
+# Question 2 (10pts)
+
+Now we'll explore some initial EDA for this dataset. For this part, answer the following two questions.
+
++ (6pts) For this part, make two scatterplots: (1) a scatterplot with `income` on the x-axis and `collegeGrade` on the y-axis, with observations colored by the `grant` variable; and (2) a scatterplot with `hsGrade` on the x-axis and `collegeGrade` on the y-axis, with observations colored by the `grant` variable. After you make your scatterplots, answer the following: Does it seem like there is a linear relationship between `income` and `collegeGrade` within each `grant` group? Furthermore, does it seem like there is a linear relationship between `hsGrade` and `collegeGrade` within each `grant` group? For each question, explain your reasoning in 1-2 sentences.
+
+```{r}
+grantColor = ifelse(italyData$grant == "yes", "red","blue")
+
+plot(collegeGrade ~ income,data = italyData,
+     col = grantColor,
+     xlab = "Income",
+     ylab = "College Grade",
+     main = "Income vs College Grade by Grant Status")
+
+plot(collegeGrade ~ hsGrade, data = italyData,
+     col = grantColor,
+     xlab = "High School Grade",
+     ylab = "College Grade",
+     main = "High School Grade vs College Grade by Grant Status")
+
+```
+
+**[In the first scatterplot, which has income on the x-axis and college grade on the y-axis, there is a slight positive linear trend for each grant group. Higher high school grades are somewhat associated with higher college grades, through a possible linear relationship between high school grades and college grades with or without grant status. This means that high school performance may have some predictive value for college performance across both grant groups through the linear equation. In the second scatterplot, which displays high school grade on the x-axis and college grade on the y-axis, there doesn't appear to be a clear linear relationship between income and college grade within each grant group. The points show a fair amount of spread with no specific upward or downward trend, meaning a weak association between income and college grade for both the grant and non-grant groups.]**
+
++ (4pts) Now answer the following: How can you use the two scatterplots you made above to assess the *internal validity* of this study? In your answer, also discuss whether you think the internal validity is High or Low for this study, based on your scatterplots. (**Hint**: The scatterplots you made should help you assess internal validity. So, if you're unsure how to answer this question, you may have to review past material on internal validity, or check to make sure you made the two scatterplots correctly.)
+
+**[The two scatterplots help assess the internal validity of the study by showing whether there are important baseline differences between the grant and non-grant groups regarding income and hsGrade variables. The two scatterplot can be assessed for internal validty if the two groups are similar in their baseline characteristics, which would reduce the possibility that observed differences in college grades are due to factors beside the grant. From the first scatterplot (Income vs. College Grade), the grant and non-grant groups have different distributions of income, people with grant are mostly clustered in the lower income range, this may introduce confounding variables into the results. Then the second scatterplot (High School Grade vs. College Grade) has overlapping distributions of high school grades across the grant and non-grant groups, likely meaning that baseline academic performance is balanced between the groups. Thus, the internal validity for this study can be considered low to moderate. The difference in income between groups introduces potential confounding that may affect college grades independently of the grant effect.]**
+
+# Question 3 (15pts)
+
+In this question, we'll consider three linear models, presented below. [I wrote the modeling equations in a particular way, such that they should display for folks with or without LaTeX on their computer.]
+
+**Model A**: `collegeGrade` is Normally distributed with mean equal to ß0 + ßg * Ig.
+
+**Model B**: `collegeGrade` is Normally distributed with mean equal to ß0 + ßh * hsGrade + ßg * Ig.
+
+**Model 1**: `collegeGrade` is Normally distributed with mean equal to ß0 + ßi * income + ßh * hsGrade + ßg * Ig.
+
+Here, Ig denotes the indicator variable for grant, where Ig = 1 if someone received the grant and Ig = 0 if they did not receive the grant. Using these above model equations, answer the following questions.
+
++ (5pts) For each model, write your interpretation of the intercept parameter ß0. 
+
+**[For each of the models, the intercept parameter $\beta$ 0 represents the expected collegeGrade for baseline conditions for each model. In Model A, $\beta$ 0 represents the average collegeGrade for students who did not receive the grant. In Model B, $\beta$ 0 represents the expected collegeGrade for students who did not receive the grant and have a theoretical baseline hsGrade of zero. $\beta$ 0 helps set a foundation for interpreting the impact of hsGrade and grant status. In Model 1, $\beta$ 0 represents the expected collegeGrade for students who did not receive the grant, with both income and hsGrade set to zero. $\beta$ 0 provides the baseline for understanding how income, hsGrade, and grant status contribute to variations in collegeGrade.]**
+
++ (5pts) For each model, if we estimated the intercept coefficient ß0, would that estimate be based on an interpolation or an extrapolation? Explain in 1-2 sentences.
+
+**[For model A, the $\beta$ 0 would be based on interpolation, because there were people who didn't recieve a grant. For model B and 1, $\beta$ 0 would generally be based on an extrapolation. This is because the intercept represents the predicted collegeGrade when explanatory variables like income and hsGrade are set to zero, which is outside the typical range of observed data for these variables (as income and high school grades are unlikely to be zero for college students). Therefore, using $\beta$ 0 as a predicted value relies on extending the model beyond observed data points.]**
+
++ (5pts) For Model B and Model 1 above, write out the interpretation of the high school grade coefficient ßh.
+
+**[For Model B, the high school grade coefficient $\beta$ h represents the expected change in collegeGrade for each additional percentage point increase in hsGrade, with grant status constant. In Model 1, $\beta$ h, represents the expected change in collegeGrade for each additional percentage point in hsGrade, with both grant status and income constant.]**
+
+# Question 4 (11pts)
+
+Now we'll explore Model 1 from Question 3. For this part, answer the following questions.
+
++ (4pts) First, write code to run the linear regression corresponding to Model 1 in Question 3. To do this, fill in the template code below:
+
+```{r}
+linReg1 = lm(collegeGrade ~ income + hsGrade + grant, data = italyData)
+summary(linReg1)
+
+```
+
+with "..." appropriately filled in. Then, you can use the `summary()` function to look at the output for this linear regression. Please be sure to uncomment the above code once you've completed it, such that output is displayed in your submission.
+
++ (3pts) Now write (and turn in) code that provides the 95\% confidence interval for each coefficient in Model 1. There's no need for you to interpret the confidence intervals for this part; just provide code that produces the confidence intervals.
+
+```{r}
+confint(linReg1)
+
+```
+
++ (4pts) Using the regression output for this model, assess whether receiving the grant is associated with an increase or decrease in students' college grades, on average. In particular, provide a p-value, point estimate, and confidence interval for the effect of receiving the grant (compared to not receiving the grant) based on this model. What is your scientific conclusion from this analysis, and how does it compare to the conclusion you made in Question 1?
+
+**[The effect of receiving the grant on students' college grades has a point estimate of -2.74, meaning a decrease in college grades for those receiving the grant compared to no grant recieved. The p-value associated with the grant variable is 0.043, which is less than 0.05. The 95% confidence interval for the effect of receiving the grant is between -5.40 to -0.08, meaning the true effect is likely negative. My scientific conclusion from this analysis is that receiving the grant may be associated with a decrease in college grades since the grant effect was positive, so including  covariates such as income and high school grade changes the observed relationship.]**
+
+# Question 5 (10pts)
+
+Using **residual analysis plots**, assess the Normality, Equal Variance, and Linearity assumptions for Model 1 from the previous two questions. In your answer, state whether you think each assumption is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible, as well as what (qualitative/visual) evidence you used from the residual analysis plots to arrive at each conclusion. For the Equal Variance and Linearity assumptions, assess these assumptions within each treatment group (i.e., within the "received grant" group and the "didn't receive grant" group) by coloring the points by the `grant` variable.
+
+```{r}
+
+residuals <- resid(linReg1)
+fitted_values <- fitted(linReg1)
+
+qqnorm(residuals, main = "Q-Q Plot of Residuals")
+qqline(residuals)
+
+plot(fitted_values, residuals, col = italyData$grant,
+     xlab = "Fitted Values", 
+     ylab = "Residuals", 
+     main = "Residuals vs Fitted Values by Grant Status")
+legend("topright", legend = levels(italyData$grant), col = 1:length(levels(italyData$grant)), pch = 1)
+abline(h = 0, col = "red")
+
+```
+
+**[The Normality assumption appears Definitely Plausible based on the Q-Q plot, as the residuals closely follow the line, with only minor deviations at the tails so the residuals are reasonably normally distributed. For the Equal Variance assumption, the residuals vs. fitted values plot shows a fairly consistent spread of residuals for the fitted values for both grant groups, supported by the boxplot of residuals, which shows similar spreads in both groups. This makes the Equal Variance assumption Definetely Plausible. The Linearity assumption is Definitely Plausible as the residuals vs. fitted values plot has no systematic patterns meaning a linear relationship between the predictors and the outcome across both grant groups.]**
+
+# Question 6 (10pts)
+
+Now we'll consider the following two linear models:
+
++ **Model 2**: `collegeGrade` is Normally distributed with mean equal to:
+
+ß0 + ßi * income + ßh * hsGrade + ßg * Ig + ßhg * hsGrade * Ig.
+
++ **Model 3**: `collegeGrade` is Normally distributed with mean equal to:
+
+ß0 + ßi * income + ßh * hsGrade + ßg * Ig + ßhg * hsGrade * Ig + ßig * income * Ig
+
+Again, Ig = 1 for students who receive the grant and Ig = 0 for students who do not receive the grant. In other words, Model 2 includes an interaction between `hsGrade` and `grant`, whereas Model 3 includes this interaction as well as an interaction between `income` and `grant`. For this part, answer the following two questions.
+
++ (6pts) For each model (Model 2 and Model 3), write your interpretation of ßi and ßh (i.e., the coefficients for `income` and `hsGrade`, respectively). In your answer, be sure to state the type of students these parameters are describing for each model. (**Hint**: By "type of students," I mean students who receive the grant versus students who do not. Thus, in this question, you need to think about which group(s) of students your interpretation applies to.)
+
+**[In Model 2, the interpretation of ßi, the coefficient for income, represents the effect of income on college grades for students who do not receive the grant where Ig = 0. For these students, an increase of one unit in income is associated with an expected change in collegeGrade by the value of ßi, where other variables are constant. ßh, the coefficient for hsGrade, represents the effect of high school grades on college grades for students who do not receive the grant. So for students without the grant, each additional unit in hsGrade is expected to change collegeGrade by ßh, with other variables constant. In Model 3, the interpretation of ßi, the coefficient for income applies to students who do not receive the grant where Ig = 0, representing the expected change in college grades per unit increase in income for this group, while holding other factors constant. In Model 3, ßh, the coefficient for hsGrade, represents the effect of high school grades on college grades for students without the grant. It means the expected change in collegeGrade per unit increase in hsGrade for non-grant students, with other variables constant.]**
+
++ (4pts) For each model (Model 2 and Model 3), is the interpretation of the intercept parameter the Same or Different, compared to the interpretation of the intercept for Model 1 in Question 3? Be sure to state Same or Different for Model 2 and Model 3, and explain your reasoning in 1-3 sentences.
+
+**[For Model 2, the interpretation of the intercept parameter is different compared to Model 1. In Model 2, the intercept ß0 represents the expected collegeGrade for students who do not receive the grant Ig = 0, where both income and hsGrade equal to zero. The interaction term ßhg between hsGrade and grant changes the interpretation of the intercept for grant recipients.For Model 3, the interpretation of the intercept parameter is also different compared to Model 1. In Model 3, the intercept represents the expected collegeGrade for students who don't receive the grant with income and hsGrade equal to zero, though it also includes both an interaction between hsGrade and grant ßhg and an additional interaction term ßig between income and grant, which changes the baseline for students who receive the grant.]**
+
+# Question 7 (14pts)
+
+Now we'll run the linear regression models corresponding to Model 2 and Model 3 in the previous question. For this part, answer the following questions.
+
++ (4pts) First, write code to run the linear regressions for Model 2 and Model 3. To do this, fill in the template code below:
+
+```{r}
+
+linReg2 = lm(collegeGrade ~ income + hsGrade + grant + hsGrade:grant, data = italyData)
+summary(linReg2)
+
+
+linReg3 = lm(collegeGrade ~ income + hsGrade + grant + hsGrade:grant + income:grant, data = italyData)
+summary(linReg3)
+
+```
+
+with "..." appropriately filled in. Then, you can use the `summary()` function to look at the output for this linear regression. For this part, all you need to do is provide the code for `linReg2` and `linReg3` (and print out the output using the `summary()` function). Please be sure to uncomment the above code once you've completed it, such that output is displayed in your submission.
+
++ (5pts) Now let's consider your output for **Model 3** specifically (i.e., the model that includes interactions between (1) `hsGrade` and `grant`, and (2) `income` and `grant`). According to this model, what is the estimated *intercept* for subjects who do not receive the grant, and what is the estimated intercept for subjects who do receive the grant? Furthermore, does it appear that there is a significant difference in intercepts between these two groups? For each question, explain your reasoning in 1-2 sentences.
+
+**[In Model 3, the estimated intercept for students who do not receive the grant is 10.606. This value represents the baseline college grade for students when both income and hsGrade equal zero and the student did not receive the grant so grant = no. For students who receive the grant, the intercept would be changed by adding the grantyes coefficient, which is around 69.244. So, the intercept for students in the grant group is calculated as 10.606 + 69.244 = 79.85. This difference in intercepts shows the baseline difference in college grades between those who received the grant and those who did not. The p-value associated with the grantyes coefficient is 0.00972, meaning that the difference in intercepts between the grant and no-grant groups is statistically significant since it is less than 0.05. This means there is a significant difference in baseline college grades between students who received the grant and those who didn't recieve the grant.]**
+
++ (5pts) Again consider your output for **Model 3** specifically. According to this model, what is the estimated *income-specific slope* for subjects who do not receive the grant, and what is the estimated income-specific slope for subjects who do receive the grant? Furthermore, does it appear that there is a significant difference in income slopes between these two groups? For each question, explain your reasoning in 1-2 sentences. 
+
+**[In Model 3, the estimated income-specific slope for students who do not receive the grant is 0.0001955. This represents the estimated change in college grade associated with each unit increase in income for students who did not receive the grant. For students who did receive the grant, the income-specific slope is adjusted by the income:grantyes coefficient which equals 0.0004325. So the income-specific slope for students who receive the grant is 0.0001955 + 0.0004325 = 0.000628. The p-value for the interaction term income:grantyes is 0.111 meaning that there is no statistically significant difference in income-specific slopes between the grant and no-grant groups since it is greater than 0.05. This shows that there is a slight difference in income slopes between the groups, but it isn't meaningful enough for it to be a statistically significant difference.]**
+
+# Question 8 (12pts)
+
+Now we'll consider the *prediction equation* for **Model 3**. For this part, answer the following questions.
+
++ (4pts) Write out (and turn in) the prediction equation for Model 3. Your answer should include specific numbers.
+
+**[collegeGrade = 10.606 + (0.0001955 + 0.0004325) × income + (0.6186 - 0.9359) × hsGrade + 69.244]**
+
++ (8pts) Based on your prediction equation, compute this model's **estimated treatment effect** (i.e., the effect of receiving the grant versus not receiving the grant) for these types students:
+
+  + Student A: High school grades = 70, income = 5000
+  + Student B: High school grades = 70, income = 10000
+  + Student C: High school grades = 85, income = 5000
+  + Student D: High school grades = 85, income = 10000
+
+Note that, for each student, you'll have to compute *two* numbers: Your estimate of mean `collegeGrade` when they receive the grant and your estimate when they do not receive the grant. Then, your estimate of the treatment effect for that student will be the difference between those two numbers. Thus, your final answer should be four numbers, communicating the estimated treatment effect for the four students above. Please be sure to show your work for how you arrived at your answer.
+
+**[Student A: 5.894, Student B: 8.056, Student C: -8.145, Student D: -5.9825. For Student A, they have high school grades of 70 and an income of 5000, the college grade is estimated to be 60.779 with the grant and 54.885 without the grant. 60.779 - 54.885 = 5.894. For Student B, they have school grades of 70 and an income of 10000, the college grade is estimated to be 63.919 with the grant and 55.863 without the grant, 63.919 - 55.863 = 8.056. For Student C, they have high school grades of 85 and an income of 5000, the college grade is estimated to be 56.0195 with the grant and 64.1645 without the grant,56.0195 - 64.1645 = -8.145. For Student D, they have high school grades of 85 and an income of 10000, the college grade is estimated to be 59.1595 with the grant and 65.142 without the grant, 59.1595 - 65.142 = -5.9825.]**
+
+# Question 9 (8pts)
+
+At this point, you should have successfully defined `linReg1`, `linReg2`, and `linReg3`. (`linReg1` should have been defined in Question 4; `linReg2` and `linReg3` should have been defined in Question 7.) We'll now compare these three models. For this part, answer the following questions.
+
++ (4pts) First, uncomment the following code (which will only run if you've defined `linReg1`, `linReg2`, and `linReg3`):
+
+```{r}
+anova(linReg1, linReg2, linReg3)
+```
+
+You should see a table with three rows and two p-values in the "Pr(>F)" column. Based on this output, which of the three models (Model 1, Model 2, or Model 3) is most preferable? Explain your reasoning in 1-2 sentences.
+
+**[Model 2 is the most preferable among the three models. This is because Model 2, when compared to Model 1, shows significant improvement with p = 0.02156, showing that the addition of the interaction between hsGrade and grant improves the model fit. Adding the interaction between income and grant in Model 3 doesnt lead to a statistically significant improvement over Model 2 (p = 0.11100), so the additional complexity in Model 3 is not needed.]**
+
++ (4pts) Look back at the p-value in the third row of the above table; it should be 0.111. Now look at output from `summary(linReg3)` (which you should have produced in Question 7). You should find another p-value equal to 0.111. Why are these two p-values equal to each other? Explain in 1-2 sentences. (**Hint**: Your answer should discuss what the null hypothesis is for each of these p-values.)
+
+**[The two p-values of 0.111 are equal because they both test the null hypothesis that the interaction term between income and grant is equal to zero. This p-value in the ANOVA table examines whether increasing the income:grant interaction variable enhances the model fit between Model 2 and Model 3. The same hypothesis is tested in the summary(linReg3) output by determining whether the income:grant coefficient in Model 3 is significantly different from zero.]**
+
+# Question 10 (5pts, ONLY REQUIRED FOR 36-749 STUDENTS; BONUS QUESTION FOR 36-309 STUDENTS)
+
+After you finish this homework, imagine that you are meeting with Italy's Ministry of Education, University, and Research. The ministry asks you two questions:
+
++ Le sovvenzioni universitarie sono significativamente correlate a un cambiamento nei voti universitari degli studenti?
++ Gli effetti dei sussidi finanziari variano significativamente a seconda degli studenti (ad esempio, a seconda dei diversi livelli di reddito e/o dei diversi livelli di istruzione delle scuole superiori)?^[For transparency, this was generated by AI. I do not speak Italian.]
+
+Luckily, you've taken 82-216 Intermediate Italian I and so you know that this translates to:
+
++	Are the university financial grants significantly associated with a change in students' college grades?
++	Do the effects of the financial grants significantly vary for different students (e.g., for different income levels and/or different high school grade levels)?
+
+Using what you did in this homework, answer these two questions in 2-3 sentences. Assume that the ministry does not understand what you mean by "p-value" or "confidence interval" (it turns out that they do speak English, but they don't speak statistics!) So, you will have to use non-technical language (but still using statistical arguments to back up your claims). At the beginning of your answer, also state which statistical model you are using to make your conclusions (Model 1, Model 2, or Model 3).
+
+**[Based on Model 3, receiving a financial grant is associated with a difference in students' college grades. Specifically, students who received the grant tended to have slightly different grades compared to those who did not receive it. Additionally, the impact of the grant does vary depending on students' income and high school grades. So financial support may be more beneficial for some students than others, particularly depending on their financial background and prior academic performance in high school.]**
+

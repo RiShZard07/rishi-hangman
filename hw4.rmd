@@ -1,0 +1,206 @@
+---
+title: "36-309 Homework 4: Simple Linear Regression"
+subtitle: Due Wednesday, October 2, 11:59pm on Gradescope
+author: "Rishi Damarla"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: show
+urlcolor: blue
+---
+
+# Question 1: Using Linear Regression to Watch Dogs Run (70 points)
+
+Professor S. Dogg is studying the relationship between dogs' weight and running speed. In his study, Professor Dogg weighs each dog (measured in pounds) and then times how long it takes them to run a 100-meter dash (where time is measured in seconds). For the sake of this question, assume that the dogs are trained to run the 100-meter dash as fast as they can on command.
+
+Download the `dogData.csv` file from Canvas, and load it in to `R` with the following code:
+
+```{r}
+dogData = read.csv("dogData.csv")
+```
+
+There are only two variables in this dataset, `weight` and `time`.
+
+a. (9pts) Before running statistical models, let's first consider some initial exploration of this dataset. For this part, answer the following questions.
+
++ (3pts) In this study, which variable is the outcome variable, and which is the explanatory variable?
+
+**[Time is the outcome variable, and weight is the explanatory variable.]**
+
++ (6pts) Given the setup of this problem, make one form of bivariate graphical EDA that you believe is most appropriate for this dataset. After doing this, answer the following: Does there seem to be a relationship between a dog's weight and its running time? If so, describe the relationship suggested by your EDA in 1-3 sentences.
+
+```{r}
+plot(dogData$weight, dogData$time, 
+     xlab = "Weight(pounds)", 
+     ylab = "Time(seconds)", 
+     main = "Scatterplot of Dog Weight vs. Running Time",)
+
+```
+
+**[There is a weak relationship between dog weight and running time, since there isnt a pattern to the trend. There are heavier dogs with very low and high running times as well as lighter dogs with very low and high running times. Additionally, the data points are spread widely across the plot and have no consistent pattern.]**
+
+b. (12pts) Now we'll consider linear regression for this dataset. For this part, answer the following questions.
+
++ (5pts) What is the **statistical model** for the appropriate linear regression for this dataset? You may use mathematical notation or words to state your answer. Be sure that your answer mentions the variable names for this dataset, rather than just "X" and "Y".
+
+**[The running time of a dog in seconds is modeled as the linear function of the dog's weight in pounds. The running time is predicted by having a baseline running time which is the y-intercept added to the slope multiplied by x(weight in pounds) this slope value depicts how much the running time changes for each additional pound of weight. The model also has an error term to account for variation in running time not accounted for by the dog's weight.]**
+
++ (7pts) Your statistical model should have included an intercept parameter. In 1-2 sentences, write your interpretation of this intercept parameter within the context of this study. Then, answer the following: Does the intercept have a scientifically meaningful interpretation within the context of this study? Say Yes or No, and explain in 1-2 sentences.
+
+**[The intercept parameter in this model represents the predicted running time for a dog that weighs 0 pounds, as the baseline value for when the explanatory variable weight equals zero. This intercept does not have a scientifically meaningful interpretation in the context of this study because a dog cannot weigh 0 pounds or else it wouldn't exist, so this value is unrealistic. The intercept is not meaningful parameter of interpretation.]**
+
+c. (12pts) Now we'll actually run linear regression for this dataset. Answer the following questions.
+
++ (3pts) Perform the appropriate linear regression analysis for this dataset. In your answer, please include `summary()` output for the linear regression. For this part, you just need to include your code and `summary()` output.
+
+```{r}
+
+summary(lm(time ~ weight, data = dogData))
+
+```
+
+
++ (5pts) Write your interpretation of the **estimated slope** for this linear regression. Then, state your scientific conclusions about the slope within the context of this study. Be sure to mention a p-value in your conclusions.
+
+**[The estimated slope is -0.013946, so for each additional pound of weight for dogs, the running time for a dog decreases by 0.013946 seconds, so heavier dogs would have the greater decrease in running time compared to lighter dogs. The p-value is 0.021 which is less than 0.05, so that means there is statistically significant evidence to reject the null hypothesis. This means we can deduce that a dog's weight has a significant relationship with it's running time although it has a weak relationship as seen by the scatterplot and slope as well as the low R squared value of 0.02717 and small effect size, weight only accounts for a small portion of variation in running times.]**
+
++ (4pts) Looking at your linear regression output, Professor Dogg gets excited: He says, "I want my dog to run faster. Your linear regression model suggests that heavier dogs tend to run faster, so I'm going to make my dog gain weight so that he'll run faster." Do you think Professor Dogg's conclusion is a reasonable interpretation of your linear regression results? State Yes or No, and explain in 1-3 sentences. (**Hint**: Don't worry about any modeling assumption violations - for the sake of this particular part, assume that they are not violated.)
+
+**[No, Professor Dogg's conclusion is not a reasonable interpretation of the linear regression results. Although the model suggests that heavier dogs tend to run faster, correlation does not imply causation. The relationship could be due to other factors, since as mentioned earlier weight only accounts for a small portion of variation in running times, so intentionally increasing a dog's weight won't necessarily lead to faster running times. Weight has to be proportional to many other factors in the dog, such as length, width, height, etc.]**
+
+d. (12pts) Now we'll consider using your regression model to make predictions about dogs we haven't even studied. For this part, answer the following questions.
+
++ (4pts) According to your linear regression output from Part C, what is the *prediction equation* for your esitmated linear regression model? Your answer should include actual numbers and should be within the context of this dataset---i.e., you should not just use generic X and Y notation in your equation.
+
+**[time = (‐0.01395 × weight) + 27.434]**
+
++ (4pts) Consider two dogs: (1) a [Corgi](https://cdn.britannica.com/80/232780-004-1D808602.jpg) that's 23 pounds, and (2) a [Rhodesian Ridgeback](https://cdn.britannica.com/13/236913-050-918236C2/Rhodesian-Ridgeback-dog.jpg) that's 90 pounds. Based on your linear regression in Part C, what is the estimated mean running time for each of these dogs? Be sure to show how you arrived at your answer.
+
+**[For the Corgi, I would substitute 23 pounds for the weight, so (Time = 27.434011 ‐ 0.013946 × 23 = 27.434011 ‐ 0.320758 = 27.113253 seconds). For the Rhodesian Ridgeback, I would substitute 90 pounds for the weight so (Time = 27.434011 ‐ 0.013946 × 90 = 27.434011 ‐ 1.25514 = 26.178871 seconds). So the estimated mean running time for the Corgi is 27.11 seconds, and for the Rhodesian Ridgeback, it's 26.18 seconds.]**
+
++ (4pts) Give an example of a dog that would require **extrapolation** in order to predict its mean running time using the linear regression model from Part C. After doing this, explain in 1-2 sentences why that dog would require extrapolating your linear regression model. (For this part, you don't necessarily need to specify the breed of the dog.)
+
+**[An example of a dog that would require extrapolation in order to predict its mean running time using the linear regression model would be a dog that weighs 130 pounds. This weight is not in the range of the weights in the dataset used to create the model where the highest observed weight is around 100 pounds. Extrapolation is necessary since we are trying to predict the running time of a dog that is beyond and outside the range of data in which the model is based, which could provide in unreliable or inaccurate predictions/results, as the model is incapable of handling dogs weight beyond the observed range.]**
+
+e. (15pts) Now we'll consider some of the modeling assumptions for the linear regression model you ran in Part C. For this part, answer the following questions:
+
++ (8pts) Create a residual vs. fit plot from the linear regression model you ran in Part C. Then, interpret this plot in relation to the appropriate linear model assumption(s). In particular, state whether you think each assumption(s) is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible, and explain your reasoning in 1-2 sentences. In your answer, be sure to clarify what modeling assumption(s) you're discussing.
+
+```{r}
+fits = fitted(lm(time ~ weight, data = dogData))
+res = residuals(lm(time ~ weight, data = dogData))
+plot(fits, res)
+abline(h = 0)
+```
+
+**[In the residuals vs. fitted plot, there doesn't appear to be a strong pattern in the residuals, meaning that the linearity assumption is Definitely Plausible. Though, the spread of the residuals doesn't seem consistent for all fitted values, as there is some clustering and variability in some areas, meaning that the homoscedasticity assumption for equal variance of errors is Somewhat Plausible. There aren't too many signs of a curvature pattern, which supports the plausibility of the assumption of linearity between the predictors and the outcome variable. And, there are no extreme outliers, meaning that normality of residuals is also Somewhat Plausible.]**
+
++ (3pts) For this dataset, would you say the "fixed X" assumption for the linear regression model is Definitely Plausible, Somewhat Plausible, Somewhat Not Plausible, or Definitely Not Plausible? Explain in 1-2 sentences.
+
+**[The "fixed X" assumption for this dataset is Definitely Plausible. This is because it states that the explanatory variable weight is measured without error and isn't affected by the response variable time. The weights of all the dogs are observed, and the measured and observed value is not affected by their running time, making the "fixed X" assumption definitely plausible]**
+
++ (4pts) After thinking for a moment, Professor Dogg decides to make the following plot:
+
+```{r}
+hist(dogData$weight, xlab = "Weight",
+     main = "Histogram of Dogs' Weight",)
+```
+
+Looking at this plot, Professor Dogg says: "It looks like weight is pretty right-skewed; it doesn't look Normally distributed to me. Thus, I think this is evidence that one of the linear regression modeling assumptions may be violated." Do you Agree or Disagree with Professor Dogg's claim that the above plot serves as evidence that one of the linear regression modeling assumptions may be violated? State Agree or Disagree, and explain in 1-2 sentences. (**Note**: I agree with Professor Dogg that weight does not look Normally distributed, so you can take that conclusion for granted.)
+
+**[I Disagree with Professor Dogg's claim. The normality assumption in linear regression applies to the distribution of the residuals, and not the explanatory variable weight. Therefore, just because the weight appears right-skewed it doesn't necessarily mean it is evidence that it violates one of the linear regression assumptions. Normality of residuals should be analyzed to determine any violation to the linear regression assumption.]**
+
+f. (10pts) To wrap up this problem, we'll consider a couple of hypotheses Professor Dogg has about this dataset. For this part, answer the following questions.
+
++ (5pts) Professor Dogg says: "In this study I saw that there is a fair amount of variability in dogs' running time, and I'm convinced that there's a relationship between dogs' weight and running time. Given your analysis, I'm guessing that there are probably not many other variables out there beyond dogs' weight that explain the variation we see in dogs' running time." Do you Agree or Disagree with Professor Dogg that there are probably not many other variables out there beyond dogs' weight that explain the variation we see in dogs' running time? State Agree or Disagree, and explain in 1-2 sentences. In your explanation, please include evidence from your linear regression analysis to back up your answer. (**Hint**: You shouldn't have to conduct any more analyses in order to answer this question.)
+
+**[I Disagree with Professor Dogg's claim. The R-squared value from the linear regression analysis is fairly low around 0.027, so only around 2.7% of the variability in dogs running time is accounted for by their weight. This most likely means there are several other variables and not just weight, that explain more of the variation in running time.]**
+
++ (5pts) Professor Dogg says: "I have a hypothesis. I think there is a significantly negative linear relationship between racing time and weight for small dogs (less than 50 pounds) but a significantly positive linear relationship for large dogs (greater than 50 pounds). To assess this hypothesis, he creates the following two datasets:
+
+```{r}
+#subset of the data with just small dogs
+smallDogs = subset(dogData, weight < 50)
+#subset of the data with just large dogs
+largeDogs = subset(dogData, weight > 50)
+```
+
+For this part, run the appropriate linear regression model(s) you need in order to assess Professor Dogg's hypothesis. Then, state whether you Strongly Agree, Agree, Disagree, or Strongly Disagree with Professor Dogg's hypothesis. Explain your reasoning in 2-4 sentences.
+
+```{r}
+summary(lm(time ~ weight, data = smallDogs))
+summary(lm(time ~ weight, data = largeDogs))
+```
+
+**[Based on the regression outputs for small and large dogs, I agree with Professor Dogg's hypothesis. For small dogs (under 50 pounds), the slope estimate is negative at -0.03681, indicating which is a significantly negative relationship between weight and running time  and the p-value = 0.00749 which is less than 0.05. It has an indirect relationship, so as the weight of small dogs increases, their running time decreases, meaning they will tend to run faster. For large dogs (over 50 pounds), the slope estimate is positive 0.04609, which is a significantly positive relationship between weight and running time with a p-value = 0.0116. So for larger dogs, increased weight leads to slower running times. Therefore according to the data I agree with Professor Dogg's hypothesis of the opposite trends in running speed based on the dog's weight class.]**
+
+# Question 2: Using Linear Regression to Measure the Effects of Studying, More or Less (30 points)
+
+In this problem, we'll focus on the `study.csv` dataset. Download it from Canvas and load it into `R` with the following code:
+
+```{r}
+study = read.csv("study.csv")
+```
+
+This dataset is based on a experiment where students are randomized to study more or fewer hours for the next test (third of five) in a class. For example, if a student studied for 4 hours for the second test, and they were randomized to study for 2 more hours, they would study for 6 hours for the third test. (To be extremely unrealistic, let's assume the students actually followed their randomized change in studying.) The explanatory variable, `deltaH`, is the change in the number of hours studied (after minus before), and the outcome variable, `deltaTS`, is the change in test score (third test score minus second test score). 
+
+a. (12pts) For this part, answer the following questions.
+
++ (6pts) First, run the appropriate linear regression analysis for this problem. Then, answer the following: According to your output, what is the estimate of the common variance in the linear regression model (i.e., "sigma squared")? Explain in 1-2 sentences.
+
+```{r}
+
+summary(lm(deltaTS ~ deltaH, data = study))
+
+
+```
+
+**[According to the output, the estimate of the common variance/sigma squared in the linear regression model, is the square of the residual standard error. The residual standard error is 8.519, so the estimate of sigma squared is 8.519^2 = 72.57. This value represents the variance of the residuals, showing how much variability in the test score change isn't accounted for by the change in study hours.]**
+
++ (6pts) What is the interpretation of the intercept **estimate** for this problem, within the context of this dataset? Furthermore, what is the interpretation of the slope **estimate** for this problem, within the context of this dataset?
+
+**[The intercept estimate of 9.1711 in this linear regression represents the predicted change in test score deltaTS when there is 0 change in the number of study hours. It is when a student doesn't change their study hours, and the model predicts that their test score will increase by 9.1711 points. Then The slope estimate of 3.9947 represents the predicted change in test score deltaTS for every additional hour of studying. Specifically, for each additional hour of study time beyond what was previously studied, the test score is expected to increase by approximately 3.99 points.]**
+
+b. (10pts) Now let's consider the concept of interpolation versus extrapolation. For this part, answer the following questions.
+
++ (6pts) In Part A you should have found (and discussed) an intercept estimate. Is that intercept estimate based on an interpolation or an extrapolation? Explain in 1-2 sentences, and provide any code you used to arrive at your answer.
+
+```{r}
+
+range(study$deltaH)
+
+```
+
+**[Based on the range of deltaH, which is between -4 and 4, the intercept estimate is based on interpolation. This is because the value 0 for no change in study hours when deltaH = 0 is within the observed range of deltaH values so the intercept is interpolated.]**
+
++ (4pts) In class we discussed how an intercept estimate can be based on an interpolation or an extrapolation (hence why I asked you about this in the previous question). Would it also be sensible to think about whether a slope estimate is based on an interpolation or an extrapolation? State Yes or No, and explain in 1-2 sentences. (**Hint**: Say I actually asked you whether the slope estimate for this dataset is based on an interpolation or an extrapolation. Would you be able to answer such a question? Whether you think "yes" or "no," think about why that is.)
+
+**[No, it would not be sensible to think about whether a slope estimate is based on interpolation or extrapolation. This is because the slope represents the overall relationship between the variables for the range of data, it isn't connected to a specific value within or outside the data range. The slope only applies to the dataset entirely and doesn't change from specific values from the explanatory variable within the observed range. The slope is created from the pattern/relationship of the two values and stays constant.]**
+
+c. (8pts) Now let's consider the original setup for this problem: In this experiment, students were randomized to study more or fewer hours for the third test, compared to the second test. Consider the following claims:
+
+1) The linear regression analysis in Part A provides evidence that the third test was easier than the second test.
+
+2) The linear regression analysis in Part A provides evidence that studying more caused students to perform better on the third test for this class, compared to the second test.
+
+For each claim, state whether you Agree or Disagree, and explain your reasoning in 1-3 sentences. (For the sake of this problem, assume that all of the modeling assumptions for the linear regression model hold.)
+
+**[1) I disagree, The linear regression analysis in Part A does not provide direct evidence that the third test was easier than the second test. This is because the regression model is based on the relationship between the change in study hours and the change in test scores. It doesn't target the difficulty and rigor of the tests individually, it only shows how changes in study hours impact changes in test performance. 2) I agree, The linear regression analysis provides evidence that studying more caused students to perform better on the third test for this class, compared to the second test. From the positive slope estimate it shows for an increase in study hours it is associated with higher test scores, and from the randomized design on the study there is causal direct relationship between studying more and better performance through scores on the test, ]**
+
+d. (5pts, ONLY REQUIRED FOR 36-749 STUDENTS; BONUS QUESTION FOR 36-309 STUDENTS) For this dataset, subjects were indeed randomized to study more or fewer hours for the next test. In a previous homework, we got practice assessing if a randomization was "done well" by quantifying *internal validity*. However, we've discussed internal validity within the context of a discrete number of treatment groups. In this case, the "treatment" that was randomized to subjects (the change in number of hours studied) is a continuous variable, such that our previous discussion of internal validity doesn't immediately apply. In this problem we'll consider how to measure internal validity with a continuous treatment variable like `deltaH`. Answer the following questions.
+
++ (2pts) Here is a further description of the randomization protocol for this experiment: "Each subject was randomized to some continuous value of `deltaH`, such that each subject was equally likely to have a positive or negative change in hours assigned; furthermore, each subject was just as likely to have a large change in hours assigned as a small change in hours, ranging from -4 to 4." Given this description, if the randomization was done well in this study, what we would expect the *distribution* of `deltaH` to look like across subjects? Explain in 1-2 sentences.
+
+**[If the randomization was done well in this study, we would observe that the distribution of deltaH to be approximately uniform across all subjects, with values spread evenly between -4 to 4. This is because each subject would be equally likely to receive a positive or negative change, and all values within the range of -4 to 4) are equally likely to be assigned, which means no grouping at specific values.]**
+
++ (3pts) Given your answer above, do you think the randomization was done well in this study? State Yes or No, and explain your answer in 1-3 sentences. Use some kind of EDA (graphical or non-graphical) to answer this question.
+
+```{r}
+hist(study$deltaH, main = "Distribution of deltaH", xlab = "deltaH", breaks = 10)
+
+```
+
+**[No, I do not think the randomization was done well in this study. The histogram of deltaH shows an uneven distribution of changes in study hours, with more students having negative and positive large changes than small or moderate changes. Since it is not uniform, the randomization process may not have been too balanced as well.]**
